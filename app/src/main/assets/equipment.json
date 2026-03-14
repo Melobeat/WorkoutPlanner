@@ -1,0 +1,9 @@
+[
+  { "id": "equip_barbell", "name": "Barbell" },
+  { "id": "equip_dumbbell", "name": "Dumbbell" },
+  { "id": "equip_bench", "name": "Bench" },
+  { "id": "equip_pullup_bar", "name": "Pull-up Bar" },
+  { "id": "equip_kettlebell", "name": "Kettlebell" },
+  { "id": "equip_cable_machine", "name": "Cable Machine" },
+  { "id": "equip_none", "name": "None / Bodyweight" }
+]
