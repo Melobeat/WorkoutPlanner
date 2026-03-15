@@ -6,7 +6,24 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.Embedded
 import androidx.room.Relation
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import com.example.workoutplanner.model.RoutineSet
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.UUID
+
+class Converters {
+    @TypeConverter
+    fun fromRoutineSetList(value: List<RoutineSet>): String {
+        return Json.encodeToString(value)
+    }
+
+    @TypeConverter
+    fun toRoutineSetList(value: String): List<RoutineSet> {
+        return Json.decodeFromString(value)
+    }
+}
 
 @Entity(tableName = "equipment")
 data class EquipmentEntity(
@@ -80,14 +97,22 @@ data class WorkoutDayEntity(
     ],
     indices = [Index("workoutDayId"), Index("exerciseId")]
 )
+@TypeConverters(Converters::class)
 data class WorkoutDayExerciseEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val workoutDayId: String,
     val exerciseId: String,
-    val sets: Int,
-    val reps: Int,
-    val weight: Double,
+    val routineSets: List<RoutineSet> = emptyList(),
     val order: Int
+)
+
+@Entity(tableName = "workout_history")
+data class WorkoutHistoryEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val routineName: String,
+    val workoutDayName: String,
+    val date: Long,
+    val durationMillis: Long
 )
 
 @Entity(
@@ -98,12 +123,19 @@ data class WorkoutDayExerciseEntity(
             parentColumns = ["id"],
             childColumns = ["exerciseId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = WorkoutHistoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["workoutHistoryId"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("exerciseId")]
+    indices = [Index("exerciseId"), Index("workoutHistoryId")]
 )
 data class ExerciseHistoryEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val workoutHistoryId: String = "",
     val exerciseId: String,
     val date: Long,
     val sets: Int,
@@ -148,4 +180,13 @@ data class ExerciseWithEquipment(
         entityColumn = "id"
     )
     val equipment: EquipmentEntity?
+)
+
+data class WorkoutHistoryWithExercises(
+    @Embedded val workout: WorkoutHistoryEntity,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "workoutHistoryId"
+    )
+    val exercises: List<ExerciseHistoryEntity>
 )

@@ -116,4 +116,11 @@ interface WorkoutDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExerciseHistory(history: ExerciseHistoryEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWorkoutHistory(workoutHistory: WorkoutHistoryEntity)
+
+    @Transaction
+    @Query("SELECT * FROM workout_history ORDER BY date DESC")
+    fun getAllWorkoutHistoryWithExercises(): Flow<List<WorkoutHistoryWithExercises>>
 }

@@ -99,8 +99,16 @@ fun WorkoutDayItem(day: WorkoutDay) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = exercise.name, style = MaterialTheme.typography.bodyLarge)
                     Row {
+                        val repsSummary = if (exercise.routineSets.isEmpty()) {
+                            "0 sets"
+                        } else if (exercise.routineSets.all { it.reps == exercise.routineSets.first().reps }) {
+                            "${exercise.routineSets.size} sets x ${exercise.routineSets.first().reps} reps"
+                        } else {
+                            exercise.routineSets.joinToString(", ") { it.reps.toString() } + " reps"
+                        }
+                        
                         Text(
-                            text = "${exercise.sets} sets x ${exercise.reps} reps",
+                            text = repsSummary,
                             style = MaterialTheme.typography.bodySmall
                         )
                         exercise.equipmentName?.let {
@@ -112,9 +120,10 @@ fun WorkoutDayItem(day: WorkoutDay) {
                         }
                     }
                 }
-                if (exercise.weight > 0) {
+                val firstSetWeight = exercise.routineSets.firstOrNull()?.weight ?: 0.0
+                if (firstSetWeight > 0) {
                     Text(
-                        text = "${exercise.weight} kg",
+                        text = "$firstSetWeight kg",
                         style = MaterialTheme.typography.labelLarge
                     )
                 }

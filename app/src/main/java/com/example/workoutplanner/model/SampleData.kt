@@ -12,16 +12,16 @@ val sampleWorkoutDays = listOf(
         id = "d1",
         name = "Upper Body",
         exercises = listOf(
-            sampleExercises[0].copy(sets = 3, reps = 15),
-            sampleExercises[2].copy(sets = 3, reps = 8)
+            sampleExercises[0].copy(routineSets = List(3) { RoutineSet(reps = 15, weight = 0.0) }),
+            sampleExercises[2].copy(routineSets = List(3) { RoutineSet(reps = 8, weight = 0.0) })
         )
     ),
     WorkoutDay(
         id = "d2",
         name = "Lower Body",
         exercises = listOf(
-            sampleExercises[1].copy(sets = 3, reps = 20),
-            sampleExercises[3].copy(sets = 3, reps = 1) // 1 minute maybe
+            sampleExercises[1].copy(routineSets = List(3) { RoutineSet(reps = 20, weight = 0.0) }),
+            sampleExercises[3].copy(routineSets = List(3) { RoutineSet(reps = 1, weight = 0.0) }) // 1 minute maybe
         )
     )
 )

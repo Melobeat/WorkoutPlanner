@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,12 +17,14 @@ import kotlinx.serialization.json.Json
         RoutineEntity::class,
         WorkoutDayEntity::class,
         WorkoutDayExerciseEntity::class,
+        WorkoutHistoryEntity::class,
         ExerciseHistoryEntity::class,
         EquipmentEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
 

@@ -1,25 +1,41 @@
 package com.example.workoutplanner.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.workoutplanner.model.Exercise
 import com.example.workoutplanner.model.Routine
 import com.example.workoutplanner.model.WorkoutDay
+import com.example.workoutplanner.data.WorkoutHistoryWithExercises
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     selectedRoutine: Routine?,
+    workoutHistory: List<WorkoutHistoryWithExercises>,
+    exerciseNameMap: Map<String, String>,
     onStartWorkout: (WorkoutDay, Int) -> Unit,
+    onUpdateNextDay: (Int) -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showWorkoutChooser by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -32,107 +48,209 @@ fun HomeScreen(
             )
         },
         modifier = modifier
-    ) { innerPadding ->
-        Column(
+    ) { padding ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
+                .padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Welcome Back!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-
-            if (selectedRoutine == null) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+            if (selectedRoutine != null) {
+                item {
+                    val nextDayIndex = (selectedRoutine.lastCompletedDayIndex + 1) % selectedRoutine.workoutDays.size
+                    val nextDay = selectedRoutine.workoutDays[nextDayIndex]
+                    
+                    NextWorkoutCard(
+                        routineName = selectedRoutine.name,
+                        nextDay = nextDay,
+                        nextDayIndex = nextDayIndex,
+                        totalDays = selectedRoutine.workoutDays.size,
+                        onStartWorkout = { onStartWorkout(nextDay, nextDayIndex) },
+                        onSwapNextDay = { showWorkoutChooser = true }
                     )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "No routine selected",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Text(
-                            text = "Go to Settings > Manage Routines to select a routine to follow.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
                 }
             } else {
-                val nextDayIndex = (selectedRoutine.lastCompletedDayIndex + 1) % selectedRoutine.workoutDays.size
-                val nextDay = selectedRoutine.workoutDays[nextDayIndex]
+                item {
+                    EmptyStateCard(onViewRoutines = onSettingsClick)
+                }
+            }
 
-                Text(
-                    text = "Next Workout: ${selectedRoutine.name}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
+            if (workoutHistory.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Recent History",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                items(workoutHistory.take(5)) { session ->
+                    WorkoutSessionCard(session, exerciseNameMap)
+                }
+            }
+        }
+    }
 
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+    if (showWorkoutChooser && selectedRoutine != null) {
+        WorkoutDayChooserDialog(
+            workoutDays = selectedRoutine.workoutDays,
+            onDaySelected = { index ->
+                onUpdateNextDay(index)
+                showWorkoutChooser = false
+            },
+            onDismiss = { showWorkoutChooser = false }
+        )
+    }
+}
+
+@Composable
+fun WorkoutDayChooserDialog(
+    workoutDays: List<WorkoutDay>,
+    onDaySelected: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Choose Next Workout") },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(workoutDays) { index, day ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onDaySelected(index) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
                             Text(
-                                text = nextDay.name,
-                                style = MaterialTheme.typography.headlineSmall
+                                text = "Day ${index + 1}: ${day.name}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = "Day ${nextDayIndex + 1} of ${selectedRoutine.workoutDays.size}",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                        
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                        
-                        nextDay.exercises.take(3).forEach { exercise ->
-                            Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            day.exercises.forEach { exercise ->
                                 Text(
-                                    text = "• ${exercise.name} (${exercise.sets}x${exercise.reps})",
-                                    style = MaterialTheme.typography.bodyLarge
+                                    text = "• ${exercise.name}",
+                                    style = MaterialTheme.typography.bodySmall
                                 )
-                                exercise.equipmentName?.let {
-                                    Text(
-                                        text = "  Equipment: $it",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        modifier = Modifier.padding(start = 12.dp)
-                                    )
-                                }
                             }
-                        }
-                        if (nextDay.exercises.size > 3) {
-                            Text(
-                                text = "...and ${nextDay.exercises.size - 3} more",
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Button(
-                            onClick = { onStartWorkout(nextDay, nextDayIndex) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Start Workout")
                         }
                     }
                 }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun NextWorkoutCard(
+    routineName: String,
+    nextDay: WorkoutDay,
+    nextDayIndex: Int,
+    totalDays: Int,
+    onStartWorkout: () -> Unit,
+    onSwapNextDay: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Next Workout: $routineName",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = nextDay.name,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Day ${nextDayIndex + 1} of $totalDays",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+                
+                Row {
+                    IconButton(onClick = onSwapNextDay) {
+                        Icon(Icons.Default.SwapHoriz, contentDescription = "Swap Day")
+                    }
+                    Button(onClick = onStartWorkout) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Start")
+                    }
+                }
+            }
+            
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+            
+            nextDay.exercises.take(3).forEach { exercise ->
+                Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                    val repsSummary = if (exercise.routineSets.isEmpty()) {
+                        "0 sets"
+                    } else if (exercise.routineSets.all { it.reps == exercise.routineSets.first().reps }) {
+                        "${exercise.routineSets.size}x${exercise.routineSets.first().reps}"
+                    } else {
+                        exercise.routineSets.joinToString(", ") { it.reps.toString() }
+                    }
+                    
+                    Text(
+                        text = "• ${exercise.name} ($repsSummary)",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+            if (nextDay.exercises.size > 3) {
+                Text(
+                    text = "...and ${nextDay.exercises.size - 3} more",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 12.dp, top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyStateCard(onViewRoutines: () -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "No Active Routine",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Select a routine to start tracking your progress.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(Modifier.height(16.dp))
+            Button(onClick = onViewRoutines) {
+                Text("Manage Routines")
             }
         }
     }

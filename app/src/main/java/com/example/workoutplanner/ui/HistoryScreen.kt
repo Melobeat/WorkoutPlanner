@@ -13,8 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.workoutplanner.WorkoutViewModel
 import com.example.workoutplanner.data.ExerciseHistoryEntity
+import com.example.workoutplanner.data.WorkoutHistoryWithExercises
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,16 +24,11 @@ fun HistoryScreen(
     viewModel: WorkoutViewModel,
     modifier: Modifier = Modifier
 ) {
-    val allHistory by viewModel.allHistory.collectAsState()
+    val workoutHistory by viewModel.workoutHistory.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
     
     val exerciseNameMap = remember(exercises) {
         exercises.associate { it.id to it.name }
-    }
-
-    val dateFormat = SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.getDefault())
-    val groupedHistory = remember(allHistory) {
-        allHistory.groupBy { dateFormat.format(Date(it.date)) }
     }
 
     Scaffold(
@@ -42,7 +39,7 @@ fun HistoryScreen(
         },
         modifier = modifier
     ) { innerPadding ->
-        if (groupedHistory.isEmpty()) {
+        if (workoutHistory.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
                 Text("No workout history yet. Start a workout to see it here!")
             }
@@ -54,9 +51,8 @@ fun HistoryScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(groupedHistory.keys.toList()) { date ->
-                    val entries = groupedHistory[date] ?: emptyList()
-                    WorkoutSessionCard(date, entries, exerciseNameMap)
+                items(workoutHistory) { session ->
+                    WorkoutSessionCard(session, exerciseNameMap)
                 }
             }
         }
@@ -65,24 +61,58 @@ fun HistoryScreen(
 
 @Composable
 fun WorkoutSessionCard(
-    date: String,
-    entries: List<ExerciseHistoryEntity>,
+    session: WorkoutHistoryWithExercises,
     exerciseNameMap: Map<String, String>
 ) {
+    val dateFormat = remember { SimpleDateFormat("EEEE, MMM dd, yyyy", Locale.getDefault()) }
+    val dateString = dateFormat.format(Date(session.workout.date))
+    
+    val durationMinutes = TimeUnit.MILLISECONDS.toMinutes(session.workout.durationMillis)
+    val durationSeconds = TimeUnit.MILLISECONDS.toSeconds(session.workout.durationMillis) % 60
+    val durationString = if (durationMinutes > 0) {
+        "${durationMinutes}m ${durationSeconds}s"
+    } else {
+        "${durationSeconds}s"
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = date,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = session.workout.workoutDayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = dateString,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+                Surface(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = MaterialTheme.shapes.small
+                ) {
+                    Text(
+                        text = durationString,
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
             
-            // Group entries by exercise for this session/date
-            val exerciseEntries = entries.groupBy { it.exerciseId }
+            Spacer(modifier = Modifier.height(8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            
+            // Group entries by exercise for this session
+            val exerciseEntries = session.exercises.groupBy { it.exerciseId }
             
             exerciseEntries.forEach { (exerciseId, sets) ->
                 val exerciseName = exerciseNameMap[exerciseId] ?: "Unknown Exercise"

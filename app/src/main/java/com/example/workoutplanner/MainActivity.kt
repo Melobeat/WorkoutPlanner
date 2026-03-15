@@ -5,23 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.example.workoutplanner.model.Routine
-import com.example.workoutplanner.model.WorkoutDay
 import com.example.workoutplanner.ui.*
 import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,11 +38,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WorkoutPlannerApp() {
-    val context = LocalContext.current
-    val application = context.applicationContext as WorkoutApplication
-    val viewModel: WorkoutViewModel = viewModel(
-        factory = WorkoutViewModelFactory(application.database.workoutDao())
-    )
+    val viewModel: WorkoutViewModel = hiltViewModel()
 
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
     var isSettingsVisible by rememberSaveable { mutableStateOf(false) }
@@ -50,18 +48,23 @@ fun WorkoutPlannerApp() {
     var routineToEdit by rememberSaveable { mutableStateOf<Routine?>(null) }
     var isCreatingRoutine by rememberSaveable { mutableStateOf(false) }
 
-    var activeWorkoutDay by remember { mutableStateOf<Pair<WorkoutDay, Int>?>(null) }
+    val activeWorkout by viewModel.activeWorkout.collectAsState()
+    var isWorkoutMinimized by rememberSaveable { mutableStateOf(false) }
 
     val routines by viewModel.routines.collectAsState()
     val activeRoutine by viewModel.selectedRoutine.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
     val equipment by viewModel.equipment.collectAsState()
+    val workoutHistory by viewModel.workoutHistory.collectAsState()
+
+    val exerciseNameMap = remember(exercises) {
+        exercises.associate { it.id to it.name }
+    }
 
     // Handle back button for nested navigation
-    val currentWorkoutDay = activeWorkoutDay
-    if (currentWorkoutDay != null) {
+    if (activeWorkout != null && !isWorkoutMinimized) {
         BackHandler {
-            activeWorkoutDay = null
+            isWorkoutMinimized = true
         }
     } else if (isSettingsVisible) {
         BackHandler {
@@ -94,36 +97,81 @@ fun WorkoutPlannerApp() {
                         )
                     },
                     label = { Text(it.label) },
-                    selected = it == currentDestination && !isSettingsVisible && activeWorkoutDay == null,
+                    selected = it == currentDestination && !isSettingsVisible,
                     onClick = {
                         currentDestination = it
                         isSettingsVisible = false
                         settingsSubDestination = null
-                        activeWorkoutDay = null
+                        if (activeWorkout != null) {
+                            isWorkoutMinimized = true
+                        }
                     }
                 )
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            val modifier = Modifier.padding(innerPadding)
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            bottomBar = {
+                val workout = activeWorkout
+                if (workout != null && isWorkoutMinimized) {
+                    Surface(
+                        onClick = { isWorkoutMinimized = false },
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        tonalElevation = 8.dp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(64.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                                Spacer(Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = "Active Workout",
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Text(
+                                        text = workout.workoutDay.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            TextButton(onClick = { isWorkoutMinimized = false }) {
+                                Text("Resume")
+                            }
+                        }
+                    }
+                }
+            }
+        ) { scaffoldPadding ->
+            val contentModifier = Modifier.padding(scaffoldPadding)
             
-            val workoutDay = activeWorkoutDay
-            if (workoutDay != null) {
+            val workout = activeWorkout
+            if (workout != null && !isWorkoutMinimized) {
                 WorkoutScreen(
-                    workoutDay = workoutDay.first,
+                    workoutDay = workout.workoutDay,
+                    exerciseStates = workout.exerciseStates,
+                    availableExercises = exercises,
+                    elapsedTime = workout.elapsedTime,
                     onFinishWorkout = { history ->
-                        history.forEach {
-                            // Passing 1 for sets as each history item represents one set
-                            viewModel.logExerciseHistory(it.exerciseId, 1, it.reps, it.weight)
-                        }
-                        activeRoutine?.let {
-                            viewModel.completeWorkoutDay(it.id, workoutDay.second)
-                        }
-                        activeWorkoutDay = null
+                        viewModel.finishWorkout(history)
+                        isWorkoutMinimized = false
                     },
-                    onBack = { activeWorkoutDay = null },
-                    modifier = modifier
+                    onCancelWorkout = { 
+                        viewModel.cancelWorkout()
+                        isWorkoutMinimized = false
+                    },
+                    onMinimize = { isWorkoutMinimized = true },
+                    modifier = contentModifier
                 )
             } else if (isSettingsVisible) {
                 when (settingsSubDestination) {
@@ -139,7 +187,7 @@ fun WorkoutPlannerApp() {
                             },
                             onDeleteExercise = { viewModel.deleteExercise(it) },
                             onBack = { settingsSubDestination = null },
-                            modifier = modifier
+                            modifier = contentModifier
                         )
                     }
                     SettingsDestinations.EQUIPMENT -> {
@@ -149,7 +197,7 @@ fun WorkoutPlannerApp() {
                             onUpdateEquipment = { viewModel.updateEquipment(it) },
                             onDeleteEquipment = { viewModel.deleteEquipment(it) },
                             onBack = { settingsSubDestination = null },
-                            modifier = modifier
+                            modifier = contentModifier
                         )
                     }
                     SettingsDestinations.ROUTINES -> {
@@ -167,7 +215,7 @@ fun WorkoutPlannerApp() {
                                         isCreatingRoutine = false
                                         routineToEdit = null
                                     },
-                                    modifier = modifier
+                                    modifier = contentModifier
                                 )
                             }
                             selectedRoutineInDetail != null -> {
@@ -178,7 +226,7 @@ fun WorkoutPlannerApp() {
                                         routineToEdit = selectedRoutineInDetail
                                         selectedRoutineInDetail = null
                                     },
-                                    modifier = modifier
+                                    modifier = contentModifier
                                 )
                             }
                             else -> {
@@ -189,7 +237,7 @@ fun WorkoutPlannerApp() {
                                     onDeleteRoutine = { viewModel.deleteRoutine(it) },
                                     onSelectRoutine = { viewModel.selectRoutine(it) },
                                     onBack = { settingsSubDestination = null },
-                                    modifier = modifier
+                                    modifier = contentModifier
                                 )
                             }
                         }
@@ -200,7 +248,7 @@ fun WorkoutPlannerApp() {
                             onNavigateToRoutines = { settingsSubDestination = SettingsDestinations.ROUTINES },
                             onNavigateToEquipment = { settingsSubDestination = SettingsDestinations.EQUIPMENT },
                             onBack = { isSettingsVisible = false },
-                            modifier = modifier
+                            modifier = contentModifier
                         )
                     }
                 }
@@ -209,17 +257,27 @@ fun WorkoutPlannerApp() {
                     AppDestinations.HOME -> {
                         HomeScreen(
                             selectedRoutine = activeRoutine,
+                            workoutHistory = workoutHistory,
+                            exerciseNameMap = exerciseNameMap,
                             onStartWorkout = { day, index ->
-                                activeWorkoutDay = day to index
+                                viewModel.startWorkout(day, index)
+                                isWorkoutMinimized = false
+                            },
+                            onUpdateNextDay = { index ->
+                                activeRoutine?.let { routine ->
+                                    val totalDays = routine.workoutDays.size
+                                    val lastCompletedIndex = (index + totalDays - 1) % totalDays
+                                    viewModel.completeWorkoutDay(routine.id, lastCompletedIndex)
+                                }
                             },
                             onSettingsClick = { isSettingsVisible = true },
-                            modifier = modifier
+                            modifier = contentModifier
                         )
                     }
                     AppDestinations.HISTORY -> {
                         HistoryScreen(
                             viewModel = viewModel,
-                            modifier = modifier
+                            modifier = contentModifier
                         )
                     }
                 }

@@ -1,8 +1,7 @@
 package com.example.workoutplanner
 
 import android.app.Application
-import com.example.workoutplanner.data.WorkoutDatabase
+import dagger.hilt.android.HiltAndroidApp
 
-class WorkoutApplication : Application() {
-    val database: WorkoutDatabase by lazy { WorkoutDatabase.getDatabase(this) }
-}
+@HiltAndroidApp
+class WorkoutApplication : Application()
