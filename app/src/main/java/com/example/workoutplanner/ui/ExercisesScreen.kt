@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
 import com.example.workoutplanner.model.Exercise
@@ -28,7 +28,7 @@ import com.example.workoutplanner.model.Exercise
 fun ExercisesScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ExerciseLibraryViewModel = hiltViewModel()
+    viewModel: ExerciseLibraryViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

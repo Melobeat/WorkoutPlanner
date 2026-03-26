@@ -59,7 +59,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Exercise
 import java.util.Locale
@@ -69,10 +69,10 @@ import java.util.Locale
 fun WorkoutScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ActiveWorkoutViewModel = hiltViewModel(
+    viewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     ),
-    exerciseLibraryViewModel: ExerciseLibraryViewModel = hiltViewModel()
+    exerciseLibraryViewModel: ExerciseLibraryViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()

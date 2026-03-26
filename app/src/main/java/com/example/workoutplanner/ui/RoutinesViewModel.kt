@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -32,6 +33,7 @@ class RoutinesViewModel @Inject constructor(
     val uiState: StateFlow<RoutinesUiState> = _state.asStateFlow()
 
     private val _detailRoutineId = MutableStateFlow<String?>(null)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val detailRoutine: StateFlow<Routine?> = _detailRoutineId
         .flatMapLatest { id -> if (id != null) repository.getRoutineStream(id) else flowOf(null) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)

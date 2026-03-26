@@ -26,7 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.WorkoutDay
 
@@ -37,7 +37,7 @@ fun RoutineDetailScreen(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RoutinesViewModel = hiltViewModel()
+    viewModel: RoutinesViewModel = viewModel()
 ) {
     LaunchedEffect(routineId) { viewModel.loadRoutineDetail(routineId) }
     val routine by viewModel.detailRoutine.collectAsStateWithLifecycle()

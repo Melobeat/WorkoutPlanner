@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.WorkoutDay
 
@@ -27,8 +27,8 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onStartWorkout: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
-    activeWorkoutViewModel: ActiveWorkoutViewModel = hiltViewModel(
+    viewModel: HomeViewModel = viewModel(),
+    activeWorkoutViewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     )
 ) {

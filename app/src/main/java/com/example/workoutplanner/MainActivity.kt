@@ -16,7 +16,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WorkoutPlannerApp() {
     val navController = rememberNavController()
-    val activeWorkoutViewModel: ActiveWorkoutViewModel = hiltViewModel(
+    val activeWorkoutViewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     )
     val workoutUiState by activeWorkoutViewModel.uiState.collectAsStateWithLifecycle()
