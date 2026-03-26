@@ -1,5 +1,6 @@
 package com.example.workoutplanner.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,27 +14,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.workoutplanner.model.Exercise
-import com.example.workoutplanner.model.Routine
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.WorkoutDay
-import com.example.workoutplanner.data.WorkoutHistoryWithExercises
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    selectedRoutine: Routine?,
-    workoutHistory: List<WorkoutHistoryWithExercises>,
-    exerciseNameMap: Map<String, String>,
-    onStartWorkout: (WorkoutDay, Int) -> Unit,
-    onUpdateNextDay: (Int) -> Unit,
-    onSettingsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateToSettings: () -> Unit,
+    onStartWorkout: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    activeWorkoutViewModel: ActiveWorkoutViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    )
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showWorkoutChooser by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -41,7 +40,7 @@ fun HomeScreen(
             TopAppBar(
                 title = { Text("Workout Planner") },
                 actions = {
-                    IconButton(onClick = onSettingsClick) {
+                    IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 }
@@ -56,27 +55,36 @@ fun HomeScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (selectedRoutine != null) {
+            if (uiState.selectedRoutine != null) {
                 item {
-                    val nextDayIndex = (selectedRoutine.lastCompletedDayIndex + 1) % selectedRoutine.workoutDays.size
-                    val nextDay = selectedRoutine.workoutDays[nextDayIndex]
-                    
+                    val routine = uiState.selectedRoutine!!
+                    val nextDayIndex = (routine.lastCompletedDayIndex + 1) % routine.workoutDays.size
+                    val nextDay = routine.workoutDays[nextDayIndex]
+
                     NextWorkoutCard(
-                        routineName = selectedRoutine.name,
+                        routineName = routine.name,
                         nextDay = nextDay,
                         nextDayIndex = nextDayIndex,
-                        totalDays = selectedRoutine.workoutDays.size,
-                        onStartWorkout = { onStartWorkout(nextDay, nextDayIndex) },
+                        totalDays = routine.workoutDays.size,
+                        onStartWorkout = {
+                            activeWorkoutViewModel.startWorkout(
+                                day = nextDay,
+                                dayIndex = nextDayIndex,
+                                routineName = routine.name,
+                                routineId = routine.id
+                            )
+                            onStartWorkout()
+                        },
                         onSwapNextDay = { showWorkoutChooser = true }
                     )
                 }
             } else {
                 item {
-                    EmptyStateCard(onViewRoutines = onSettingsClick)
+                    EmptyStateCard(onViewRoutines = onNavigateToSettings)
                 }
             }
 
-            if (workoutHistory.isNotEmpty()) {
+            if (uiState.recentHistory.isNotEmpty()) {
                 item {
                     Text(
                         text = "Recent History",
@@ -85,18 +93,21 @@ fun HomeScreen(
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
-                items(workoutHistory.take(5)) { session ->
-                    WorkoutSessionCard(session, exerciseNameMap)
+                items(uiState.recentHistory.take(5)) { session ->
+                    WorkoutSessionCard(session, uiState.exerciseNameMap)
                 }
             }
         }
     }
 
-    if (showWorkoutChooser && selectedRoutine != null) {
+    if (showWorkoutChooser && uiState.selectedRoutine != null) {
         WorkoutDayChooserDialog(
-            workoutDays = selectedRoutine.workoutDays,
+            workoutDays = uiState.selectedRoutine!!.workoutDays,
             onDaySelected = { index ->
-                onUpdateNextDay(index)
+                val routine = uiState.selectedRoutine ?: return@WorkoutDayChooserDialog
+                val totalDays = routine.workoutDays.size
+                val lastCompletedIndex = (index + totalDays - 1) % totalDays
+                viewModel.updateNextDay(routine.id, lastCompletedIndex)
                 showWorkoutChooser = false
             },
             onDismiss = { showWorkoutChooser = false }
@@ -189,7 +200,7 @@ fun NextWorkoutCard(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-                
+
                 Row {
                     IconButton(onClick = onSwapNextDay) {
                         Icon(Icons.Default.SwapHoriz, contentDescription = "Swap Day")
@@ -201,9 +212,9 @@ fun NextWorkoutCard(
                     }
                 }
             }
-            
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-            
+
             nextDay.exercises.take(3).forEach { exercise ->
                 Column(modifier = Modifier.padding(vertical = 4.dp)) {
                     val repsSummary = if (exercise.routineSets.isEmpty()) {
@@ -213,7 +224,7 @@ fun NextWorkoutCard(
                     } else {
                         exercise.routineSets.joinToString(", ") { it.reps.toString() }
                     }
-                    
+
                     Text(
                         text = "• ${exercise.name} ($repsSummary)",
                         style = MaterialTheme.typography.bodyLarge

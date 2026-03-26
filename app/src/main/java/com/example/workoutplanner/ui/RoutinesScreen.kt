@@ -22,23 +22,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Routine
-import com.example.workoutplanner.model.sampleRoutines
-import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutinesScreen(
-    routines: List<Routine>,
-    onRoutineClick: (Routine) -> Unit,
+    onRoutineClick: (routineId: String) -> Unit,
     onCreateRoutineClick: () -> Unit,
-    onDeleteRoutine: (String) -> Unit,
-    onSelectRoutine: (String) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: RoutinesViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var routineToDelete by remember { mutableStateOf<Routine?>(null) }
 
     Scaffold(
@@ -64,12 +62,12 @@ fun RoutinesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(routines) { routine ->
+            items(uiState.routines) { routine ->
                 RoutineItem(
                     routine = routine,
-                    onClick = { onRoutineClick(routine) },
+                    onClick = { onRoutineClick(routine.id) },
                     onDelete = { routineToDelete = routine },
-                    onSelect = { onSelectRoutine(routine.id) }
+                    onSelect = { viewModel.selectRoutine(routine.id) }
                 )
             }
         }
@@ -82,7 +80,7 @@ fun RoutinesScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            onDeleteRoutine(routineToDelete!!.id)
+                            viewModel.deleteRoutine(routineToDelete!!.id)
                             routineToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -151,23 +149,6 @@ fun RoutineItem(
                     tint = MaterialTheme.colorScheme.error
                 )
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RoutinesScreenPreview() {
-    WorkoutPlannerTheme {
-        Surface {
-            RoutinesScreen(
-                routines = sampleRoutines,
-                onRoutineClick = {},
-                onCreateRoutineClick = {},
-                onDeleteRoutine = {},
-                onSelectRoutine = {},
-                onBack = {}
-            )
         }
     }
 }

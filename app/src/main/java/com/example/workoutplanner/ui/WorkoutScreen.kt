@@ -1,8 +1,13 @@
 package com.example.workoutplanner.ui
 
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,84 +45,72 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Exercise
-import com.example.workoutplanner.model.RoutineSet
-import com.example.workoutplanner.model.WorkoutDay
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutScreen(
-    workoutDay: WorkoutDay,
-    exerciseStates: SnapshotStateList<ExerciseState>,
-    availableExercises: List<Exercise>,
-    elapsedTime: Long,
-    onFinishWorkout: (List<ExerciseHistory>) -> Unit,
-    onCancelWorkout: () -> Unit,
-    onMinimize: () -> Unit,
-    modifier: Modifier = Modifier
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: ActiveWorkoutViewModel = hiltViewModel(
+        viewModelStoreOwner = LocalActivity.current as ComponentActivity
+    ),
+    exerciseLibraryViewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
     var showAddExerciseDialog by remember { mutableStateOf(false) }
     var exerciseToSwapIndex by remember { mutableStateOf<Int?>(null) }
     var showCancelDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(uiState.isFinished) {
+        if (uiState.isFinished) onNavigateBack()
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(workoutDay.name)
-                        Text(
-                            text = formatElapsedTime(elapsedTime),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { showCancelDialog = true }) {
-                        Icon(Icons.Default.Close, contentDescription = "Cancel Workout")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onMinimize) {
-                        Icon(Icons.Default.ExpandMore, contentDescription = "Minimize")
-                    }
-                    IconButton(onClick = { showAddExerciseDialog = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Exercise")
-                    }
-                    IconButton(onClick = {
-                        val history = exerciseStates.flatMap { state ->
-                            state.sets.filter { it.reps.isNotEmpty() && it.weight.isNotEmpty() }
-                                .mapIndexed { setIndex, set ->
-                                    ExerciseHistory(
-                                        exerciseId = state.exerciseId,
-                                        reps = set.reps.toIntOrNull() ?: 0,
-                                        weight = set.weight.toDoubleOrNull() ?: 0.0,
-                                        setIndex = setIndex + 1
-                                    )
-                                }
-                        }
-                        onFinishWorkout(history)
-                    }) {
-                        Icon(Icons.Default.Check, contentDescription = "Finish")
-                    }
+            TopAppBar(title = {
+                Column {
+                    Text(uiState.workoutDayName)
+                    Text(
+                        text = formatElapsedTime(uiState.elapsedTime),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                 }
-            )
-        },
-        modifier = modifier
+            }, navigationIcon = {
+                IconButton(onClick = { showCancelDialog = true }) {
+                    Icon(Icons.Default.Close, contentDescription = "Cancel Workout")
+                }
+            }, actions = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.Default.ExpandMore, contentDescription = "Minimize")
+                }
+                IconButton(onClick = { showAddExerciseDialog = true }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Exercise")
+                }
+                IconButton(onClick = { viewModel.finishWorkout() }) {
+                    Icon(Icons.Default.Check, contentDescription = "Finish")
+                }
+            })
+        }, modifier = modifier
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -125,41 +119,32 @@ fun WorkoutScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            itemsIndexed(exerciseStates) { index, state ->
+            itemsIndexed(uiState.exercises) { index, state ->
                 ExerciseCard(
                     state = state,
-                    onAddSet = { state.addSet() },
-                    onRemoveSet = { state.removeSet(it) },
-                    onRemoveExercise = { exerciseStates.removeAt(index) },
+                    onToggleExpand = { viewModel.toggleExerciseExpanded(index) },
+                    onAddSet = { viewModel.addSet(index) },
+                    onRemoveSet = { setIndex -> viewModel.removeSet(index, setIndex) },
+                    onRemoveExercise = { viewModel.removeExercise(index) },
                     onSwapExercise = { exerciseToSwapIndex = index },
-                    onMoveUp = if (index > 0) { { 
-                        val item = exerciseStates.removeAt(index)
-                        exerciseStates.add(index - 1, item)
-                    } } else null,
-                    onMoveDown = if (index < exerciseStates.size - 1) { { 
-                        val item = exerciseStates.removeAt(index)
-                        exerciseStates.add(index + 1, item)
-                    } } else null
+                    onMoveUp = if (index > 0) {
+                        { viewModel.reorderExercise(index, index - 1) }
+                    } else null,
+                    onMoveDown = if (index < uiState.exercises.size - 1) {
+                        { viewModel.reorderExercise(index, index + 1) }
+                    } else null,
+                    onToggleSetDone = { setIndex -> viewModel.toggleSetDone(index, setIndex) },
+                    onUpdateSetReps = { setIndex, reps -> viewModel.updateSetReps(index, setIndex, reps) },
+                    onUpdateSetWeight = { setIndex, weight -> viewModel.updateSetWeight(index, setIndex, weight) }
                 )
             }
-            
+
             item {
                 Button(
-                    onClick = {
-                        val history = exerciseStates.flatMap { state ->
-                            state.sets.filter { it.reps.isNotEmpty() && it.weight.isNotEmpty() }
-                                .mapIndexed { setIndex, set ->
-                                    ExerciseHistory(
-                                        exerciseId = state.exerciseId,
-                                        reps = set.reps.toIntOrNull() ?: 0,
-                                        weight = set.weight.toDoubleOrNull() ?: 0.0,
-                                        setIndex = setIndex + 1
-                                    )
-                                }
-                        }
-                        onFinishWorkout(history)
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+                    onClick = { viewModel.finishWorkout() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
                 ) {
                     Text("Finish Workout")
                 }
@@ -169,56 +154,42 @@ fun WorkoutScreen(
 
     if (showAddExerciseDialog) {
         ExerciseSelectionDialog(
-            exercises = availableExercises,
-            onDismiss = { },
+            exercises = exerciseLibState.exercises,
+            onDismiss = { showAddExerciseDialog = false },
             onExerciseSelected = { exercise ->
-                exerciseStates.add(
-                    ExerciseState(
-                        exerciseId = exercise.id,
-                        exerciseName = exercise.name,
-                        initialSets = if (exercise.routineSets.isNotEmpty()) exercise.routineSets.size else 3,
-                        predefinedSets = exercise.routineSets
-                    )
-                )
-            }
-        )
+                viewModel.addExercise(exercise)
+                showAddExerciseDialog = false
+            })
     }
 
     if (exerciseToSwapIndex != null) {
         ExerciseSelectionDialog(
-            exercises = availableExercises,
-            onDismiss = { },
+            exercises = exerciseLibState.exercises,
+            onDismiss = { exerciseToSwapIndex = null },
             onExerciseSelected = { exercise ->
-                val index = exerciseToSwapIndex!!
-                exerciseStates[index] = ExerciseState(
-                    exerciseId = exercise.id,
-                    exerciseName = exercise.name,
-                    initialSets = if (exercise.routineSets.isNotEmpty()) exercise.routineSets.size else exerciseStates[index].sets.size,
-                    predefinedSets = exercise.routineSets
-                )
+                viewModel.swapExercise(exerciseToSwapIndex!!, exercise)
                 exerciseToSwapIndex = null
-            }
-        )
+            })
     }
 
     if (showCancelDialog) {
         AlertDialog(
-            onDismissRequest = { },
+            onDismissRequest = { showCancelDialog = false },
             title = { Text("Cancel Workout?") },
             text = { Text("All progress in this session will be lost.") },
             confirmButton = {
                 TextButton(onClick = {
-                    onCancelWorkout()
+                    viewModel.cancelWorkout()
+                    onNavigateBack()
                 }) {
                     Text("Cancel Workout", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { }) {
-                    Text("Continue")
+                TextButton(onClick = { showCancelDialog = false }) {
+                    Text("Keep Going")
                 }
-            }
-        )
+            })
     }
 }
 
@@ -233,15 +204,20 @@ fun formatElapsedTime(millis: Long): String {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ExerciseCard(
-    state: ExerciseState,
+    state: ExerciseUiState,
+    onToggleExpand: () -> Unit,
     onAddSet: () -> Unit,
     onRemoveSet: (Int) -> Unit,
     onRemoveExercise: () -> Unit,
     onSwapExercise: () -> Unit,
     onMoveUp: (() -> Unit)?,
-    onMoveDown: (() -> Unit)?
+    onMoveDown: (() -> Unit)?,
+    onToggleSetDone: (Int) -> Unit,
+    onUpdateSetReps: (Int, String) -> Unit,
+    onUpdateSetWeight: (Int, String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -254,15 +230,16 @@ fun ExerciseCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f).clickable { state.isExpanded = !state.isExpanded }
-                ) {
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onToggleExpand() }) {
                     Icon(
                         if (state.isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                         contentDescription = null
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = state.exerciseName,
+                        text = state.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -282,41 +259,87 @@ fun ExerciseCard(
                         Icon(Icons.Default.SwapHoriz, contentDescription = "Swap Exercise")
                     }
                     IconButton(onClick = onRemoveExercise) {
-                        Icon(Icons.Default.Delete, contentDescription = "Remove Exercise", tint = MaterialTheme.colorScheme.error)
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Remove Exercise",
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             }
-            
+
             AnimatedVisibility(visible = state.isExpanded) {
                 Column {
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     state.sets.forEachIndexed { index, setState ->
+                        var showRepsDialog by remember { mutableStateOf(false) }
+
+                        if (showRepsDialog) {
+                            RepsDialog(
+                                initialReps = setState.reps,
+                                onDismiss = { showRepsDialog = false },
+                                onConfirm = { reps ->
+                                    onUpdateSetReps(index, reps)
+                                    showRepsDialog = false
+                                })
+                        }
+
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Set ${index + 1}",
-                                modifier = Modifier.width(50.dp)
+                                text = "Set ${index + 1}", modifier = Modifier.width(50.dp)
                             )
-                            
+
                             OutlinedTextField(
                                 value = setState.weight,
-                                onValueChange = { setState.weight = it },
+                                onValueChange = { onUpdateSetWeight(index, it) },
                                 label = { Text("kg") },
                                 modifier = Modifier.weight(1f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                             )
-                            
-                            OutlinedTextField(
-                                value = setState.reps,
-                                onValueChange = { setState.reps = it },
-                                label = { Text("reps") },
-                                modifier = Modifier.weight(1f),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp)
+                                    .clip(MaterialTheme.shapes.extraSmall)
+                                    .background(
+                                        if (setState.isDone) MaterialTheme.colorScheme.primaryContainer
+                                        else MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    .combinedClickable(onClick = {
+                                        if (setState.isAmrap) {
+                                            showRepsDialog = true
+                                        } else {
+                                            onToggleSetDone(index)
+                                        }
+                                    }, onLongClick = {
+                                        showRepsDialog = true
+                                    }), contentAlignment = Alignment.Center) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = if (setState.isAmrap) "${setState.reps}+" else setState.reps,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (setState.isDone) MaterialTheme.colorScheme.onPrimaryContainer
+                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = if (setState.isAmrap) "reps+" else "reps",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (setState.isDone) MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                            alpha = 0.7f
+                                        )
+                                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
 
                             IconButton(onClick = { onRemoveSet(index) }) {
                                 Icon(
@@ -327,10 +350,9 @@ fun ExerciseCard(
                             }
                         }
                     }
-                    
+
                     TextButton(
-                        onClick = onAddSet,
-                        modifier = Modifier.align(Alignment.End)
+                        onClick = onAddSet, modifier = Modifier.align(Alignment.End)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Text("Add Set")
@@ -342,10 +364,58 @@ fun ExerciseCard(
 }
 
 @Composable
+fun RepsDialog(
+    initialReps: String, onDismiss: () -> Unit, onConfirm: (String) -> Unit
+) {
+    var reps by remember { mutableStateOf(initialReps) }
+
+    AlertDialog(onDismissRequest = onDismiss, title = {
+        Text(
+            "Edit Reps", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
+        )
+    }, text = {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = {
+                val r = reps.toIntOrNull() ?: 0
+                if (r > 0) reps = (r - 1).toString()
+            }) {
+                Icon(Icons.Default.Remove, contentDescription = "Decrease")
+            }
+
+            OutlinedTextField(
+                value = reps,
+                onValueChange = { if (it.all { char -> char.isDigit() }) reps = it },
+                modifier = Modifier.weight(1f),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center)
+            )
+
+            IconButton(onClick = {
+                val r = reps.toIntOrNull() ?: 0
+                reps = (r + 1).toString()
+            }) {
+                Icon(Icons.Default.Add, contentDescription = "Increase")
+            }
+        }
+    }, confirmButton = {
+        TextButton(onClick = { onConfirm(reps) }) {
+            Text("OK")
+        }
+    }, dismissButton = {
+        TextButton(onClick = onDismiss) {
+            Text("Cancel")
+        }
+    })
+}
+
+@Composable
 fun ExerciseSelectionDialog(
-    exercises: List<Exercise>,
-    onDismiss: () -> Unit,
-    onExerciseSelected: (Exercise) -> Unit
+    exercises: List<Exercise>, onDismiss: () -> Unit, onExerciseSelected: (Exercise) -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -361,8 +431,7 @@ fun ExerciseSelectionDialog(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     itemsIndexed(exercises) { _, exercise ->
                         Surface(
@@ -372,15 +441,24 @@ fun ExerciseSelectionDialog(
                             color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
-                                Text(text = exercise.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                                Text(text = exercise.muscleGroup, style = MaterialTheme.typography.bodySmall)
+                                Text(
+                                    text = exercise.name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = exercise.muscleGroup,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
                         }
                     }
                 }
                 TextButton(
                     onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End).padding(top = 16.dp)
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 16.dp)
                 ) {
                     Text("Cancel")
                 }
@@ -389,49 +467,12 @@ fun ExerciseSelectionDialog(
     }
 }
 
-class ExerciseState(
-    val exerciseId: String,
-    val exerciseName: String,
-    initialSets: Int,
-    predefinedSets: List<RoutineSet> = emptyList(),
-    val lastSets: List<Pair<Double, Int>> = emptyList()
-) {
-    val sets = mutableStateListOf<SetState>().apply {
-        val numSets = if (predefinedSets.isNotEmpty()) predefinedSets.size else maxOf(initialSets, lastSets.size)
-        
-        for (i in 0 until numSets) {
-            val weight = lastSets.getOrNull(i)?.first?.let { formatWeight(it) }
-                ?: predefinedSets.getOrNull(i)?.weight?.let { if (it > 0) formatWeight(it) else null }
-                ?: "0"
-            
-            val reps = predefinedSets.getOrNull(i)?.reps?.toString() ?: "0"
-            
-            add(SetState(weight, reps))
-        }
-    }
-    var isExpanded by mutableStateOf(true)
-
-    fun addSet() {
-        sets.add(SetState("0", "0"))
-    }
-
-    fun removeSet(index: Int) {
-        if (sets.isNotEmpty()) {
-            sets.removeAt(index)
-        }
-    }
-}
-
-class SetState(initialWeight: String = "0", initialReps: String = "0") {
-    var weight by mutableStateOf(initialWeight)
-    var reps by mutableStateOf(initialReps)
-}
-
 data class ExerciseHistory(
     val exerciseId: String,
     val reps: Int,
     val weight: Double,
-    val setIndex: Int = 1
+    val setIndex: Int = 1,
+    val isAmrap: Boolean = false
 )
 
 fun formatWeight(weight: Double): String {

@@ -48,6 +48,10 @@ interface WorkoutDao {
     @Query("SELECT * FROM routines WHERE isSelected = 1 LIMIT 1")
     fun getSelectedRoutineWithDays(): Flow<RoutineWithDays?>
 
+    @Transaction
+    @Query("SELECT * FROM routines WHERE id = :routineId LIMIT 1")
+    fun getRoutineWithDays(routineId: String): Flow<RoutineWithDays?>
+
     @Query("SELECT * FROM routines WHERE id = :routineId")
     suspend fun getRoutineById(routineId: String): RoutineEntity?
 

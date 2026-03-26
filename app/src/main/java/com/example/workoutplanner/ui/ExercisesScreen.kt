@@ -17,24 +17,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
 import com.example.workoutplanner.model.Exercise
-import com.example.workoutplanner.model.sampleExercises
-import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExercisesScreen(
-    exercises: List<Exercise>,
-    equipmentList: List<Equipment>,
-    onAddExercise: (name: String, muscleGroup: String, description: String, equipmentId: String?) -> Unit,
-    onUpdateExercise: (Exercise) -> Unit,
-    onDeleteExercise: (String) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     var showAddDialog by remember { mutableStateOf(false) }
     var exerciseToEdit by remember { mutableStateOf<Exercise?>(null) }
     var exerciseToDelete by remember { mutableStateOf<Exercise?>(null) }
@@ -62,7 +59,7 @@ fun ExercisesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(exercises) { exercise ->
+            items(uiState.exercises) { exercise ->
                 ExerciseLibraryItem(
                     exercise = exercise,
                     onClick = { exerciseToEdit = exercise },
@@ -74,21 +71,16 @@ fun ExercisesScreen(
         if (showAddDialog || exerciseToEdit != null) {
             AddExerciseDialog(
                 initialExercise = exerciseToEdit,
-                equipmentList = equipmentList,
+                equipmentList = uiState.equipment,
                 onDismiss = {
                     showAddDialog = false
                     exerciseToEdit = null
                 },
                 onConfirm = { name, muscle, desc, equipId ->
                     if (exerciseToEdit != null) {
-                        onUpdateExercise(exerciseToEdit!!.copy(
-                            name = name, 
-                            muscleGroup = muscle, 
-                            description = desc,
-                            equipmentId = equipId
-                        ))
+                        viewModel.saveExercise(name, muscle, desc, equipId, exerciseToEdit!!.id)
                     } else {
-                        onAddExercise(name, muscle, desc, equipId)
+                        viewModel.saveExercise(name, muscle, desc, equipId, null)
                     }
                     showAddDialog = false
                     exerciseToEdit = null
@@ -104,7 +96,7 @@ fun ExercisesScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            onDeleteExercise(exerciseToDelete!!.id)
+                            viewModel.deleteExercise(exerciseToDelete!!.id)
                             exerciseToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -134,7 +126,7 @@ fun AddExerciseDialog(
     var muscleGroup by remember { mutableStateOf(initialExercise?.muscleGroup ?: "") }
     var description by remember { mutableStateOf(initialExercise?.description ?: "") }
     var selectedEquipmentId by remember { mutableStateOf(initialExercise?.equipmentId) }
-    
+
     var expanded by remember { mutableStateOf(false) }
     val selectedEquipmentName = equipmentList.find { it.id == selectedEquipmentId }?.name ?: "No Equipment"
 
@@ -161,9 +153,9 @@ fun AddExerciseDialog(
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 Text("Equipment", style = MaterialTheme.typography.labelMedium)
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedCard(
@@ -262,23 +254,6 @@ fun ExerciseLibraryItem(
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ExercisesScreenPreview() {
-    WorkoutPlannerTheme {
-        Surface {
-            ExercisesScreen(
-                exercises = sampleExercises,
-                equipmentList = emptyList(),
-                onAddExercise = { _, _, _, _ -> },
-                onUpdateExercise = {},
-                onDeleteExercise = {},
-                onBack = {}
-            )
         }
     }
 }

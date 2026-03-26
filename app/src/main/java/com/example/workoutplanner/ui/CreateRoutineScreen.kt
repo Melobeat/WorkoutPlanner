@@ -16,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Exercise
-import com.example.workoutplanner.model.Routine
 import com.example.workoutplanner.model.RoutineSet
 import com.example.workoutplanner.model.WorkoutDay
 import java.util.UUID
@@ -25,24 +26,37 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateRoutineScreen(
-    availableExercises: List<Exercise>,
-    onSave: (name: String, description: String, days: List<WorkoutDay>) -> Unit,
+    routineId: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    initialRoutine: Routine? = null
+    viewModel: RoutinesViewModel = hiltViewModel(),
+    exerciseLibraryViewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
-    var name by remember { mutableStateOf(initialRoutine?.name ?: "") }
-    var description by remember { mutableStateOf(initialRoutine?.description ?: "") }
-    var days by remember { mutableStateOf(initialRoutine?.workoutDays ?: listOf()) }
+    LaunchedEffect(routineId) { routineId?.let { viewModel.loadRoutineDetail(it) } }
+    val initialRoutine by if (routineId != null) viewModel.detailRoutine.collectAsStateWithLifecycle()
+    else remember { kotlinx.coroutines.flow.MutableStateFlow<com.example.workoutplanner.model.Routine?>(null) }.collectAsStateWithLifecycle()
+    val saveComplete by viewModel.saveComplete.collectAsStateWithLifecycle()
+    LaunchedEffect(saveComplete) {
+        if (saveComplete) {
+            viewModel.onSaveHandled()
+            onBack()
+        }
+    }
+    val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
+    val availableExercises = exerciseLibState.exercises
+
+    var name by remember(initialRoutine) { mutableStateOf(initialRoutine?.name ?: "") }
+    var description by remember(initialRoutine) { mutableStateOf(initialRoutine?.description ?: "") }
+    var days by remember(initialRoutine) { mutableStateOf(initialRoutine?.workoutDays ?: listOf()) }
     var showExercisePickerForDayIndex by remember { mutableStateOf<Int?>(null) }
-    
+
     // Track expanded state for days
     val expandedDays = remember { mutableStateMapOf<String, Boolean>() }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (initialRoutine == null) "New Routine" else "Edit Routine") },
+                title = { Text(if (routineId == null) "New Routine" else "Edit Routine") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -50,7 +64,7 @@ fun CreateRoutineScreen(
                 },
                 actions = {
                     TextButton(
-                        onClick = { onSave(name, description, days) },
+                        onClick = { viewModel.saveRoutine(name, description, days, routineId) },
                         enabled = name.isNotBlank() && days.isNotEmpty()
                     ) {
                         Text("Save")
@@ -290,8 +304,8 @@ fun ExerciseEditItem(
                 modifier = Modifier.clickable { isExpanded = !isExpanded }
             )
             Text(
-                exercise.name, 
-                style = MaterialTheme.typography.bodyLarge, 
+                exercise.name,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f).clickable { isExpanded = !isExpanded },
                 fontWeight = FontWeight.Bold
             )
@@ -318,8 +332,8 @@ fun ExerciseEditItem(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                     ) {
-                        Text("Set ${index + 1}", modifier = Modifier.width(50.dp))
-                        
+                        Text("${index + 1}", modifier = Modifier.width(20.dp))
+
                         var repsText by remember(set.reps) { mutableStateOf(set.reps.toString()) }
                         OutlinedTextField(
                             value = repsText,
@@ -353,6 +367,19 @@ fun ExerciseEditItem(
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("AMRAP", style = MaterialTheme.typography.labelSmall)
+                            Checkbox(
+                                checked = set.isAmrap,
+                                onCheckedChange = { isChecked ->
+                                    val newSets = exercise.routineSets.toMutableList()
+                                    newSets[index] = set.copy(isAmrap = isChecked)
+                                    onUpdate(exercise.copy(routineSets = newSets))
+                                }
+                            )
+                        }
+
                         IconButton(onClick = {
                             val newSets = exercise.routineSets.toMutableList().apply { removeAt(index) }
                             onUpdate(exercise.copy(routineSets = newSets))

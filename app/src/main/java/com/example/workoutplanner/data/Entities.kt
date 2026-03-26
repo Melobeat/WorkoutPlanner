@@ -9,7 +9,6 @@ import androidx.room.Relation
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.workoutplanner.model.RoutineSet
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.UUID
 
@@ -140,7 +139,8 @@ data class ExerciseHistoryEntity(
     val date: Long,
     val sets: Int,
     val reps: Int,
-    val weight: Double
+    val weight: Double,
+    val isAmrap: Boolean = false
 )
 
 data class WorkoutDayExerciseWithDetails(

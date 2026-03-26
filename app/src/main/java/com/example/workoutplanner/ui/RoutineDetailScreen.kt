@@ -1,5 +1,6 @@
 package com.example.workoutplanner.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,37 +11,48 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.workoutplanner.model.Routine
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.WorkoutDay
-import com.example.workoutplanner.model.sampleRoutines
-import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineDetailScreen(
-    routine: Routine,
+    routineId: String,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: RoutinesViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(routineId) { viewModel.loadRoutineDetail(routineId) }
+    val routine by viewModel.detailRoutine.collectAsStateWithLifecycle()
+
+    if (routine == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(routine.name) },
+                title = { Text(routine!!.name) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -61,15 +73,15 @@ fun RoutineDetailScreen(
                 .padding(innerPadding)
         ) {
             item {
-                if (routine.description.isNotEmpty()) {
+                if (routine!!.description.isNotEmpty()) {
                     Text(
-                        text = routine.description,
+                        text = routine!!.description,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
             }
-            items(routine.workoutDays) { day ->
+            items(routine!!.workoutDays) { day ->
                 WorkoutDayItem(day = day)
             }
         }
@@ -101,12 +113,15 @@ fun WorkoutDayItem(day: WorkoutDay) {
                     Row {
                         val repsSummary = if (exercise.routineSets.isEmpty()) {
                             "0 sets"
-                        } else if (exercise.routineSets.all { it.reps == exercise.routineSets.first().reps }) {
-                            "${exercise.routineSets.size} sets x ${exercise.routineSets.first().reps} reps"
+                        } else if (exercise.routineSets.all { it.reps == exercise.routineSets.first().reps && it.isAmrap == exercise.routineSets.first().isAmrap }) {
+                            val suffix = if (exercise.routineSets.first().isAmrap) "+" else ""
+                            "${exercise.routineSets.size} sets x ${exercise.routineSets.first().reps}$suffix reps"
                         } else {
-                            exercise.routineSets.joinToString(", ") { it.reps.toString() } + " reps"
+                            exercise.routineSets.joinToString(", ") {
+                                it.reps.toString() + (if (it.isAmrap) "+" else "")
+                            } + " reps"
                         }
-                        
+
                         Text(
                             text = repsSummary,
                             style = MaterialTheme.typography.bodySmall
@@ -128,20 +143,6 @@ fun WorkoutDayItem(day: WorkoutDay) {
                     )
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RoutineDetailScreenPreview() {
-    WorkoutPlannerTheme {
-        Surface {
-            RoutineDetailScreen(
-                routine = sampleRoutines[0],
-                onBackClick = {},
-                onEditClick = {}
-            )
         }
     }
 }

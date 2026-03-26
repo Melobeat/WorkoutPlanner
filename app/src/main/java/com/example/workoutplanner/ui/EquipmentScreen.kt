@@ -13,18 +13,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EquipmentScreen(
-    equipmentList: List<Equipment>,
-    onAddEquipment: (String) -> Unit,
-    onUpdateEquipment: (Equipment) -> Unit,
-    onDeleteEquipment: (String) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     var showAddDialog by remember { mutableStateOf(false) }
     var equipmentToEdit by remember { mutableStateOf<Equipment?>(null) }
     var equipmentToDelete by remember { mutableStateOf<Equipment?>(null) }
@@ -52,7 +53,7 @@ fun EquipmentScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(equipmentList) { equipment ->
+            items(uiState.equipment) { equipment ->
                 EquipmentItem(
                     equipment = equipment,
                     onClick = { equipmentToEdit = equipment },
@@ -70,9 +71,9 @@ fun EquipmentScreen(
                 },
                 onConfirm = { name ->
                     if (equipmentToEdit != null) {
-                        onUpdateEquipment(equipmentToEdit!!.copy(name = name))
+                        viewModel.saveEquipment(name, equipmentToEdit!!.id)
                     } else {
-                        onAddEquipment(name)
+                        viewModel.saveEquipment(name, null)
                     }
                     showAddDialog = false
                     equipmentToEdit = null
@@ -88,7 +89,7 @@ fun EquipmentScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            onDeleteEquipment(equipmentToDelete!!.id)
+                            viewModel.deleteEquipment(equipmentToDelete!!.id)
                             equipmentToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)

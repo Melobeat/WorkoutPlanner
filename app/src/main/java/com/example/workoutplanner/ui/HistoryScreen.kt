@@ -5,14 +5,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.workoutplanner.WorkoutViewModel
-import com.example.workoutplanner.data.ExerciseHistoryEntity
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.data.WorkoutHistoryWithExercises
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,38 +21,32 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    viewModel: WorkoutViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HistoryViewModel = hiltViewModel()
 ) {
-    val workoutHistory by viewModel.workoutHistory.collectAsState()
-    val exercises by viewModel.exercises.collectAsState()
-    
-    val exerciseNameMap = remember(exercises) {
-        exercises.associate { it.id to it.name }
-    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Workout History") }
-            )
+            TopAppBar(title = { Text("Workout History") })
         },
         modifier = modifier
     ) { innerPadding ->
-        if (workoutHistory.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+        if (uiState.isLoading) {
+            Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (uiState.sessions.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
                 Text("No workout history yet. Start a workout to see it here!")
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(workoutHistory) { session ->
-                    WorkoutSessionCard(session, exerciseNameMap)
+                items(uiState.sessions) { session ->
+                    WorkoutSessionCard(session, uiState.exerciseNameMap)
                 }
             }
         }
@@ -123,7 +117,7 @@ fun WorkoutSessionCard(
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 
-                sets.forEachIndexed { index, set ->
+                sets.forEach { set ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -131,7 +125,7 @@ fun WorkoutSessionCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Set ${index + 1}: ${set.reps} reps",
+                            text = "Set ${set.sets}: ${set.reps}${if (set.isAmrap) "+" else ""} reps",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
