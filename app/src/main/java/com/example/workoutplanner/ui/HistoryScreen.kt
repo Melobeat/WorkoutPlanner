@@ -28,7 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -61,12 +61,12 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val expandedIds = remember { mutableStateMapOf<String, Boolean>() }
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text("History", fontWeight = FontWeight.Black) },
                 scrollBehavior = scrollBehavior
             )
@@ -118,18 +118,18 @@ fun HistoryScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                        start = 16.dp, end = 16.dp, bottom = 16.dp
+                        start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    orderedKeys.forEach { groupLabel ->
+                    orderedKeys.forEachIndexed { groupIndex, groupLabel ->
                         item(key = "header_$groupLabel") {
                             Text(
                                 groupLabel.uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                                modifier = Modifier.padding(top = if (groupIndex == 0) 0.dp else 8.dp, bottom = 4.dp)
                             )
                         }
                         items(
@@ -234,8 +234,7 @@ fun HistorySessionCard(
                         Column(modifier = Modifier.padding(12.dp)) {
                             visibleEntries.forEach { (exerciseId, sets) ->
                                 val name = exerciseNameMap[exerciseId] ?: "Unknown"
-                                val summary = "${sets.size} × ${sets.firstOrNull()?.reps ?: 0}" +
-                                    " · ${sets.firstOrNull()?.weight ?: 0} kg"
+                                val summary = sets.joinToString(" · ") { "${it.reps}×${it.weight}kg" }
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween

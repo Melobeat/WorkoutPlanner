@@ -24,13 +24,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -80,6 +83,7 @@ fun WorkoutScreen(
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
     var showAddExerciseDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isFinished) {
         if (uiState.isFinished) onNavigateBack()
@@ -110,8 +114,11 @@ fun WorkoutScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.Close, contentDescription = "Minimize")
+                    IconButton(onClick = {
+                        viewModel.setFullScreen(false)
+                        onNavigateBack()
+                    }) {
+                        Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = "Minimize")
                     }
                 },
                 actions = {
@@ -123,18 +130,32 @@ fun WorkoutScreen(
                         Spacer(Modifier.width(4.dp))
                         Text("Exercise", style = MaterialTheme.typography.labelMedium)
                     }
-                    Spacer(Modifier.width(8.dp))
-                    FilledTonalButton(
-                        onClick = { showCancelDialog = true },
-                        shape = CircleShape,
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    ) {
-                        Text("End", style = MaterialTheme.typography.labelMedium)
+                    Spacer(Modifier.width(4.dp))
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Finish Workout") },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.finishWorkout()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Cancel Workout", color = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showMenu = false
+                                    showCancelDialog = true
+                                }
+                            )
+                        }
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(4.dp))
                 }
             )
         },
@@ -383,14 +404,14 @@ fun WorkoutScreen(
     if (showCancelDialog) {
         AlertDialog(
             onDismissRequest = { showCancelDialog = false },
-            title = { Text("End Workout?") },
+            title = { Text("Cancel Workout?") },
             text = { Text("All progress in this session will be lost.") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.cancelWorkout()
                     onNavigateBack()
                 }) {
-                    Text("End Workout", color = MaterialTheme.colorScheme.error)
+                    Text("Cancel Workout", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {

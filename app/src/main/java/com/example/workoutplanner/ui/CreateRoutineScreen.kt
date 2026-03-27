@@ -56,11 +56,11 @@ fun CreateRoutineScreen(
     // Track expanded state for days
     val expandedDays = remember { mutableStateMapOf<String, Boolean>() }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text(if (routineId == null) "New Routine" else "Edit Routine", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

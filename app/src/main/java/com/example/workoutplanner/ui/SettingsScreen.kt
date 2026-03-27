@@ -4,22 +4,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Construction
-import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.outlined.Construction
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -38,11 +36,11 @@ fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text("Settings", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -62,7 +60,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Exercises",
                     subtitle = "Add, edit or delete exercises",
-                    icon = Icons.Default.FitnessCenter,
+                    icon = Icons.Outlined.FitnessCenter,
                     onClick = onNavigateToExercises
                 )
                 HorizontalDivider()
@@ -71,7 +69,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Equipment",
                     subtitle = "Dumbbells, barbells, machines, etc.",
-                    icon = Icons.Default.Construction,
+                    icon = Icons.Outlined.Construction,
                     onClick = onNavigateToEquipment
                 )
                 HorizontalDivider()
@@ -80,7 +78,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Routines",
                     subtitle = "Create and organize your workout routines",
-                    icon = Icons.AutoMirrored.Filled.ListAlt,
+                    icon = Icons.AutoMirrored.Outlined.ListAlt,
                     onClick = onNavigateToRoutines
                 )
             }
@@ -99,17 +97,12 @@ fun SettingsListItem(
         headlineContent = { Text(title, fontWeight = FontWeight.SemiBold) },
         supportingContent = { Text(subtitle) },
         leadingContent = {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(24.dp)
+            )
         },
         trailingContent = {
             Icon(

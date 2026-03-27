@@ -38,11 +38,11 @@ fun ExercisesScreen(
     var exerciseToEdit by remember { mutableStateOf<Exercise?>(null) }
     var exerciseToDelete by remember { mutableStateOf<Exercise?>(null) }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text("Exercise Library", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

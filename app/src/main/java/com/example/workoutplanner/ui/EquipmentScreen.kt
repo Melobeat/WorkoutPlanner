@@ -32,11 +32,11 @@ fun EquipmentScreen(
     var equipmentToEdit by remember { mutableStateOf<Equipment?>(null) }
     var equipmentToDelete by remember { mutableStateOf<Equipment?>(null) }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text("Manage Equipment", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

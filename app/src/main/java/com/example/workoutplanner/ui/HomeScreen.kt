@@ -46,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -84,7 +83,6 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
                     .background(heroBrush)
                     .padding(top = statusBarPadding + 16.dp, start = 20.dp, end = 20.dp, bottom = 28.dp)
             ) {
@@ -262,7 +260,9 @@ fun HomeScreen(
                 )
             }
             items(uiState.recentHistory.take(5), key = { it.workout.id }) { session ->
-                WorkoutSessionCard(session, uiState.exerciseNameMap)
+                Box(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 8.dp)) {
+                    WorkoutSessionCard(session, uiState.exerciseNameMap)
+                }
             }
         }
     }

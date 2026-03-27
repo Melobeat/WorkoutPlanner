@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.*
 import androidx.compose.material3.FilledTonalButton
@@ -59,7 +60,7 @@ fun WorkoutPlannerApp() {
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             item(
-                icon = { Icon(Icons.Rounded.FitnessCenter, contentDescription = "Home") },
+                icon = { Icon(Icons.Rounded.Home, contentDescription = "Home") },
                 label = { Text("Home") },
                 selected = currentDestination?.hasRoute<HomeRoute>() == true,
                 onClick = {
@@ -92,8 +93,8 @@ fun WorkoutPlannerApp() {
                             activeWorkoutViewModel.setFullScreen(true)
                             navController.navigate(ActiveWorkoutRoute)
                         },
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        tonalElevation = 8.dp,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        tonalElevation = 0.dp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp)
@@ -109,19 +110,20 @@ fun WorkoutPlannerApp() {
                                 Icon(
                                     Icons.Rounded.FitnessCenter,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Spacer(Modifier.width(12.dp))
                                 Column {
                                     Text(
                                         formatElapsedTime(workoutUiState.elapsedTime),
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                     Text(
                                         workoutUiState.workoutDayName,
                                         style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                             }
