@@ -19,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
 import com.example.workoutplanner.model.Exercise
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +35,28 @@ fun ExercisesScreen(
     viewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    ExercisesScreenContent(
+        exercises = uiState.exercises,
+        equipment = uiState.equipment,
+        onBack = onBack,
+        onSaveExercise = { name, muscle, desc, equipId, id ->
+            viewModel.saveExercise(name, muscle, desc, equipId, id)
+        },
+        onDeleteExercise = { id -> viewModel.deleteExercise(id) },
+        modifier = modifier
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExercisesScreenContent(
+    exercises: List<Exercise>,
+    equipment: List<Equipment>,
+    onBack: () -> Unit,
+    onSaveExercise: (name: String, muscle: String, desc: String, equipId: String?, id: String?) -> Unit,
+    onDeleteExercise: (id: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var showAddDialog by remember { mutableStateOf(false) }
     var exerciseToEdit by remember { mutableStateOf<Exercise?>(null) }
     var exerciseToDelete by remember { mutableStateOf<Exercise?>(null) }
@@ -59,14 +82,14 @@ fun ExercisesScreen(
                 text = { Text("Add Exercise") }
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(uiState.exercises) { exercise ->
+            items(exercises) { exercise ->
                 ListItem(
                     headlineContent = { Text(exercise.name, fontWeight = FontWeight.SemiBold) },
                     supportingContent = { Text(exercise.muscleGroup) },
@@ -84,17 +107,13 @@ fun ExercisesScreen(
         if (showAddDialog || exerciseToEdit != null) {
             AddExerciseDialog(
                 initialExercise = exerciseToEdit,
-                equipmentList = uiState.equipment,
+                equipmentList = equipment,
                 onDismiss = {
                     showAddDialog = false
                     exerciseToEdit = null
                 },
                 onConfirm = { name, muscle, desc, equipId ->
-                    if (exerciseToEdit != null) {
-                        viewModel.saveExercise(name, muscle, desc, equipId, exerciseToEdit!!.id)
-                    } else {
-                        viewModel.saveExercise(name, muscle, desc, equipId, null)
-                    }
+                    onSaveExercise(name, muscle, desc, equipId, exerciseToEdit?.id)
                     showAddDialog = false
                     exerciseToEdit = null
                 }
@@ -109,7 +128,7 @@ fun ExercisesScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.deleteExercise(exerciseToDelete!!.id)
+                            onDeleteExercise(exerciseToDelete!!.id)
                             exerciseToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -268,5 +287,59 @@ fun ExerciseLibraryItem(
                 Icon(Icons.Default.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExercisesScreenContentPreview() {
+    WorkoutPlannerTheme {
+        ExercisesScreenContent(
+            exercises = listOf(
+                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                    description = "Flat barbell chest press", equipmentId = "eq1", equipmentName = "Barbell"),
+                Exercise(id = "e2", name = "Squat", muscleGroup = "Legs",
+                    description = "", equipmentId = null, equipmentName = null)
+            ),
+            equipment = listOf(Equipment(id = "eq1", name = "Barbell")),
+            onBack = {},
+            onSaveExercise = { _, _, _, _, _ -> },
+            onDeleteExercise = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddExerciseDialogPreview() {
+    WorkoutPlannerTheme {
+        AddExerciseDialog(
+            initialExercise = null,
+            equipmentList = listOf(
+                Equipment(id = "eq1", name = "Barbell"),
+                Equipment(id = "eq2", name = "Dumbbell")
+            ),
+            onDismiss = {},
+            onConfirm = { _, _, _, _ -> }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExerciseLibraryItemPreview() {
+    WorkoutPlannerTheme {
+        ExerciseLibraryItem(
+            exercise = Exercise(
+                id = "e1",
+                name = "Bench Press",
+                muscleGroup = "Chest",
+                description = "Flat barbell press",
+                equipmentId = "eq1",
+                equipmentName = "Barbell"
+            ),
+            onClick = {},
+            onDelete = {}
+        )
     }
 }
