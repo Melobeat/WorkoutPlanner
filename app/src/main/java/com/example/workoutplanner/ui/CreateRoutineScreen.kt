@@ -18,12 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Exercise
 import com.example.workoutplanner.model.RoutineSet
 import com.example.workoutplanner.model.WorkoutDay
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,14 +48,42 @@ fun CreateRoutineScreen(
         }
     }
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
-    val availableExercises = exerciseLibState.exercises
 
-    var name by remember(initialRoutine) { mutableStateOf(initialRoutine?.name ?: "") }
-    var description by remember(initialRoutine) { mutableStateOf(initialRoutine?.description ?: "") }
-    var days by remember(initialRoutine) { mutableStateOf(initialRoutine?.workoutDays ?: listOf()) }
+    if (routineId != null && initialRoutine == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    CreateRoutineScreenContent(
+        routineId = routineId,
+        initialName = initialRoutine?.name ?: "",
+        initialDescription = initialRoutine?.description ?: "",
+        initialDays = initialRoutine?.workoutDays ?: emptyList(),
+        availableExercises = exerciseLibState.exercises,
+        onSave = { name, desc, days -> viewModel.saveRoutine(name, desc, days, routineId) },
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateRoutineScreenContent(
+    routineId: String?,
+    initialName: String,
+    initialDescription: String,
+    initialDays: List<WorkoutDay>,
+    availableExercises: List<Exercise>,
+    onSave: (name: String, description: String, days: List<WorkoutDay>) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var name by remember(initialName) { mutableStateOf(initialName) }
+    var description by remember(initialDescription) { mutableStateOf(initialDescription) }
+    var days by remember(initialDays) { mutableStateOf(initialDays) }
     var showExercisePickerForDayIndex by remember { mutableStateOf<Int?>(null) }
-
-    // Track expanded state for days
     val expandedDays = remember { mutableStateMapOf<String, Boolean>() }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -69,7 +99,7 @@ fun CreateRoutineScreen(
                 },
                 actions = {
                     TextButton(
-                        onClick = { viewModel.saveRoutine(name, description, days, routineId) },
+                        onClick = { onSave(name, description, days) },
                         enabled = name.isNotBlank() && days.isNotEmpty()
                     ) {
                         Text("Save")
@@ -115,9 +145,7 @@ fun CreateRoutineScreen(
                             this[dayIndex] = day.copy(name = newName)
                         }
                     },
-                    onAddExercise = {
-                        showExercisePickerForDayIndex = dayIndex
-                    },
+                    onAddExercise = { showExercisePickerForDayIndex = dayIndex },
                     onRemoveDay = {
                         days = days.toMutableList().apply { removeAt(dayIndex) }
                     },
@@ -432,4 +460,100 @@ fun ExercisePicker(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateRoutineScreenContentPreview() {
+    WorkoutPlannerTheme {
+        CreateRoutineScreenContent(
+            routineId = null,
+            initialName = "Push Pull Legs",
+            initialDescription = "3-day strength split",
+            initialDays = listOf(
+                WorkoutDay(
+                    id = "d1",
+                    name = "Push Day",
+                    exercises = listOf(
+                        Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                            routineSets = listOf(RoutineSet(10, 60.0), RoutineSet(10, 60.0)))
+                    )
+                ),
+                WorkoutDay(id = "d2", name = "Pull Day", exercises = listOf())
+            ),
+            availableExercises = listOf(
+                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest"),
+                Exercise(id = "e2", name = "Pull-up", muscleGroup = "Back")
+            ),
+            onSave = { _, _, _ -> },
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DayCardPreview() {
+    WorkoutPlannerTheme {
+        DayCard(
+            day = WorkoutDay(
+                id = "d1",
+                name = "Push Day",
+                exercises = listOf(
+                    Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                        routineSets = listOf(RoutineSet(10, 60.0), RoutineSet(10, 60.0), RoutineSet(8, 60.0)))
+                )
+            ),
+            isExpanded = true,
+            onToggleExpand = {},
+            onNameChange = {},
+            onAddExercise = {},
+            onRemoveDay = {},
+            onMoveUp = null,
+            onMoveDown = null,
+            onUpdateExercise = { _, _ -> },
+            onRemoveExercise = {},
+            onMoveExerciseUp = {},
+            onMoveExerciseDown = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExerciseEditItemPreview() {
+    WorkoutPlannerTheme {
+        ExerciseEditItem(
+            exercise = Exercise(
+                id = "e1",
+                name = "Bench Press",
+                muscleGroup = "Chest",
+                routineSets = listOf(
+                    RoutineSet(10, 60.0),
+                    RoutineSet(10, 60.0),
+                    RoutineSet(8, 60.0, isAmrap = true)
+                )
+            ),
+            onUpdate = {},
+            onRemove = {},
+            onMoveUp = {},
+            onMoveDown = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExercisePickerPreview() {
+    WorkoutPlannerTheme {
+        ExercisePicker(
+            exercises = listOf(
+                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest"),
+                Exercise(id = "e2", name = "Squat", muscleGroup = "Legs"),
+                Exercise(id = "e3", name = "Deadlift", muscleGroup = "Back")
+            ),
+            onDismiss = {},
+            onExerciseSelected = {}
+        )
+    }
 }
