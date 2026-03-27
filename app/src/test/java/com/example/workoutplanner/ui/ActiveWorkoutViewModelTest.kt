@@ -345,6 +345,56 @@ class ActiveWorkoutViewModelTest {
 
     // endregion
 
+    // region goToPreviousSet
+
+    @Test
+    fun `goToPreviousSet decrements setIndex when not on first set`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+        // advance to set 1 first
+        viewModel.completeCurrentSet()
+
+        viewModel.goToPreviousSet()
+
+        assertEquals(0, viewModel.uiState.value.currentSetIndex)
+        assertEquals(0, viewModel.uiState.value.currentExerciseIndex)
+    }
+
+    @Test
+    fun `goToPreviousSet wraps to last set of previous exercise when on first set`() = runTest {
+        // makeWorkoutDay gives 2 exercises, each with 2 sets
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+        // advance past exercise 0 entirely: complete set 0, complete set 1 → moves to exercise 1 set 0
+        viewModel.completeCurrentSet() // set 0 done → set 1
+        viewModel.completeCurrentSet() // set 1 done → exercise 1 set 0
+
+        viewModel.goToPreviousSet()
+
+        assertEquals(0, viewModel.uiState.value.currentExerciseIndex)
+        assertEquals(1, viewModel.uiState.value.currentSetIndex) // last set of exercise 0 (2 sets → index 1)
+    }
+
+    @Test
+    fun `goToPreviousSet does nothing when at first set of first exercise`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+
+        viewModel.goToPreviousSet()
+
+        assertEquals(0, viewModel.uiState.value.currentExerciseIndex)
+        assertEquals(0, viewModel.uiState.value.currentSetIndex)
+    }
+
+    @Test
+    fun `goToPreviousSet does not change isDone state of any set`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+        viewModel.completeCurrentSet() // completes set 0, moves to set 1
+
+        viewModel.goToPreviousSet() // back to set 0
+
+        assertTrue(viewModel.uiState.value.exercises[0].sets[0].isDone)
+    }
+
+    // endregion
+
     // region helpers
 
     private fun makeWorkoutDay(exerciseCount: Int = 2) = WorkoutDay(

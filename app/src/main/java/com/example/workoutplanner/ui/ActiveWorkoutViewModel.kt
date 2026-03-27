@@ -39,6 +39,8 @@ data class ActiveWorkoutUiState(
     val exercises: List<ExerciseUiState> = emptyList(),
     val elapsedTime: Long = 0L,
     val isFinished: Boolean = false,
+    val showSummary: Boolean = false,
+    val summaryDurationMs: Long = 0L,
     val error: String? = null,
     val currentExerciseIndex: Int = 0,
     val currentSetIndex: Int = 0
@@ -159,10 +161,31 @@ class ActiveWorkoutViewModel @Inject constructor(
         _uiState.value = ActiveWorkoutUiState()
     }
 
+    fun requestFinish() {
+        val capturedDuration = _elapsedTime.value
+        timerJob?.cancel()
+        timerJob = null
+        _uiState.update { it.copy(showSummary = true, summaryDurationMs = capturedDuration) }
+    }
+
+    fun resumeWorkout() {
+        _uiState.update { it.copy(showSummary = false) }
+        val resumeFrom = _uiState.value.summaryDurationMs
+        val start = System.currentTimeMillis() - resumeFrom
+        timerJob = viewModelScope.launch(Dispatchers.Default) {
+            while (true) {
+                val elapsed = System.currentTimeMillis() - start
+                _elapsedTime.value = elapsed
+                _uiState.update { it.copy(elapsedTime = elapsed) }
+                delay(1000)
+            }
+        }
+    }
+
     fun finishWorkout() {
         val day = currentWorkoutDay ?: return
         currentWorkoutDay = null
-        val duration = _elapsedTime.value
+        val duration = _uiState.value.summaryDurationMs
         timerJob?.cancel()
         timerJob = null
 
@@ -370,7 +393,26 @@ class ActiveWorkoutViewModel @Inject constructor(
                 _uiState.update { it.copy(currentSetIndex = si + 1) }
             ei < _uiState.value.exercises.size - 1 ->
                 _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
-            else -> finishWorkout()
+            else -> requestFinish()
+        }
+    }
+
+    fun goToPreviousSet() {
+        val state = _uiState.value
+        val ei = state.currentExerciseIndex
+        val si = state.currentSetIndex
+        when {
+            si > 0 -> _uiState.update { it.copy(currentSetIndex = si - 1) }
+            ei > 0 -> {
+                val prevExercise = state.exercises[ei - 1]
+                _uiState.update {
+                    it.copy(
+                        currentExerciseIndex = ei - 1,
+                        currentSetIndex = prevExercise.sets.size - 1
+                    )
+                }
+            }
+            // else: already at start — no-op
         }
     }
 
