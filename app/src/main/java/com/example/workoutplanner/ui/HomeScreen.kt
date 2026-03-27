@@ -49,14 +49,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.workoutplanner.model.Exercise
+import com.example.workoutplanner.model.Routine
+import com.example.workoutplanner.model.RoutineSet
 import com.example.workoutplanner.model.WorkoutDay
 import com.example.workoutplanner.ui.theme.Pink40
 import com.example.workoutplanner.ui.theme.Purple10
 import com.example.workoutplanner.ui.theme.Purple40
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +75,34 @@ fun HomeScreen(
     )
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HomeScreenContent(
+        uiState = uiState,
+        onNavigateToSettings = onNavigateToSettings,
+        onStartWorkout = { day, dayIndex, routineName, routineId ->
+            activeWorkoutViewModel.startWorkout(
+                day = day,
+                dayIndex = dayIndex,
+                routineName = routineName,
+                routineId = routineId
+            )
+            onStartWorkout()
+        },
+        onUpdateNextDay = { routineId, lastCompletedIndex ->
+            viewModel.updateNextDay(routineId, lastCompletedIndex)
+        },
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreenContent(
+    uiState: HomeUiState,
+    onNavigateToSettings: () -> Unit,
+    onStartWorkout: (day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String) -> Unit,
+    onUpdateNextDay: (routineId: String, lastCompletedIndex: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var showWorkoutChooser by remember { mutableStateOf(false) }
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val heroBrush = Brush.linearGradient(listOf(Purple10, Purple40, Pink40))
@@ -187,13 +220,7 @@ fun HomeScreen(
                         ) {
                             Button(
                                 onClick = {
-                                    activeWorkoutViewModel.startWorkout(
-                                        day = nextDay,
-                                        dayIndex = nextDayIndex,
-                                        routineName = routine.name,
-                                        routineId = routine.id
-                                    )
-                                    onStartWorkout()
+                                    onStartWorkout(nextDay, nextDayIndex, routine.name, routine.id)
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -274,7 +301,7 @@ fun HomeScreen(
                 val routine = uiState.selectedRoutine ?: return@WorkoutDayChooserDialog
                 val totalDays = routine.workoutDays.size
                 val lastCompletedIndex = (index + totalDays - 1) % totalDays
-                viewModel.updateNextDay(routine.id, lastCompletedIndex)
+                onUpdateNextDay(routine.id, lastCompletedIndex)
                 showWorkoutChooser = false
             },
             onDismiss = { showWorkoutChooser = false }
@@ -318,4 +345,64 @@ fun WorkoutDayChooserDialog(
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenContentPreview() {
+    WorkoutPlannerTheme {
+        HomeScreenContent(
+            uiState = HomeUiState(
+                selectedRoutine = Routine(
+                    id = "r1",
+                    name = "Push Pull Legs",
+                    isSelected = true,
+                    lastCompletedDayIndex = -1,
+                    workoutDays = listOf(
+                        WorkoutDay(
+                            id = "d1",
+                            name = "Push Day",
+                            exercises = listOf(
+                                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                                    routineSets = listOf(RoutineSet(10, 60.0), RoutineSet(10, 60.0), RoutineSet(8, 60.0))),
+                                Exercise(id = "e2", name = "Overhead Press", muscleGroup = "Shoulders",
+                                    routineSets = listOf(RoutineSet(8, 40.0))),
+                                Exercise(id = "e3", name = "Tricep Pushdown", muscleGroup = "Triceps",
+                                    routineSets = listOf(RoutineSet(12, 25.0)))
+                            )
+                        ),
+                        WorkoutDay(id = "d2", name = "Pull Day", exercises = listOf()),
+                        WorkoutDay(id = "d3", name = "Leg Day", exercises = listOf())
+                    )
+                ),
+                recentHistory = emptyList(),
+                exerciseNameMap = emptyMap(),
+                isLoading = false
+            ),
+            onNavigateToSettings = {},
+            onStartWorkout = { _, _, _, _ -> },
+            onUpdateNextDay = { _, _ -> }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutDayChooserDialogPreview() {
+    WorkoutPlannerTheme {
+        WorkoutDayChooserDialog(
+            workoutDays = listOf(
+                WorkoutDay(id = "d1", name = "Push Day", exercises = listOf(
+                    Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest"),
+                    Exercise(id = "e2", name = "Overhead Press", muscleGroup = "Shoulders")
+                )),
+                WorkoutDay(id = "d2", name = "Pull Day", exercises = listOf(
+                    Exercise(id = "e3", name = "Pull-up", muscleGroup = "Back")
+                )),
+                WorkoutDay(id = "d3", name = "Leg Day", exercises = listOf())
+            ),
+            onDaySelected = {},
+            onDismiss = {}
+        )
+    }
 }
