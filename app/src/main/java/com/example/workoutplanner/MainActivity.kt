@@ -6,14 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.*
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.activity.compose.LocalActivity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,6 +24,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.workoutplanner.ui.ActiveWorkoutViewModel
+import com.example.workoutplanner.ui.formatElapsedTime
 import com.example.workoutplanner.ui.navigation.ActiveWorkoutRoute
 import com.example.workoutplanner.ui.navigation.HistoryRoute
 import com.example.workoutplanner.ui.navigation.HomeRoute
@@ -56,7 +59,7 @@ fun WorkoutPlannerApp() {
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             item(
-                icon = { Icon(painterResource(R.drawable.ic_home), contentDescription = "Home") },
+                icon = { Icon(Icons.Rounded.FitnessCenter, contentDescription = "Home") },
                 label = { Text("Home") },
                 selected = currentDestination?.hasRoute<HomeRoute>() == true,
                 onClick = {
@@ -67,7 +70,7 @@ fun WorkoutPlannerApp() {
                 }
             )
             item(
-                icon = { Icon(painterResource(R.drawable.ic_history), contentDescription = "History") },
+                icon = { Icon(Icons.Rounded.History, contentDescription = "History") },
                 label = { Text("History") },
                 selected = currentDestination?.hasRoute<HistoryRoute>() == true,
                 onClick = {
@@ -89,7 +92,7 @@ fun WorkoutPlannerApp() {
                             activeWorkoutViewModel.setFullScreen(true)
                             navController.navigate(ActiveWorkoutRoute)
                         },
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         tonalElevation = 8.dp,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -103,21 +106,32 @@ fun WorkoutPlannerApp() {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                                Icon(
+                                    Icons.Rounded.FitnessCenter,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                                 Spacer(Modifier.width(12.dp))
                                 Column {
-                                    Text("Active Workout", style = MaterialTheme.typography.labelMedium)
                                     Text(
-                                        text = workoutUiState.workoutDayName,
-                                        style = MaterialTheme.typography.titleMedium,
+                                        formatElapsedTime(workoutUiState.elapsedTime),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        workoutUiState.workoutDayName,
+                                        style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
-                            TextButton(onClick = {
-                                activeWorkoutViewModel.setFullScreen(true)
-                                navController.navigate(ActiveWorkoutRoute)
-                            }) {
+                            FilledTonalButton(
+                                onClick = {
+                                    activeWorkoutViewModel.setFullScreen(true)
+                                    navController.navigate(ActiveWorkoutRoute)
+                                },
+                                shape = CircleShape
+                            ) {
                                 Text("Resume")
                             }
                         }
