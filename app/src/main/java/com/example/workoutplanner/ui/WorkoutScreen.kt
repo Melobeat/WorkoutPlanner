@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.workoutplanner.model.Exercise
 import com.example.workoutplanner.ui.theme.Pink40
@@ -73,7 +74,7 @@ fun WorkoutScreen(
     viewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     ),
-    exerciseLibraryViewModel: ExerciseLibraryViewModel = viewModel()
+    exerciseLibraryViewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()

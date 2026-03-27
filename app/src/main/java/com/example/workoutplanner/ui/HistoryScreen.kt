@@ -46,7 +46,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.workoutplanner.data.WorkoutHistoryWithExercises
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
-    viewModel: HistoryViewModel = viewModel()
+    viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()

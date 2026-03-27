@@ -19,7 +19,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Exercise
 import com.example.workoutplanner.model.RoutineSet
@@ -32,8 +32,8 @@ fun CreateRoutineScreen(
     routineId: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RoutinesViewModel = viewModel(),
-    exerciseLibraryViewModel: ExerciseLibraryViewModel = viewModel()
+    viewModel: RoutinesViewModel = hiltViewModel(),
+    exerciseLibraryViewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
     LaunchedEffect(routineId) { routineId?.let { viewModel.loadRoutineDetail(it) } }
     val initialRoutine by if (routineId != null) viewModel.detailRoutine.collectAsStateWithLifecycle()

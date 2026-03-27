@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.workoutplanner.model.WorkoutDay
 import com.example.workoutplanner.ui.theme.Pink40
@@ -64,7 +65,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onStartWorkout: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     activeWorkoutViewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
     )

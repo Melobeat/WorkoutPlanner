@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
 
@@ -24,7 +24,7 @@ import com.example.workoutplanner.model.Equipment
 fun EquipmentScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ExerciseLibraryViewModel = viewModel()
+    viewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
