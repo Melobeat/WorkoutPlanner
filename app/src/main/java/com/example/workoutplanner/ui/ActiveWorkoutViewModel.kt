@@ -18,6 +18,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// Moved from WorkoutScreen — used by repository and view model
+data class ExerciseHistory(
+    val exerciseId: String,
+    val reps: Int,
+    val weight: Double,
+    val setIndex: Int = 1,
+    val isAmrap: Boolean = false
+)
+
+fun formatWeight(weight: Double): String {
+    return if (weight % 1.0 == 0.0) weight.toInt().toString() else weight.toString()
+}
+
 // Immutable state classes
 data class ActiveWorkoutUiState(
     val isActive: Boolean = false,
