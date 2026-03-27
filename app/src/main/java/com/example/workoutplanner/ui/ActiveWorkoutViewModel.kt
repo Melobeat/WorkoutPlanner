@@ -26,7 +26,9 @@ data class ActiveWorkoutUiState(
     val exercises: List<ExerciseUiState> = emptyList(),
     val elapsedTime: Long = 0L,
     val isFinished: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val currentExerciseIndex: Int = 0,
+    val currentSetIndex: Int = 0
 )
 
 data class ExerciseUiState(
@@ -88,7 +90,9 @@ class ActiveWorkoutViewModel @Inject constructor(
                         workoutDayName = day.name,
                         exercises = exerciseStates,
                         isFinished = false,
-                        error = null
+                        error = null,
+                        currentExerciseIndex = 0,
+                        currentSetIndex = 0
                     )
                 }
                 startTimer()
@@ -304,5 +308,79 @@ class ActiveWorkoutViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun incrementReps(exerciseIndex: Int, setIndex: Int) {
+        val current = _uiState.value.exercises
+            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
+            ?.reps?.toIntOrNull() ?: 0
+        setRepsValue(exerciseIndex, setIndex, (current + 1).toString())
+    }
+
+    fun decrementReps(exerciseIndex: Int, setIndex: Int) {
+        val current = _uiState.value.exercises
+            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
+            ?.reps?.toIntOrNull() ?: 0
+        if (current > 0) setRepsValue(exerciseIndex, setIndex, (current - 1).toString())
+    }
+
+    fun incrementWeight(exerciseIndex: Int, setIndex: Int) {
+        val current = _uiState.value.exercises
+            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
+            ?.weight?.toDoubleOrNull() ?: 0.0
+        setWeightValue(exerciseIndex, setIndex, formatWeight(current + 2.5))
+    }
+
+    fun decrementWeight(exerciseIndex: Int, setIndex: Int) {
+        val current = _uiState.value.exercises
+            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
+            ?.weight?.toDoubleOrNull() ?: 0.0
+        if (current >= 2.5) setWeightValue(exerciseIndex, setIndex, formatWeight(current - 2.5))
+    }
+
+    fun completeCurrentSet() {
+        val state = _uiState.value
+        val ei = state.currentExerciseIndex
+        val si = state.currentSetIndex
+        // mark done
+        _uiState.update { s ->
+            s.copy(exercises = s.exercises.mapIndexed { eIdx, ex ->
+                if (eIdx != ei) ex
+                else ex.copy(sets = ex.sets.mapIndexed { sIdx, set ->
+                    if (sIdx == si) set.copy(isDone = true) else set
+                })
+            })
+        }
+        val exercise = _uiState.value.exercises[ei]
+        when {
+            si < exercise.sets.size - 1 ->
+                _uiState.update { it.copy(currentSetIndex = si + 1) }
+            ei < _uiState.value.exercises.size - 1 ->
+                _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
+            else -> finishWorkout()
+        }
+    }
+
+    // Value-only updates (do not flip isDone) used by steppers
+    private fun setRepsValue(exerciseIndex: Int, setIndex: Int, reps: String) {
+        _uiState.update { state ->
+            state.copy(exercises = state.exercises.mapIndexed { ei, ex ->
+                if (ei != exerciseIndex) return@mapIndexed ex
+                ex.copy(sets = ex.sets.mapIndexed { si, set ->
+                    if (si == setIndex) set.copy(reps = reps, originalReps = reps) else set
+                })
+            })
+        }
+    }
+
+    private fun setWeightValue(exerciseIndex: Int, setIndex: Int, weight: String) {
+        _uiState.update { state ->
+            state.copy(exercises = state.exercises.mapIndexed { ei, ex ->
+                if (ei != exerciseIndex) return@mapIndexed ex
+                ex.copy(sets = ex.sets.mapIndexed { si, set ->
+                    if (si == setIndex) set.copy(weight = weight) else set
+                })
+            })
+        }
     }
 }
