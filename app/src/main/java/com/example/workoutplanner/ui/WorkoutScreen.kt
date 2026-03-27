@@ -42,7 +42,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -75,6 +74,7 @@ import java.util.Locale
 @Composable
 fun WorkoutScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToSummary: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ActiveWorkoutViewModel = viewModel(
         viewModelStoreOwner = LocalActivity.current as ComponentActivity
@@ -84,18 +84,25 @@ fun WorkoutScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.showSummary) {
+        if (uiState.showSummary) onNavigateToSummary()
+    }
+
     WorkoutScreenContent(
         uiState = uiState,
         availableExercises = exerciseLibState.exercises,
         onMinimize = { viewModel.setFullScreen(false); onNavigateBack() },
         onCompleteSet = { viewModel.completeCurrentSet() },
         onAddExercise = { viewModel.addExercise(it) },
-        onFinishWorkout = { viewModel.finishWorkout() },
+        onSwapExercise = { exerciseIndex, exercise -> viewModel.swapExercise(exerciseIndex, exercise) },
+        onFinishWorkout = { viewModel.requestFinish() },
         onCancelWorkout = { viewModel.cancelWorkout(); onNavigateBack() },
         onIncrementReps = { ei, si -> viewModel.incrementReps(ei, si) },
         onDecrementReps = { ei, si -> viewModel.decrementReps(ei, si) },
         onIncrementWeight = { ei, si -> viewModel.incrementWeight(ei, si) },
         onDecrementWeight = { ei, si -> viewModel.decrementWeight(ei, si) },
+        onGoBack = { viewModel.goToPreviousSet() },
+        onSkipExercise = { viewModel.skipExercise() },
         onNavigateBack = onNavigateBack,
         modifier = modifier
     )
@@ -113,18 +120,18 @@ fun WorkoutScreenContent(
     onCancelWorkout: () -> Unit,
     onIncrementReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
     onDecrementReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onSwapExercise: (exerciseIndex: Int, Exercise) -> Unit,
     onIncrementWeight: (exerciseIndex: Int, setIndex: Int) -> Unit,
     onDecrementWeight: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onGoBack: () -> Unit,
+    onSkipExercise: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showAddExerciseDialog by remember { mutableStateOf(false) }
+    var showSwapDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
-
-    LaunchedEffect(uiState.isFinished) {
-        if (uiState.isFinished) onNavigateBack()
-    }
 
     val exercises = uiState.exercises
     val ei = uiState.currentExerciseIndex.coerceIn(0, (exercises.size - 1).coerceAtLeast(0))
@@ -242,7 +249,7 @@ fun WorkoutScreenContent(
                         fontWeight = FontWeight.ExtraBold
                     )
                     FilledTonalButton(
-                        onClick = { /* swap handled via dialog */ },
+                        onClick = { showSwapDialog = true },
                         shape = CircleShape
                     ) {
                         Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -303,18 +310,20 @@ fun WorkoutScreenContent(
 
                 Spacer(Modifier.height(12.dp))
 
-                // AMRAP toggle — shown only on last set
-                if (si == currentExercise.sets.size - 1) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                // AMRAP badge — shown only on last set when flagged in routine
+                if (currentSet.isAmrap) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.tertiaryContainer,
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) {
-                        Switch(
-                            checked = currentSet.isAmrap,
-                            onCheckedChange = { /* isAmrap is from routine definition — read-only in active workout */ }
+                        Text(
+                            text = "AMRAP",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                         )
-                        Text("Last set AMRAP", style = MaterialTheme.typography.bodyMedium)
                     }
                     Spacer(Modifier.height(8.dp))
                 }
@@ -346,6 +355,27 @@ fun WorkoutScreenContent(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
+                    }
+                }
+
+                // Navigation row — Back and Skip
+                val isAtStart = ei == 0 && si == 0
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    FilledTonalButton(
+                        onClick = onGoBack,
+                        enabled = !isAtStart,
+                        shape = CircleShape
+                    ) {
+                        Text("← Back", style = MaterialTheme.typography.labelMedium)
+                    }
+                    FilledTonalButton(
+                        onClick = onSkipExercise,
+                        shape = CircleShape
+                    ) {
+                        Text("Skip Exercise →", style = MaterialTheme.typography.labelMedium)
                     }
                 }
 
@@ -431,6 +461,17 @@ fun WorkoutScreenContent(
             onExerciseSelected = { exercise ->
                 onAddExercise(exercise)
                 showAddExerciseDialog = false
+            }
+        )
+    }
+
+    if (showSwapDialog) {
+        ExerciseSelectionDialog(
+            exercises = availableExercises,
+            onDismiss = { showSwapDialog = false },
+            onExerciseSelected = { exercise ->
+                onSwapExercise(ei, exercise)
+                showSwapDialog = false
             }
         )
     }
@@ -610,12 +651,15 @@ fun WorkoutScreenContentPreview() {
             onMinimize = {},
             onCompleteSet = {},
             onAddExercise = {},
+            onSwapExercise = { _, _ -> },
             onFinishWorkout = {},
             onCancelWorkout = {},
             onIncrementReps = { _, _ -> },
             onDecrementReps = { _, _ -> },
             onIncrementWeight = { _, _ -> },
             onDecrementWeight = { _, _ -> },
+            onGoBack = {},
+            onSkipExercise = {},
             onNavigateBack = {}
         )
     }
