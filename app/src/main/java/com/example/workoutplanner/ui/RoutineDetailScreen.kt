@@ -31,10 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.workoutplanner.model.Exercise
+import com.example.workoutplanner.model.Routine
+import com.example.workoutplanner.model.RoutineSet
 import com.example.workoutplanner.model.WorkoutDay
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,12 +60,28 @@ fun RoutineDetailScreen(
         return
     }
 
+    RoutineDetailScreenContent(
+        routine = routine!!,
+        onBackClick = onBackClick,
+        onEditClick = onEditClick,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RoutineDetailScreenContent(
+    routine: Routine,
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(routine!!.name, fontWeight = FontWeight.Black) },
+                title = { Text(routine.name, fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -82,15 +103,15 @@ fun RoutineDetailScreen(
                 .padding(innerPadding)
         ) {
             item {
-                if (routine!!.description.isNotEmpty()) {
+                if (routine.description.isNotEmpty()) {
                     Text(
-                        text = routine!!.description,
+                        text = routine.description,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(16.dp)
                     )
                 }
             }
-            items(routine!!.workoutDays) { day ->
+            items(routine.workoutDays) { day ->
                 WorkoutDayItem(day = day)
             }
         }
@@ -159,5 +180,56 @@ fun WorkoutDayItem(day: WorkoutDay) {
             }
         }
     }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoutineDetailScreenContentPreview() {
+    WorkoutPlannerTheme {
+        RoutineDetailScreenContent(
+            routine = Routine(
+                id = "r1",
+                name = "Push Pull Legs",
+                description = "3-day split targeting all major muscle groups.",
+                isSelected = true,
+                workoutDays = listOf(
+                    WorkoutDay(
+                        id = "d1",
+                        name = "Push Day",
+                        exercises = listOf(
+                            Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                                equipmentName = "Barbell",
+                                routineSets = listOf(RoutineSet(10, 60.0), RoutineSet(10, 60.0), RoutineSet(8, 60.0))),
+                            Exercise(id = "e2", name = "Overhead Press", muscleGroup = "Shoulders",
+                                routineSets = listOf(RoutineSet(8, 40.0)))
+                        )
+                    ),
+                    WorkoutDay(id = "d2", name = "Pull Day", exercises = listOf())
+                )
+            ),
+            onBackClick = {},
+            onEditClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutDayItemPreview() {
+    WorkoutPlannerTheme {
+        WorkoutDayItem(
+            day = WorkoutDay(
+                id = "d1",
+                name = "Push Day",
+                exercises = listOf(
+                    Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest",
+                        equipmentName = "Barbell",
+                        routineSets = listOf(RoutineSet(10, 60.0), RoutineSet(10, 60.0), RoutineSet(8, 60.0))),
+                    Exercise(id = "e2", name = "Overhead Press", muscleGroup = "Shoulders",
+                        routineSets = listOf(RoutineSet(8, 40.0)))
+                )
+            )
+        )
     }
 }
