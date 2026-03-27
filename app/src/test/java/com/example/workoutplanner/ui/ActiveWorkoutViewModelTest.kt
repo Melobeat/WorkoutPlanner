@@ -395,6 +395,39 @@ class ActiveWorkoutViewModelTest {
 
     // endregion
 
+    // region skipExercise
+
+    @Test
+    fun `skipExercise advances to next exercise and resets setIndex`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 3), 0, "R", null)
+
+        viewModel.skipExercise()
+
+        assertEquals(1, viewModel.uiState.value.currentExerciseIndex)
+        assertEquals(0, viewModel.uiState.value.currentSetIndex)
+    }
+
+    @Test
+    fun `skipExercise leaves skipped exercise sets as not done`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 2), 0, "R", null)
+
+        viewModel.skipExercise()
+
+        val skippedSets = viewModel.uiState.value.exercises[0].sets
+        assertTrue(skippedSets.all { !it.isDone })
+    }
+
+    @Test
+    fun `skipExercise on last exercise triggers showSummary`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 1), 0, "R", null)
+
+        viewModel.skipExercise()
+
+        assertTrue(viewModel.uiState.value.showSummary)
+    }
+
+    // endregion
+
     // region helpers
 
     private fun makeWorkoutDay(exerciseCount: Int = 2) = WorkoutDay(

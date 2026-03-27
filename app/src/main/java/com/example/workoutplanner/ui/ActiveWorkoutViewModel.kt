@@ -416,6 +416,16 @@ class ActiveWorkoutViewModel @Inject constructor(
         }
     }
 
+    fun skipExercise() {
+        val state = _uiState.value
+        val ei = state.currentExerciseIndex
+        if (ei < state.exercises.size - 1) {
+            _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
+        } else {
+            requestFinish()
+        }
+    }
+
     // Value-only updates (do not flip isDone) used by steppers
     private fun setRepsValue(exerciseIndex: Int, setIndex: Int, reps: String) {
         _uiState.update { state ->
