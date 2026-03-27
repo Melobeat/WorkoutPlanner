@@ -25,7 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,4 +115,30 @@ fun SettingsListItem(
         },
         modifier = Modifier.clickable(onClick = onClick)
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsScreenPreview() {
+    WorkoutPlannerTheme {
+        SettingsScreen(
+            onNavigateToExercises = {},
+            onNavigateToRoutines = {},
+            onNavigateToEquipment = {},
+            onBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsListItemPreview() {
+    WorkoutPlannerTheme {
+        SettingsListItem(
+            title = "Manage Exercises",
+            subtitle = "Add, edit or delete exercises",
+            icon = Icons.Outlined.FitnessCenter,
+            onClick = {}
+        )
+    }
 }
