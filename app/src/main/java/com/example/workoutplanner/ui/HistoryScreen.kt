@@ -44,10 +44,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.workoutplanner.data.ExerciseHistoryEntity
+import com.example.workoutplanner.data.WorkoutHistoryEntity
 import com.example.workoutplanner.data.WorkoutHistoryWithExercises
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -61,6 +65,15 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HistoryScreenContent(uiState = uiState, modifier = modifier)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HistoryScreenContent(
+    uiState: HistoryUiState,
+    modifier: Modifier = Modifier
+) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val expandedIds = remember { mutableStateMapOf<String, Boolean>() }
 
@@ -357,5 +370,86 @@ fun WorkoutSessionCard(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HistoryScreenContentPreview() {
+    val session = WorkoutHistoryWithExercises(
+        workout = WorkoutHistoryEntity(
+            id = "h1",
+            routineName = "Push Pull Legs",
+            workoutDayName = "Push Day",
+            date = System.currentTimeMillis() - 86_400_000L,
+            durationMillis = 3_720_000L
+        ),
+        exercises = listOf(
+            ExerciseHistoryEntity(id = "eh1", workoutHistoryId = "h1", exerciseId = "ex1",
+                date = System.currentTimeMillis(), sets = 1, reps = 10, weight = 60.0),
+            ExerciseHistoryEntity(id = "eh2", workoutHistoryId = "h1", exerciseId = "ex2",
+                date = System.currentTimeMillis(), sets = 1, reps = 8, weight = 80.0)
+        )
+    )
+    WorkoutPlannerTheme {
+        HistoryScreenContent(
+            uiState = HistoryUiState(
+                sessions = listOf(session),
+                exerciseNameMap = mapOf("ex1" to "Bench Press", "ex2" to "Overhead Press"),
+                isLoading = false
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HistorySessionCardPreview() {
+    val session = WorkoutHistoryWithExercises(
+        workout = WorkoutHistoryEntity(
+            id = "h1",
+            routineName = "Push Pull Legs",
+            workoutDayName = "Push Day",
+            date = System.currentTimeMillis(),
+            durationMillis = 3_720_000L
+        ),
+        exercises = listOf(
+            ExerciseHistoryEntity(id = "eh1", workoutHistoryId = "h1", exerciseId = "ex1",
+                date = System.currentTimeMillis(), sets = 1, reps = 10, weight = 60.0)
+        )
+    )
+    WorkoutPlannerTheme {
+        HistorySessionCard(
+            session = session,
+            exerciseNameMap = mapOf("ex1" to "Bench Press"),
+            isExpanded = true,
+            onToggleExpand = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutSessionCardPreview() {
+    val session = WorkoutHistoryWithExercises(
+        workout = WorkoutHistoryEntity(
+            id = "h1",
+            routineName = "Push Pull Legs",
+            workoutDayName = "Push Day",
+            date = System.currentTimeMillis(),
+            durationMillis = 2_400_000L
+        ),
+        exercises = listOf(
+            ExerciseHistoryEntity(id = "eh1", workoutHistoryId = "h1", exerciseId = "ex1",
+                date = System.currentTimeMillis(), sets = 1, reps = 10, weight = 60.0),
+            ExerciseHistoryEntity(id = "eh2", workoutHistoryId = "h1", exerciseId = "ex2",
+                date = System.currentTimeMillis(), sets = 2, reps = 8, weight = 80.0)
+        )
+    )
+    WorkoutPlannerTheme {
+        WorkoutSessionCard(
+            session = session,
+            exerciseNameMap = mapOf("ex1" to "Bench Press", "ex2" to "Overhead Press")
+        )
     }
 }
