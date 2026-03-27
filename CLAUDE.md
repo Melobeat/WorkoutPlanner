@@ -37,7 +37,9 @@ di/          — Hilt DatabaseModule, @IoDispatcher qualifier
 
 ### State & Navigation flow
 
-`WorkoutPlannerApp` (in `MainActivity.kt`) owns the `NavController` and a single `ActiveWorkoutViewModel` scoped to the `Activity`. This Activity-scoped ViewModel is threaded through to any screen that needs it via `hiltViewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)`.
+`WorkoutPlannerApp` (in `MainActivity.kt`) owns the `NavController` and a single `ActiveWorkoutViewModel` scoped to the `Activity`. This Activity-scoped ViewModel is obtained via `viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)` — the only place `viewModel()` (not `hiltViewModel()`) is used.
+
+**ViewModel creation rule:** All `@HiltViewModel` screen-level ViewModels inside `NavHost` composable destinations **must** use `hiltViewModel()` from `hilt-navigation-compose`. Using `viewModel()` from `lifecycle-viewmodel-compose` will crash at runtime because `NavBackStackEntry` does not have Hilt's factory. Only the Activity-scoped `ActiveWorkoutViewModel` (explicitly passed `viewModelStoreOwner = LocalActivity.current`) uses `viewModel()`.
 
 The active-workout bar (shown when `isActive && !isFullScreen`) lives in `MainActivity`'s `Scaffold.bottomBar`. Minimizing the workout screen pops the back stack; the `DisposableEffect` in `WorkoutNavGraph` then sets `isFullScreen = false`, making the bar appear.
 
@@ -63,7 +65,7 @@ Navigation callbacks follow strict UDF: composables receive lambdas (`onNavigate
 
 ### Tech stack versions (from `gradle/libs.versions.toml`)
 
-- Compose BOM `2026.03.00`, Material3 adaptive nav suite
+- Compose BOM `2026.03.01`, Material3 1.4.0, adaptive nav suite
 - Navigation Compose `2.9.7` (type-safe routes via `@Serializable`)
 - Hilt `2.59.2` + KSP (not KAPT)
 - Room `2.8.4`
