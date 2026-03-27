@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -53,10 +56,12 @@ fun CreateRoutineScreen(
     // Track expanded state for days
     val expandedDays = remember { mutableStateMapOf<String, Boolean>() }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(if (routineId == null) "New Routine" else "Edit Routine") },
+            LargeTopAppBar(
+                title = { Text(if (routineId == null) "New Routine" else "Edit Routine", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -69,10 +74,11 @@ fun CreateRoutineScreen(
                     ) {
                         Text("Save")
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
-        modifier = modifier
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -175,7 +181,8 @@ fun CreateRoutineScreen(
                         days = days + WorkoutDay(id = newDayId, name = "Day ${days.size + 1}")
                         expandedDays[newDayId] = true
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    shape = CircleShape,
+                    modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -218,9 +225,7 @@ fun DayCard(
     onMoveExerciseUp: (Int) -> Unit,
     onMoveExerciseDown: (Int) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
