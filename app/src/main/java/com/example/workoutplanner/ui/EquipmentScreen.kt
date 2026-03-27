@@ -12,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,23 +32,28 @@ fun EquipmentScreen(
     var equipmentToEdit by remember { mutableStateOf<Equipment?>(null) }
     var equipmentToDelete by remember { mutableStateOf<Equipment?>(null) }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Manage Equipment") },
+            LargeTopAppBar(
+                title = { Text("Manage Equipment", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Equipment")
-            }
+            ExtendedFloatingActionButton(
+                onClick = { showAddDialog = true },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("Add Equipment") }
+            )
         },
-        modifier = modifier
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -54,11 +61,16 @@ fun EquipmentScreen(
                 .padding(innerPadding)
         ) {
             items(uiState.equipment) { equipment ->
-                EquipmentItem(
-                    equipment = equipment,
-                    onClick = { equipmentToEdit = equipment },
-                    onDelete = { equipmentToDelete = equipment }
+                ListItem(
+                    headlineContent = { Text(equipment.name, fontWeight = FontWeight.SemiBold) },
+                    trailingContent = {
+                        IconButton(onClick = { equipmentToDelete = equipment }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    modifier = Modifier.clickable { equipmentToEdit = equipment }
                 )
+                HorizontalDivider()
             }
         }
 

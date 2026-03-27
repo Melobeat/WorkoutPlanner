@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,23 +38,28 @@ fun ExercisesScreen(
     var exerciseToEdit by remember { mutableStateOf<Exercise?>(null) }
     var exerciseToDelete by remember { mutableStateOf<Exercise?>(null) }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Exercise Library") },
+            LargeTopAppBar(
+                title = { Text("Exercise Library", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Exercise")
-            }
+            ExtendedFloatingActionButton(
+                onClick = { showAddDialog = true },
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("Add Exercise") }
+            )
         },
-        modifier = modifier
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -60,11 +67,17 @@ fun ExercisesScreen(
                 .padding(innerPadding)
         ) {
             items(uiState.exercises) { exercise ->
-                ExerciseLibraryItem(
-                    exercise = exercise,
-                    onClick = { exerciseToEdit = exercise },
-                    onDelete = { exerciseToDelete = exercise }
+                ListItem(
+                    headlineContent = { Text(exercise.name, fontWeight = FontWeight.SemiBold) },
+                    supportingContent = { Text(exercise.muscleGroup) },
+                    trailingContent = {
+                        IconButton(onClick = { exerciseToDelete = exercise }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    modifier = Modifier.clickable { exerciseToEdit = exercise }
                 )
+                HorizontalDivider()
             }
         }
 
