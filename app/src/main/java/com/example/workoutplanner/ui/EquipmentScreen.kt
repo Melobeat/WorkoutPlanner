@@ -14,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.workoutplanner.model.Equipment
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +29,24 @@ fun EquipmentScreen(
     viewModel: ExerciseLibraryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    EquipmentScreenContent(
+        equipment = uiState.equipment,
+        onBack = onBack,
+        onSaveEquipment = { name, id -> viewModel.saveEquipment(name, id) },
+        onDeleteEquipment = { id -> viewModel.deleteEquipment(id) },
+        modifier = modifier
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EquipmentScreenContent(
+    equipment: List<Equipment>,
+    onBack: () -> Unit,
+    onSaveEquipment: (name: String, id: String?) -> Unit,
+    onDeleteEquipment: (id: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var showAddDialog by remember { mutableStateOf(false) }
     var equipmentToEdit by remember { mutableStateOf<Equipment?>(null) }
     var equipmentToDelete by remember { mutableStateOf<Equipment?>(null) }
@@ -53,22 +72,22 @@ fun EquipmentScreen(
                 text = { Text("Add Equipment") }
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            items(uiState.equipment) { equipment ->
+            items(equipment) { item ->
                 ListItem(
-                    headlineContent = { Text(equipment.name, fontWeight = FontWeight.SemiBold) },
+                    headlineContent = { Text(item.name, fontWeight = FontWeight.SemiBold) },
                     trailingContent = {
-                        IconButton(onClick = { equipmentToDelete = equipment }) {
+                        IconButton(onClick = { equipmentToDelete = item }) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
                         }
                     },
-                    modifier = Modifier.clickable { equipmentToEdit = equipment }
+                    modifier = Modifier.clickable { equipmentToEdit = item }
                 )
                 HorizontalDivider()
             }
@@ -82,11 +101,7 @@ fun EquipmentScreen(
                     equipmentToEdit = null
                 },
                 onConfirm = { name ->
-                    if (equipmentToEdit != null) {
-                        viewModel.saveEquipment(name, equipmentToEdit!!.id)
-                    } else {
-                        viewModel.saveEquipment(name, null)
-                    }
+                    onSaveEquipment(name, equipmentToEdit?.id)
                     showAddDialog = false
                     equipmentToEdit = null
                 }
@@ -101,7 +116,7 @@ fun EquipmentScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            viewModel.deleteEquipment(equipmentToDelete!!.id)
+                            onDeleteEquipment(equipmentToDelete!!.id)
                             equipmentToDelete = null
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -183,5 +198,46 @@ fun EquipmentItem(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EquipmentScreenContentPreview() {
+    WorkoutPlannerTheme {
+        EquipmentScreenContent(
+            equipment = listOf(
+                Equipment(id = "1", name = "Barbell"),
+                Equipment(id = "2", name = "Dumbbell"),
+                Equipment(id = "3", name = "Cable Machine")
+            ),
+            onBack = {},
+            onSaveEquipment = { _, _ -> },
+            onDeleteEquipment = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EquipmentDialogPreview() {
+    WorkoutPlannerTheme {
+        EquipmentDialog(
+            initialEquipment = null,
+            onDismiss = {},
+            onConfirm = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EquipmentItemPreview() {
+    WorkoutPlannerTheme {
+        EquipmentItem(
+            equipment = Equipment(id = "1", name = "Barbell"),
+            onClick = {},
+            onDelete = {}
+        )
     }
 }
