@@ -58,6 +58,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -67,6 +68,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.workoutplanner.model.Exercise
 import com.example.workoutplanner.ui.theme.Pink40
 import com.example.workoutplanner.ui.theme.Purple40
+import com.example.workoutplanner.ui.theme.WorkoutPlannerTheme
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +83,41 @@ fun WorkoutScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val exerciseLibState by exerciseLibraryViewModel.uiState.collectAsStateWithLifecycle()
+
+    WorkoutScreenContent(
+        uiState = uiState,
+        availableExercises = exerciseLibState.exercises,
+        onMinimize = { viewModel.setFullScreen(false); onNavigateBack() },
+        onCompleteSet = { viewModel.completeCurrentSet() },
+        onAddExercise = { viewModel.addExercise(it) },
+        onFinishWorkout = { viewModel.finishWorkout() },
+        onCancelWorkout = { viewModel.cancelWorkout(); onNavigateBack() },
+        onIncrementReps = { ei, si -> viewModel.incrementReps(ei, si) },
+        onDecrementReps = { ei, si -> viewModel.decrementReps(ei, si) },
+        onIncrementWeight = { ei, si -> viewModel.incrementWeight(ei, si) },
+        onDecrementWeight = { ei, si -> viewModel.decrementWeight(ei, si) },
+        onNavigateBack = onNavigateBack,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WorkoutScreenContent(
+    uiState: ActiveWorkoutUiState,
+    availableExercises: List<Exercise>,
+    onMinimize: () -> Unit,
+    onCompleteSet: () -> Unit,
+    onAddExercise: (Exercise) -> Unit,
+    onFinishWorkout: () -> Unit,
+    onCancelWorkout: () -> Unit,
+    onIncrementReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onDecrementReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onIncrementWeight: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onDecrementWeight: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var showAddExerciseDialog by remember { mutableStateOf(false) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -114,10 +151,7 @@ fun WorkoutScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.setFullScreen(false)
-                        onNavigateBack()
-                    }) {
+                    IconButton(onClick = onMinimize) {
                         Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = "Minimize")
                     }
                 },
@@ -143,7 +177,7 @@ fun WorkoutScreen(
                                 text = { Text("Finish Workout") },
                                 onClick = {
                                     showMenu = false
-                                    viewModel.finishWorkout()
+                                    onFinishWorkout()
                                 }
                             )
                             DropdownMenuItem(
@@ -254,15 +288,15 @@ fun WorkoutScreen(
                     StepperCard(
                         label = "Reps",
                         value = currentSet.reps,
-                        onIncrement = { viewModel.incrementReps(ei, si) },
-                        onDecrement = { viewModel.decrementReps(ei, si) },
+                        onIncrement = { onIncrementReps(ei, si) },
+                        onDecrement = { onDecrementReps(ei, si) },
                         modifier = Modifier.weight(1f)
                     )
                     StepperCard(
                         label = "kg",
                         value = currentSet.weight,
-                        onIncrement = { viewModel.incrementWeight(ei, si) },
-                        onDecrement = { viewModel.decrementWeight(ei, si) },
+                        onIncrement = { onIncrementWeight(ei, si) },
+                        onDecrement = { onDecrementWeight(ei, si) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -294,7 +328,7 @@ fun WorkoutScreen(
                     else -> "✓  Done — Set ${si + 2}"
                 }
                 Surface(
-                    onClick = { viewModel.completeCurrentSet() },
+                    onClick = onCompleteSet,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = RoundedCornerShape(50),
                     color = Color.Transparent
@@ -392,10 +426,10 @@ fun WorkoutScreen(
 
     if (showAddExerciseDialog) {
         ExerciseSelectionDialog(
-            exercises = exerciseLibState.exercises,
+            exercises = availableExercises,
             onDismiss = { showAddExerciseDialog = false },
             onExerciseSelected = { exercise ->
-                viewModel.addExercise(exercise)
+                onAddExercise(exercise)
                 showAddExerciseDialog = false
             }
         )
@@ -408,8 +442,7 @@ fun WorkoutScreen(
             text = { Text("All progress in this session will be lost.") },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.cancelWorkout()
-                    onNavigateBack()
+                    onCancelWorkout()
                 }) {
                     Text("Cancel Workout", color = MaterialTheme.colorScheme.error)
                 }
@@ -537,5 +570,82 @@ fun formatElapsedTime(millis: Long): String {
         String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
         String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WorkoutScreenContentPreview() {
+    WorkoutPlannerTheme {
+        WorkoutScreenContent(
+            uiState = ActiveWorkoutUiState(
+                isActive = true,
+                workoutDayName = "Push Day",
+                elapsedTime = 1_230_000L,
+                isFinished = false,
+                currentExerciseIndex = 0,
+                currentSetIndex = 1,
+                exercises = listOf(
+                    ExerciseUiState(
+                        exerciseId = "e1",
+                        name = "Bench Press",
+                        sets = listOf(
+                            SetUiState(index = 0, weight = "60", reps = "10", isAmrap = false, isDone = true, originalReps = "10"),
+                            SetUiState(index = 1, weight = "60", reps = "10", isAmrap = false, isDone = false, originalReps = "10"),
+                            SetUiState(index = 2, weight = "60", reps = "8", isAmrap = true, isDone = false, originalReps = "8")
+                        )
+                    ),
+                    ExerciseUiState(
+                        exerciseId = "e2",
+                        name = "Overhead Press",
+                        sets = listOf(
+                            SetUiState(index = 0, weight = "40", reps = "8", isAmrap = false, isDone = false, originalReps = "8")
+                        )
+                    )
+                )
+            ),
+            availableExercises = listOf(
+                Exercise(id = "e3", name = "Incline Press", muscleGroup = "Chest")
+            ),
+            onMinimize = {},
+            onCompleteSet = {},
+            onAddExercise = {},
+            onFinishWorkout = {},
+            onCancelWorkout = {},
+            onIncrementReps = { _, _ -> },
+            onDecrementReps = { _, _ -> },
+            onIncrementWeight = { _, _ -> },
+            onDecrementWeight = { _, _ -> },
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StepperCardPreview() {
+    WorkoutPlannerTheme {
+        StepperCard(
+            label = "Reps",
+            value = "10",
+            onIncrement = {},
+            onDecrement = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExerciseSelectionDialogPreview() {
+    WorkoutPlannerTheme {
+        ExerciseSelectionDialog(
+            exercises = listOf(
+                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest"),
+                Exercise(id = "e2", name = "Squat", muscleGroup = "Legs"),
+                Exercise(id = "e3", name = "Pull-up", muscleGroup = "Back")
+            ),
+            onDismiss = {},
+            onExerciseSelected = {}
+        )
     }
 }
