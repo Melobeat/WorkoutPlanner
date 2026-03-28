@@ -13,8 +13,11 @@ JAVA_HOME=/opt/android-studio/jbr ./gradlew assembleDebug
 # Run unit tests
 JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest
 
+# Install debug APK on connected device/emulator
+JAVA_HOME=/opt/android-studio/jbr ./gradlew installDebug
+
 # Run a single test class
-JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest --tests "com.example.workoutplanner.ExampleUnitTest"
+JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest --tests "de.melobeat.workoutplanner.ExampleUnitTest"
 
 # Run instrumented tests (requires connected device/emulator)
 JAVA_HOME=/opt/android-studio/jbr ./gradlew connectedDebugAndroidTest
@@ -25,7 +28,7 @@ JAVA_HOME=/opt/android-studio/jbr ./gradlew lintDebug
 
 ## Architecture
 
-Single-module app (`app/`) with a flat package structure under `com.example.workoutplanner`:
+Single-module app (`app/`) with a flat package structure under `de.melobeat.workoutplanner`:
 
 ```
 ui/          — Composables and ViewModels (co-located per screen)
@@ -45,6 +48,10 @@ The active-workout bar (shown when `isActive && !isFullScreen`) lives in `MainAc
 
 Navigation callbacks follow strict UDF: composables receive lambdas (`onNavigateBack`, `onStartWorkout`, etc.) and never hold a `NavController` reference. One-shot async outcomes (e.g. workout finished) are observed with `LaunchedEffect`.
 
+**Active workout finish flow:** `completeCurrentSet()` (or `skipExercise()`) on the last set calls `requestFinish()`, which stops the timer and sets `showSummary = true`. `WorkoutScreen` observes this via `LaunchedEffect(uiState.showSummary)` and navigates to `WorkoutSummaryRoute`. From there the user either resumes (`resumeWorkout()` resets `showSummary`) or confirms finish (`finishWorkout()` persists to DB and sets `isFinished = true`).
+
+**Workout cursor model:** `ActiveWorkoutUiState` tracks `currentExerciseIndex` and `currentSetIndex`. These are the only pointers to the "current" set — `goToPreviousSet()` and `skipExercise()` move the cursor without touching `isDone`. The cursor is not reset by `requestFinish()`/`resumeWorkout()`.
+
 ### Data layer
 
 `WorkoutRepository` is the single access point — all callers go through it, never the DAO directly. All suspend functions use `withContext(@IoDispatcher)` for main-safety. Flows from Room are mapped from entities → domain models in the repository using extension functions in `Mappers.kt`.
@@ -57,7 +64,8 @@ Navigation callbacks follow strict UDF: composables receive lambdas (`onNavigate
 
 | ViewModel | Scope | Owns |
 |---|---|---|
-| `ActiveWorkoutViewModel` | Activity | Live workout state (`isActive`, `isFullScreen`, timer, exercises) |
+| `ActiveWorkoutViewModel` | Activity | Live workout state (`isActive`, `isFullScreen`, timer, exercises, cursor) |
+| `WorkoutSummaryScreen`   | (no VM)  | Reads `ActiveWorkoutViewModel` via `viewModel(viewModelStoreOwner = LocalActivity.current)` — same pattern as `WorkoutScreen` |
 | `HomeViewModel` | Composable | Selected routine stream + recent history |
 | `RoutinesViewModel` | Composable | Routines CRUD |
 | `ExerciseLibraryViewModel` | Composable | Exercise/equipment CRUD |
