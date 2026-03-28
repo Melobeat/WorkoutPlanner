@@ -13,3 +13,4 @@ import kotlinx.serialization.Serializable
 @Serializable data class RoutineDetailRoute(val routineId: String)
 @Serializable data class CreateRoutineRoute(val routineId: String? = null)
 @Serializable object ActiveWorkoutRoute
+@Serializable object WorkoutSummaryRoute

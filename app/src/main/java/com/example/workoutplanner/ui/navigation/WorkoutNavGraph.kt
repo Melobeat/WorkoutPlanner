@@ -18,6 +18,7 @@ import com.example.workoutplanner.ui.RoutineDetailScreen
 import com.example.workoutplanner.ui.RoutinesScreen
 import com.example.workoutplanner.ui.SettingsScreen
 import com.example.workoutplanner.ui.WorkoutScreen
+import com.example.workoutplanner.ui.WorkoutSummaryScreen
 
 @Composable
 fun WorkoutNavGraph(
@@ -46,7 +47,22 @@ fun WorkoutNavGraph(
                 activeWorkoutViewModel.setFullScreen(true)
                 onDispose { activeWorkoutViewModel.setFullScreen(false) }
             }
-            WorkoutScreen(onNavigateBack = { navController.popBackStack() })
+            WorkoutScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSummary = { navController.navigate(WorkoutSummaryRoute) }
+            )
+        }
+
+        composable<WorkoutSummaryRoute> {
+            WorkoutSummaryScreen(
+                onResumeWorkout = {
+                    activeWorkoutViewModel.resumeWorkout()
+                    navController.popBackStack()
+                },
+                onWorkoutFinished = {
+                    navController.popBackStack(ActiveWorkoutRoute, inclusive = true)
+                }
+            )
         }
 
         navigation<SettingsGraphRoute>(startDestination = SettingsRoute) {
