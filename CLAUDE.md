@@ -17,7 +17,10 @@ JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest
 JAVA_HOME=/opt/android-studio/jbr ./gradlew installDebug
 
 # Run a single test class
-JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest --tests "de.melobeat.workoutplanner.ExampleUnitTest"
+JAVA_HOME=/opt/android-studio/jbr ./gradlew testDebugUnitTest --tests "de.melobeat.workoutplanner.ui.ActiveWorkoutViewModelTest"
+
+# Fast KSP/annotation-processor check (catches Room/Hilt errors without full APK build)
+JAVA_HOME=/opt/android-studio/jbr ./gradlew compileDebugKotlin
 
 # Run instrumented tests (requires connected device/emulator)
 JAVA_HOME=/opt/android-studio/jbr ./gradlew connectedDebugAndroidTest
@@ -28,6 +31,8 @@ JAVA_HOME=/opt/android-studio/jbr ./gradlew lintDebug
 
 ## Architecture
 
+**App ID / package:** `de.melobeat.workoutplanner`
+
 Single-module app (`app/`) with a flat package structure under `de.melobeat.workoutplanner`:
 
 ```
@@ -36,6 +41,7 @@ ui/navigation/ — NavRoutes (type-safe @Serializable objects/data classes) + Wo
 data/        — Room entities, DAO, Repository, Mappers
 model/       — Domain models (Routine, Exercise, WorkoutDay, RoutineSet, Equipment)
 di/          — Hilt DatabaseModule, @IoDispatcher qualifier
+docs/        — Design guidelines and project documentation
 ```
 
 ### State & Navigation flow
@@ -77,4 +83,18 @@ Navigation callbacks follow strict UDF: composables receive lambdas (`onNavigate
 - Navigation Compose `2.9.7` (type-safe routes via `@Serializable`)
 - Hilt `2.59.2` + KSP (not KAPT)
 - Room `2.8.4`
-- Kotlin `2.3.10`, AGP `9.1.0`, `compileSdk 36`, `minSdk 33`
+- Kotlin `2.3.20`, AGP `9.1.0`, `compileSdk 36`, `minSdk 33`
+
+## Workflow
+
+Prefer TDD for non-trivial features and bugfixes when testable in isolation.
+
+## Design Guidelines
+
+`docs/design-guidelines.md` is the authoritative reference for visual design, component patterns, and interaction conventions (colors, typography, shapes, per-screen layouts, component rules). Read it before implementing any new screen or modifying an existing one.
+
+## Tools & Skills
+
+`/android-screenshot` — captures a screenshot from the connected device/emulator and displays it inline; use for visual UI feedback without leaving the terminal.
+`/gen-test` — generates a ViewModel unit test class using the project's Turbine + MockK + UnconfinedTestDispatcher pattern; invoke before writing tests (supports the TDD workflow).
+`/room-migration` — step-by-step guide for incrementing the DB version, enabling schema export, writing a `Migration` object, and verifying the result; invoke before any `data/` layer schema change.
