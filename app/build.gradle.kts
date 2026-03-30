@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.workoutplanner"
+    namespace = "de.melobeat.workoutplanner"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.workoutplanner"
+        applicationId = "de.melobeat.workoutplanner"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
