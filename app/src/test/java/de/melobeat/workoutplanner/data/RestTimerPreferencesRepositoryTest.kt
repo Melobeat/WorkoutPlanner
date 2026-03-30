@@ -1,7 +1,6 @@
 package de.melobeat.workoutplanner.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -9,7 +8,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class RestTimerPreferencesRepositoryTest {
 
     @get:Rule
@@ -42,7 +40,7 @@ class RestTimerPreferencesRepositoryTest {
     }
 
     @Test
-    fun `partial update preserves unchanged values`() = runTest {
+    fun `update with default field values writes defaults for unchanged fields`() = runTest {
         val repo = makeRepo()
         repo.update(RestTimerSettings(betweenSetsEasySeconds = 45))
         val settings = repo.settings.first()
