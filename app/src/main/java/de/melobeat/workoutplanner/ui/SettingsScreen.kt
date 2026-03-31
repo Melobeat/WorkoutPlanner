@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ fun SettingsScreen(
     onNavigateToExercises: () -> Unit,
     onNavigateToRoutines: () -> Unit,
     onNavigateToEquipment: () -> Unit,
+    onNavigateToTimerSettings: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -58,6 +60,15 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = innerPadding
         ) {
+            item {
+                SettingsListItem(
+                    title = "Timer Settings",
+                    subtitle = "Rest timer durations between sets and exercises",
+                    icon = Icons.Outlined.Timer,
+                    onClick = onNavigateToTimerSettings
+                )
+                HorizontalDivider()
+            }
             item {
                 SettingsListItem(
                     title = "Manage Exercises",
@@ -125,6 +136,7 @@ fun SettingsScreenPreview() {
             onNavigateToExercises = {},
             onNavigateToRoutines = {},
             onNavigateToEquipment = {},
+            onNavigateToTimerSettings = {},
             onBack = {}
         )
     }
