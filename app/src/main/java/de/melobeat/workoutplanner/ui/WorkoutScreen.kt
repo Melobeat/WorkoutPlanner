@@ -56,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -88,8 +89,19 @@ fun WorkoutScreen(
         if (uiState.showSummary) onNavigateToSummary()
     }
 
+    val context = LocalContext.current
+    val vibrator = remember { context.getSystemService(android.os.Vibrator::class.java) }
+    LaunchedEffect(Unit) {
+        viewModel.restTimerEvents.collect {
+            vibrator?.vibrate(
+                android.os.VibrationEffect.createWaveform(longArrayOf(0, 50, 100, 50), -1)
+            )
+        }
+    }
+
     WorkoutScreenContent(
         uiState = uiState,
+        restTimer = uiState.restTimer,
         availableExercises = exerciseLibState.exercises,
         onMinimize = { viewModel.setFullScreen(false); onNavigateBack() },
         onCompleteSet = { viewModel.completeCurrentSet() },
@@ -112,6 +124,7 @@ fun WorkoutScreen(
 @Composable
 fun WorkoutScreenContent(
     uiState: ActiveWorkoutUiState,
+    restTimer: RestTimerUiState?,
     availableExercises: List<Exercise>,
     onMinimize: () -> Unit,
     onCompleteSet: () -> Unit,
@@ -355,6 +368,18 @@ fun WorkoutScreenContent(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
+                    }
+                }
+
+                // Rest timer banner — visible while resting after a set
+                Spacer(Modifier.height(8.dp))
+                AnimatedVisibility(
+                    visible = restTimer != null,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    if (restTimer != null) {
+                        RestTimerBanner(restTimer = restTimer)
                     }
                 }
 
@@ -603,6 +628,85 @@ fun ExerciseSelectionDialog(
     }
 }
 
+@Composable
+fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) {
+    val elapsed = restTimer.elapsedSeconds
+    val milestoneLabel: String? = when (restTimer.context) {
+        RestTimerContext.BetweenSets -> when {
+            elapsed >= restTimer.hardThresholdSeconds -> "HARD? TIME TO GO"
+            elapsed >= restTimer.easyThresholdSeconds -> "EASY? TIME TO GO"
+            else -> null
+        }
+        RestTimerContext.BetweenExercises -> when {
+            elapsed >= restTimer.singleThresholdSeconds -> "READY FOR NEXT EXERCISE?"
+            else -> null
+        }
+    }
+    val progress: Float = when (restTimer.context) {
+        RestTimerContext.BetweenSets -> when {
+            elapsed >= restTimer.hardThresholdSeconds -> 1f
+            elapsed >= restTimer.easyThresholdSeconds -> {
+                val segLen = restTimer.hardThresholdSeconds - restTimer.easyThresholdSeconds
+                if (segLen == 0) 1f
+                else (elapsed - restTimer.easyThresholdSeconds).toFloat() / segLen.toFloat()
+            }
+            else -> elapsed.toFloat() / restTimer.easyThresholdSeconds.toFloat()
+        }
+        RestTimerContext.BetweenExercises -> when {
+            elapsed >= restTimer.singleThresholdSeconds -> 1f
+            else -> elapsed.toFloat() / restTimer.singleThresholdSeconds.toFloat()
+        }
+    }.coerceIn(0f, 1f)
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "REST",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = formatElapsedTime(elapsed * 1000L),
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Black
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(CircleShape)
+                    .height(6.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+            if (milestoneLabel != null) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = milestoneLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
 fun formatElapsedTime(millis: Long): String {
     val seconds = (millis / 1000) % 60
     val minutes = (millis / (1000 * 60)) % 60
@@ -645,6 +749,7 @@ fun WorkoutScreenContentPreview() {
                     )
                 )
             ),
+            restTimer = null,
             availableExercises = listOf(
                 Exercise(id = "e3", name = "Incline Press", muscleGroup = "Chest")
             ),
