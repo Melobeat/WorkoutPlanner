@@ -6,17 +6,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
-
 data class RestTimerSettings(
     val betweenSetsEasySeconds: Int = 90,
     val betweenSetsHardSeconds: Int = 180,
     val betweenExercisesSeconds: Int = 60
 )
 
-@Singleton
-class RestTimerPreferencesRepository @Inject constructor(
+class RestTimerPreferencesRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
