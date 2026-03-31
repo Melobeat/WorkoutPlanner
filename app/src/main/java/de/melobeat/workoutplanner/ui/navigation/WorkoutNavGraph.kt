@@ -17,6 +17,7 @@ import de.melobeat.workoutplanner.ui.HomeScreen
 import de.melobeat.workoutplanner.ui.RoutineDetailScreen
 import de.melobeat.workoutplanner.ui.RoutinesScreen
 import de.melobeat.workoutplanner.ui.SettingsScreen
+import de.melobeat.workoutplanner.ui.TimerSettingsScreen
 import de.melobeat.workoutplanner.ui.WorkoutScreen
 import de.melobeat.workoutplanner.ui.WorkoutSummaryScreen
 
@@ -71,6 +72,7 @@ fun WorkoutNavGraph(
                     onNavigateToExercises = { navController.navigate(ExercisesRoute) },
                     onNavigateToRoutines = { navController.navigate(RoutinesRoute) },
                     onNavigateToEquipment = { navController.navigate(EquipmentRoute) },
+                    onNavigateToTimerSettings = { navController.navigate(TimerSettingsRoute) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -79,6 +81,9 @@ fun WorkoutNavGraph(
             }
             composable<EquipmentRoute> {
                 EquipmentScreen(onBack = { navController.popBackStack() })
+            }
+            composable<TimerSettingsRoute> {
+                TimerSettingsScreen(onBack = { navController.popBackStack() })
             }
             composable<RoutinesRoute> {
                 RoutinesScreen(
