@@ -2,6 +2,8 @@ package de.melobeat.workoutplanner.ui
 
 import app.cash.turbine.test
 import de.melobeat.workoutplanner.data.ExerciseHistoryEntity
+import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
+import de.melobeat.workoutplanner.data.RestTimerSettings
 import de.melobeat.workoutplanner.data.WorkoutRepository
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
@@ -29,13 +31,15 @@ class ActiveWorkoutViewModelTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     private val repository = mockk<WorkoutRepository>(relaxed = true)
+    private val timerPrefs = mockk<RestTimerPreferencesRepository>(relaxed = true)
     private lateinit var viewModel: ActiveWorkoutViewModel
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         every { repository.getHistoryForExercise(any()) } returns flowOf(emptyList())
-        viewModel = ActiveWorkoutViewModel(repository)
+        every { timerPrefs.settings } returns flowOf(RestTimerSettings())
+        viewModel = ActiveWorkoutViewModel(repository, timerPrefs)
     }
 
     @After
@@ -424,6 +428,40 @@ class ActiveWorkoutViewModelTest {
         viewModel.skipExercise()
 
         assertTrue(viewModel.uiState.value.showSummary)
+    }
+
+    // endregion
+
+    // region rest timer
+
+    @Test
+    fun `completeCurrentSet mid-exercise starts BetweenSets rest timer`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+
+        viewModel.completeCurrentSet() // set 0 → set 1, should start BetweenSets timer
+
+        assertEquals(RestTimerContext.BetweenSets, viewModel.uiState.value.restTimer?.context)
+    }
+
+    @Test
+    fun `completeCurrentSet on last set of non-final exercise starts BetweenExercises rest timer`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+
+        viewModel.completeCurrentSet() // set 0 → set 1
+        viewModel.completeCurrentSet() // set 1 (last) → exercise 1, should start BetweenExercises timer
+
+        assertEquals(RestTimerContext.BetweenExercises, viewModel.uiState.value.restTimer?.context)
+    }
+
+    @Test
+    fun `starting a new set resets rest timer elapsed seconds to zero`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(), 0, "R", null)
+
+        viewModel.completeCurrentSet() // rest timer starts (BetweenSets)
+        assertEquals(0, viewModel.uiState.value.restTimer?.elapsedSeconds)
+
+        viewModel.completeCurrentSet() // new rest timer starts (BetweenExercises), also elapsed=0
+        assertEquals(0, viewModel.uiState.value.restTimer?.elapsedSeconds)
     }
 
     // endregion

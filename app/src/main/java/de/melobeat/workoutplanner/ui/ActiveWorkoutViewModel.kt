@@ -2,6 +2,8 @@ package de.melobeat.workoutplanner.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
+import de.melobeat.workoutplanner.data.RestTimerSettings
 import de.melobeat.workoutplanner.data.WorkoutRepository
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
@@ -10,8 +12,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -31,6 +36,22 @@ fun formatWeight(weight: Double): String {
     return if (weight % 1.0 == 0.0) weight.toInt().toString() else weight.toString()
 }
 
+enum class RestTimerContext { BetweenSets, BetweenExercises }
+
+data class RestTimerUiState(
+    val elapsedSeconds: Int = 0,
+    val context: RestTimerContext,
+    val easyThresholdSeconds: Int,
+    val hardThresholdSeconds: Int,
+    val singleThresholdSeconds: Int
+)
+
+sealed class RestTimerEvent {
+    object EasyMilestone : RestTimerEvent()
+    object HardMilestone : RestTimerEvent()
+    object ExerciseMilestone : RestTimerEvent()
+}
+
 // Immutable state classes
 data class ActiveWorkoutUiState(
     val isActive: Boolean = false,
@@ -43,7 +64,8 @@ data class ActiveWorkoutUiState(
     val summaryDurationMs: Long = 0L,
     val error: String? = null,
     val currentExerciseIndex: Int = 0,
-    val currentSetIndex: Int = 0
+    val currentSetIndex: Int = 0,
+    val restTimer: RestTimerUiState? = null
 )
 
 data class ExerciseUiState(
@@ -65,7 +87,8 @@ data class SetUiState(
 
 @HiltViewModel
 class ActiveWorkoutViewModel @Inject constructor(
-    private val repository: WorkoutRepository
+    private val repository: WorkoutRepository,
+    private val timerPrefs: RestTimerPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveWorkoutUiState())
@@ -73,10 +96,22 @@ class ActiveWorkoutViewModel @Inject constructor(
 
     private val _elapsedTime = MutableStateFlow(0L)
     private var timerJob: Job? = null
+    private var restTimerJob: Job? = null
     private var currentWorkoutDay: WorkoutDay? = null
     private var currentDayIndex: Int = 0
     private var currentRoutineName: String = ""
     private var currentRoutineId: String? = null
+
+    private val _restTimerEvents = MutableSharedFlow<RestTimerEvent>()
+    val restTimerEvents: SharedFlow<RestTimerEvent> = _restTimerEvents.asSharedFlow()
+
+    private var cachedTimerSettings = RestTimerSettings()
+
+    init {
+        viewModelScope.launch {
+            timerPrefs.settings.collect { cachedTimerSettings = it }
+        }
+    }
 
     fun startWorkout(day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String?) {
         viewModelScope.launch {
@@ -139,6 +174,53 @@ class ActiveWorkoutViewModel @Inject constructor(
         )
     }
 
+    private fun startRestTimer(context: RestTimerContext) {
+        restTimerJob?.cancel()
+        val settings = cachedTimerSettings
+        val restState = RestTimerUiState(
+            context = context,
+            easyThresholdSeconds = settings.betweenSetsEasySeconds,
+            hardThresholdSeconds = settings.betweenSetsHardSeconds,
+            singleThresholdSeconds = settings.betweenExercisesSeconds
+        )
+        _uiState.update { it.copy(restTimer = restState) }
+        restTimerJob = viewModelScope.launch(Dispatchers.Default) {
+            var seconds = 0
+            var easyFired = false
+            var hardFired = false
+            var singleFired = false
+            while (true) {
+                delay(1000)
+                seconds++
+                _uiState.update { s -> s.copy(restTimer = s.restTimer?.copy(elapsedSeconds = seconds)) }
+                when (context) {
+                    RestTimerContext.BetweenSets -> {
+                        if (!easyFired && seconds >= restState.easyThresholdSeconds) {
+                            easyFired = true
+                            _restTimerEvents.emit(RestTimerEvent.EasyMilestone)
+                        }
+                        if (!hardFired && seconds >= restState.hardThresholdSeconds) {
+                            hardFired = true
+                            _restTimerEvents.emit(RestTimerEvent.HardMilestone)
+                        }
+                    }
+                    RestTimerContext.BetweenExercises -> {
+                        if (!singleFired && seconds >= restState.singleThresholdSeconds) {
+                            singleFired = true
+                            _restTimerEvents.emit(RestTimerEvent.ExerciseMilestone)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun cancelRestTimer() {
+        restTimerJob?.cancel()
+        restTimerJob = null
+        _uiState.update { it.copy(restTimer = null) }
+    }
+
     private fun startTimer() {
         timerJob?.cancel()
         _elapsedTime.value = 0L
@@ -156,6 +238,7 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun cancelWorkout() {
         timerJob?.cancel()
         timerJob = null
+        cancelRestTimer()
         _elapsedTime.value = 0L
         currentWorkoutDay = null
         _uiState.value = ActiveWorkoutUiState()
@@ -165,6 +248,7 @@ class ActiveWorkoutViewModel @Inject constructor(
         val capturedDuration = _elapsedTime.value
         timerJob?.cancel()
         timerJob = null
+        cancelRestTimer()
         _uiState.update { it.copy(showSummary = true, summaryDurationMs = capturedDuration) }
     }
 
@@ -378,7 +462,7 @@ class ActiveWorkoutViewModel @Inject constructor(
         val state = _uiState.value
         val ei = state.currentExerciseIndex
         val si = state.currentSetIndex
-        // mark done
+        cancelRestTimer()
         _uiState.update { s ->
             s.copy(exercises = s.exercises.mapIndexed { eIdx, ex ->
                 if (eIdx != ei) ex
@@ -389,10 +473,14 @@ class ActiveWorkoutViewModel @Inject constructor(
         }
         val exercise = _uiState.value.exercises[ei]
         when {
-            si < exercise.sets.size - 1 ->
+            si < exercise.sets.size - 1 -> {
                 _uiState.update { it.copy(currentSetIndex = si + 1) }
-            ei < _uiState.value.exercises.size - 1 ->
+                startRestTimer(RestTimerContext.BetweenSets)
+            }
+            ei < _uiState.value.exercises.size - 1 -> {
                 _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
+                startRestTimer(RestTimerContext.BetweenExercises)
+            }
             else -> requestFinish()
         }
     }
@@ -419,8 +507,10 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun skipExercise() {
         val state = _uiState.value
         val ei = state.currentExerciseIndex
+        cancelRestTimer()
         if (ei < state.exercises.size - 1) {
             _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
+            startRestTimer(RestTimerContext.BetweenExercises)
         } else {
             requestFinish()
         }
