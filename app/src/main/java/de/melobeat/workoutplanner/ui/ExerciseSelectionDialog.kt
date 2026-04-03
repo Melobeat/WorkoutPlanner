@@ -1,10 +1,10 @@
 package de.melobeat.workoutplanner.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -80,42 +80,43 @@ fun ExerciseSelectionDialog(
                 singleLine = true
             )
             Spacer(Modifier.height(8.dp))
-            LazyColumn {
+            LazyColumn(modifier = Modifier.fillMaxHeight(0.75f)) {
                 items(filtered, key = { it.id }) { exercise ->
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                exercise.name,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        },
-                        supportingContent = {
-                            Text(
-                                exercise.muscleGroup,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        },
-                        leadingContent = {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier.size(40.dp)
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
+                    Surface(onClick = { onExerciseSelected(exercise) }) {
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    exercise.name,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            },
+                            supportingContent = {
+                                Text(
+                                    exercise.muscleGroup,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            },
+                            leadingContent = {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    modifier = Modifier.size(40.dp)
                                 ) {
-                                    Icon(
-                                        Icons.Rounded.FitnessCenter,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Icon(
+                                            Icons.Rounded.FitnessCenter,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        modifier = Modifier.clickable { onExerciseSelected(exercise) }
-                    )
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                    }
                 }
             }
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))

@@ -168,11 +168,17 @@ fun WorkoutScreenContent(
                         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                             DropdownMenuItem(
                                 text = { Text("Finish Workout") },
-                                onClick = { showMenu = false; onFinishWorkout() }
+                                onClick = {
+                                    showMenu = false
+                                    onFinishWorkout()
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text("Cancel Workout", color = MaterialTheme.colorScheme.error) },
-                                onClick = { showMenu = false; showCancelDialog = true }
+                                onClick = {
+                                    showMenu = false
+                                    showCancelDialog = true
+                                }
                             )
                         }
                     }
