@@ -2,36 +2,23 @@ package de.melobeat.workoutplanner.ui
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -54,22 +40,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.ui.theme.Pink40
-import de.melobeat.workoutplanner.ui.theme.Purple40
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,10 +155,7 @@ fun WorkoutScreenContent(
                     }
                 },
                 actions = {
-                    FilledTonalButton(
-                        onClick = { showAddExerciseDialog = true },
-                        shape = CircleShape
-                    ) {
+                    FilledTonalButton(onClick = { showAddExerciseDialog = true }, shape = CircleShape) {
                         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("Exercise", style = MaterialTheme.typography.labelMedium)
@@ -189,23 +165,14 @@ fun WorkoutScreenContent(
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
                         }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
+                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                             DropdownMenuItem(
                                 text = { Text("Finish Workout") },
-                                onClick = {
-                                    showMenu = false
-                                    onFinishWorkout()
-                                }
+                                onClick = { showMenu = false; onFinishWorkout() }
                             )
                             DropdownMenuItem(
                                 text = { Text("Cancel Workout", color = MaterialTheme.colorScheme.error) },
-                                onClick = {
-                                    showMenu = false
-                                    showCancelDialog = true
-                                }
+                                onClick = { showMenu = false; showCancelDialog = true }
                             )
                         }
                     }
@@ -221,7 +188,6 @@ fun WorkoutScreenContent(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            // Progress bar
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -250,227 +216,23 @@ fun WorkoutScreenContent(
             Spacer(Modifier.height(16.dp))
 
             if (currentExercise != null && currentSet != null) {
-                // Exercise header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = currentExercise.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                    FilledTonalButton(
-                        onClick = { showSwapDialog = true },
-                        shape = CircleShape
-                    ) {
-                        Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("Swap", style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-
-                Spacer(Modifier.height(10.dp))
-
-                // Set dot indicators
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    currentExercise.sets.forEachIndexed { index, set ->
-                        val width = if (index == si) 28.dp else 8.dp
-                        Surface(
-                            modifier = Modifier.height(8.dp).width(width).clip(CircleShape),
-                            color = when {
-                                set.isDone -> MaterialTheme.colorScheme.primary
-                                index == si -> MaterialTheme.colorScheme.primary
-                                else -> MaterialTheme.colorScheme.surfaceVariant
-                            }
-                        ) {}
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = "SET ${si + 1} OF ${currentExercise.sets.size}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                Spacer(Modifier.height(14.dp))
-
-                // Stepper cards row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    StepperCard(
-                        label = "Reps",
-                        value = currentSet.reps,
-                        onIncrement = { onIncrementReps(ei, si) },
-                        onDecrement = { onDecrementReps(ei, si) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    StepperCard(
-                        label = "kg",
-                        value = currentSet.weight,
-                        onIncrement = { onIncrementWeight(ei, si) },
-                        onDecrement = { onDecrementWeight(ei, si) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // AMRAP badge — shown only on last set when flagged in routine
-                if (currentSet.isAmrap) {
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.tertiaryContainer,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = "AMRAP",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                }
-
-                // Done CTA
-                val isLastSet = si == currentExercise.sets.size - 1
-                val isLastExercise = ei == exercises.size - 1
-                val ctaLabel = when {
-                    isLastSet && isLastExercise -> "✓  Finish Workout"
-                    isLastSet -> "✓  Next Exercise"
-                    else -> "✓  Done — Set ${si + 2}"
-                }
-                Surface(
-                    onClick = onCompleteSet,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(50),
-                    color = Color.Transparent
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(50))
-                            .background(Brush.linearGradient(listOf(Purple40, Pink40))),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            ctaLabel,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
-
-                // Rest timer banner — visible while resting after a set
-                Spacer(Modifier.height(8.dp))
-                AnimatedVisibility(
-                    visible = restTimer != null,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    if (restTimer != null) {
-                        RestTimerBanner(restTimer = restTimer)
-                    }
-                }
-
-                // Navigation row — Back and Skip
-                val isAtStart = ei == 0 && si == 0
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    FilledTonalButton(
-                        onClick = onGoBack,
-                        enabled = !isAtStart,
-                        shape = CircleShape
-                    ) {
-                        Text("← Back", style = MaterialTheme.typography.labelMedium)
-                    }
-                    FilledTonalButton(
-                        onClick = onSkipExercise,
-                        shape = CircleShape
-                    ) {
-                        Text("Skip Exercise →", style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                // Completed sets chips
-                val doneSets = currentExercise.sets.filter { it.isDone }
-                AnimatedVisibility(
-                    visible = doneSets.isNotEmpty(),
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    ) {
-                        currentExercise.sets.forEachIndexed { index, set ->
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (set.isDone) MaterialTheme.colorScheme.primaryContainer
-                                        else MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier
-                            ) {
-                                val label = if (set.isDone) "Set ${index + 1}\n${set.reps}×${set.weight}" else "Set ${index + 1}\n—"
-                                Text(
-                                    text = label,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                    color = if (set.isDone) MaterialTheme.colorScheme.onPrimaryContainer
-                                            else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Next exercise preview
-                if (nextExercise != null) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    "NEXT EXERCISE",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    nextExercise.name,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    "${nextExercise.sets.size} sets · ${nextExercise.sets.firstOrNull()?.reps ?: "0"} reps · ${nextExercise.sets.firstOrNull()?.weight ?: "0"} kg",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
+                WorkoutExerciseContent(
+                    exercise = currentExercise,
+                    currentSet = currentSet,
+                    nextExercise = nextExercise,
+                    exerciseIndex = ei,
+                    setIndex = si,
+                    totalExercises = exercises.size,
+                    restTimer = restTimer,
+                    onSwapExercise = { showSwapDialog = true },
+                    onIncrementReps = { onIncrementReps(ei, si) },
+                    onDecrementReps = { onDecrementReps(ei, si) },
+                    onIncrementWeight = { onIncrementWeight(ei, si) },
+                    onDecrementWeight = { onDecrementWeight(ei, si) },
+                    onCompleteSet = onCompleteSet,
+                    onGoBack = onGoBack,
+                    onSkipExercise = onSkipExercise
+                )
             } else {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No exercises in this workout.")
@@ -481,6 +243,7 @@ fun WorkoutScreenContent(
 
     if (showAddExerciseDialog) {
         ExerciseSelectionDialog(
+            title = "Add Exercise",
             exercises = availableExercises,
             onDismiss = { showAddExerciseDialog = false },
             onExerciseSelected = { exercise ->
@@ -492,6 +255,7 @@ fun WorkoutScreenContent(
 
     if (showSwapDialog) {
         ExerciseSelectionDialog(
+            title = "Swap Exercise",
             exercises = availableExercises,
             onDismiss = { showSwapDialog = false },
             onExerciseSelected = { exercise ->
@@ -507,9 +271,7 @@ fun WorkoutScreenContent(
             title = { Text("Cancel Workout?") },
             text = { Text("All progress in this session will be lost.") },
             confirmButton = {
-                TextButton(onClick = {
-                    onCancelWorkout()
-                }) {
+                TextButton(onClick = { onCancelWorkout() }) {
                     Text("Cancel Workout", color = MaterialTheme.colorScheme.error)
                 }
             },
@@ -517,204 +279,6 @@ fun WorkoutScreenContent(
                 TextButton(onClick = { showCancelDialog = false }) { Text("Keep Going") }
             }
         )
-    }
-}
-
-@Composable
-fun StepperCard(
-    label: String,
-    value: String,
-    onIncrement: () -> Unit,
-    onDecrement: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(20.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                label.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                value,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.Black
-            )
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalButton(
-                    onClick = onDecrement,
-                    shape = CircleShape,
-                    modifier = Modifier.height(40.dp)
-                ) {
-                    Text("−", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onIncrement,
-                    shape = CircleShape,
-                    modifier = Modifier.height(40.dp)
-                ) {
-                    Text("+", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ExerciseSelectionDialog(
-    exercises: List<Exercise>,
-    onDismiss: () -> Unit,
-    onExerciseSelected: (Exercise) -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.8f)
-                .padding(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Select Exercise",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    itemsIndexed(exercises) { _, exercise ->
-                        Surface(
-                            onClick = { onExerciseSelected(exercise) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(
-                                    text = exercise.name,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = exercise.muscleGroup,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    }
-                }
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(top = 16.dp)
-                ) {
-                    Text("Cancel")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) {
-    val elapsed = restTimer.elapsedSeconds
-    val milestoneLabel: String? = when (restTimer.context) {
-        RestTimerContext.BetweenSets -> when {
-            elapsed >= restTimer.hardThresholdSeconds -> "HARD? TIME TO GO"
-            elapsed >= restTimer.easyThresholdSeconds -> "EASY? TIME TO GO"
-            else -> null
-        }
-        RestTimerContext.BetweenExercises -> when {
-            elapsed >= restTimer.singleThresholdSeconds -> "READY FOR NEXT EXERCISE?"
-            else -> null
-        }
-    }
-    val progress: Float = when (restTimer.context) {
-        RestTimerContext.BetweenSets -> when {
-            elapsed >= restTimer.hardThresholdSeconds -> 1f
-            elapsed >= restTimer.easyThresholdSeconds -> {
-                val segLen = restTimer.hardThresholdSeconds - restTimer.easyThresholdSeconds
-                if (segLen == 0) 1f
-                else (elapsed - restTimer.easyThresholdSeconds).toFloat() / segLen.toFloat()
-            }
-            else -> elapsed.toFloat() / restTimer.easyThresholdSeconds.toFloat()
-        }
-        RestTimerContext.BetweenExercises -> when {
-            elapsed >= restTimer.singleThresholdSeconds -> 1f
-            else -> elapsed.toFloat() / restTimer.singleThresholdSeconds.toFloat()
-        }
-    }.coerceIn(0f, 1f)
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "REST",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = formatElapsedTime(elapsed * 1000L),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Black
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(CircleShape)
-                    .height(6.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-            if (milestoneLabel != null) {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = milestoneLabel,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-fun formatElapsedTime(millis: Long): String {
-    val seconds = (millis / 1000) % 60
-    val minutes = (millis / (1000 * 60)) % 60
-    val hours = (millis / (1000 * 60 * 60))
-    return if (hours > 0) {
-        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
-    } else {
-        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 }
 
@@ -750,9 +314,7 @@ fun WorkoutScreenContentPreview() {
                 )
             ),
             restTimer = null,
-            availableExercises = listOf(
-                Exercise(id = "e3", name = "Incline Press", muscleGroup = "Chest")
-            ),
+            availableExercises = listOf(Exercise(id = "e3", name = "Incline Press", muscleGroup = "Chest")),
             onMinimize = {},
             onCompleteSet = {},
             onAddExercise = {},
@@ -766,35 +328,6 @@ fun WorkoutScreenContentPreview() {
             onGoBack = {},
             onSkipExercise = {},
             onNavigateBack = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun StepperCardPreview() {
-    WorkoutPlannerTheme {
-        StepperCard(
-            label = "Reps",
-            value = "10",
-            onIncrement = {},
-            onDecrement = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ExerciseSelectionDialogPreview() {
-    WorkoutPlannerTheme {
-        ExerciseSelectionDialog(
-            exercises = listOf(
-                Exercise(id = "e1", name = "Bench Press", muscleGroup = "Chest"),
-                Exercise(id = "e2", name = "Squat", muscleGroup = "Legs"),
-                Exercise(id = "e3", name = "Pull-up", muscleGroup = "Back")
-            ),
-            onDismiss = {},
-            onExerciseSelected = {}
         )
     }
 }
