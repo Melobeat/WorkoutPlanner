@@ -6,10 +6,15 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+
+const val DEFAULT_BETWEEN_SETS_EASY_SECONDS = 90
+const val DEFAULT_BETWEEN_SETS_HARD_SECONDS = 180
+const val DEFAULT_BETWEEN_EXERCISES_SECONDS = 60
+
 data class RestTimerSettings(
-    val betweenSetsEasySeconds: Int = 90,
-    val betweenSetsHardSeconds: Int = 180,
-    val betweenExercisesSeconds: Int = 60
+    val betweenSetsEasySeconds: Int = DEFAULT_BETWEEN_SETS_EASY_SECONDS,
+    val betweenSetsHardSeconds: Int = DEFAULT_BETWEEN_SETS_HARD_SECONDS,
+    val betweenExercisesSeconds: Int = DEFAULT_BETWEEN_EXERCISES_SECONDS
 )
 
 class RestTimerPreferencesRepository(
@@ -23,9 +28,9 @@ class RestTimerPreferencesRepository(
 
     val settings: Flow<RestTimerSettings> = dataStore.data.map { prefs ->
         RestTimerSettings(
-            betweenSetsEasySeconds = prefs[BETWEEN_SETS_EASY] ?: 90,
-            betweenSetsHardSeconds = prefs[BETWEEN_SETS_HARD] ?: 180,
-            betweenExercisesSeconds = prefs[BETWEEN_EXERCISES] ?: 60
+            betweenSetsEasySeconds = prefs[BETWEEN_SETS_EASY] ?: DEFAULT_BETWEEN_SETS_EASY_SECONDS,
+            betweenSetsHardSeconds = prefs[BETWEEN_SETS_HARD] ?: DEFAULT_BETWEEN_SETS_HARD_SECONDS,
+            betweenExercisesSeconds = prefs[BETWEEN_EXERCISES] ?: DEFAULT_BETWEEN_EXERCISES_SECONDS
         )
     }
 

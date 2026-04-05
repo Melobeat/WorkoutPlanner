@@ -67,7 +67,7 @@ abstract class WorkoutDatabase : RoomDatabase() {
                                         )
                                     }
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    android.util.Log.e("WorkoutDatabase", "Failed to seed initial data", e)
                                 }
                             }
                         }

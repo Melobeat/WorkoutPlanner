@@ -12,84 +12,29 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-// Moved from WorkoutScreen — used by repository and view model
-data class ExerciseHistory(
-    val exerciseId: String,
-    val reps: Int,
-    val weight: Double,
-    val setIndex: Int = 1,
-    val isAmrap: Boolean = false
-)
-
-fun formatWeight(weight: Double): String {
-    return if (weight % 1.0 == 0.0) weight.toInt().toString() else weight.toString()
-}
-
-enum class RestTimerContext { BetweenSets, BetweenExercises }
-
-data class RestTimerUiState(
-    val elapsedSeconds: Int = 0,
-    val context: RestTimerContext,
-    val easyThresholdSeconds: Int,
-    val hardThresholdSeconds: Int,
-    val singleThresholdSeconds: Int
-)
-
-sealed class RestTimerEvent {
-    object EasyMilestone : RestTimerEvent()
-    object HardMilestone : RestTimerEvent()
-    object ExerciseMilestone : RestTimerEvent()
-}
-
-// Immutable state classes
-data class ActiveWorkoutUiState(
-    val isActive: Boolean = false,
-    val isFullScreen: Boolean = false,
-    val workoutDayName: String = "",
-    val exercises: List<ExerciseUiState> = emptyList(),
-    val elapsedTime: Long = 0L,
-    val isFinished: Boolean = false,
-    val showSummary: Boolean = false,
-    val summaryDurationMs: Long = 0L,
-    val error: String? = null,
-    val currentExerciseIndex: Int = 0,
-    val currentSetIndex: Int = 0,
-    val restTimer: RestTimerUiState? = null
-)
-
-data class ExerciseUiState(
-    val exerciseId: String,
-    val name: String,
-    val sets: List<SetUiState>,
-    val isExpanded: Boolean = true,
-    val lastSets: List<Pair<Double, Int>> = emptyList()
-)
-
-data class SetUiState(
-    val index: Int,
-    val weight: String,
-    val reps: String,
-    val isAmrap: Boolean,
-    val isDone: Boolean = false,
-    val originalReps: String
-)
 
 @HiltViewModel
 class ActiveWorkoutViewModel @Inject constructor(
     private val repository: WorkoutRepository,
     private val timerPrefs: RestTimerPreferencesRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val WEIGHT_STEP = 2.5
+    }
 
     private val _uiState = MutableStateFlow(ActiveWorkoutUiState())
     val uiState: StateFlow<ActiveWorkoutUiState> = _uiState.asStateFlow()
@@ -105,13 +50,11 @@ class ActiveWorkoutViewModel @Inject constructor(
     private val _restTimerEvents = MutableSharedFlow<RestTimerEvent>()
     val restTimerEvents: SharedFlow<RestTimerEvent> = _restTimerEvents.asSharedFlow()
 
-    private var cachedTimerSettings = RestTimerSettings()
-
-    init {
-        viewModelScope.launch {
-            timerPrefs.settings.collect { cachedTimerSettings = it }
-        }
-    }
+    private val timerSettings = timerPrefs.settings.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = RestTimerSettings()
+    )
 
     fun startWorkout(day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String?) {
         viewModelScope.launch {
@@ -176,7 +119,7 @@ class ActiveWorkoutViewModel @Inject constructor(
 
     private fun startRestTimer(context: RestTimerContext) {
         restTimerJob?.cancel()
-        val settings = cachedTimerSettings
+        val settings = timerSettings.value
         val restState = RestTimerUiState(
             context = context,
             easyThresholdSeconds = settings.betweenSetsEasySeconds,
@@ -189,7 +132,7 @@ class ActiveWorkoutViewModel @Inject constructor(
             var easyFired = false
             var hardFired = false
             var singleFired = false
-            while (true) {
+            while (isActive) {
                 delay(1000)
                 seconds++
                 _uiState.update { s -> s.copy(restTimer = s.restTimer?.copy(elapsedSeconds = seconds)) }
@@ -226,7 +169,7 @@ class ActiveWorkoutViewModel @Inject constructor(
         _elapsedTime.value = 0L
         val start = System.currentTimeMillis()
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
+            while (isActive) {
                 val elapsed = System.currentTimeMillis() - start
                 _elapsedTime.value = elapsed
                 _uiState.update { it.copy(elapsedTime = elapsed) }
@@ -257,7 +200,7 @@ class ActiveWorkoutViewModel @Inject constructor(
         val resumeFrom = _uiState.value.summaryDurationMs
         val start = System.currentTimeMillis() - resumeFrom
         timerJob = viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
+            while (isActive) {
                 val elapsed = System.currentTimeMillis() - start
                 _elapsedTime.value = elapsed
                 _uiState.update { it.copy(elapsedTime = elapsed) }
@@ -273,18 +216,30 @@ class ActiveWorkoutViewModel @Inject constructor(
         timerJob?.cancel()
         timerJob = null
 
+        var hasInvalidSets = false
         val history = _uiState.value.exercises.flatMap { exercise ->
             exercise.sets
                 .filter { it.reps.isNotEmpty() && it.weight.isNotEmpty() }
-                .mapIndexed { setIndex, set ->
-                    ExerciseHistory(
-                        exerciseId = exercise.exerciseId,
-                        reps = set.reps.toIntOrNull() ?: 0,
-                        weight = set.weight.toDoubleOrNull() ?: 0.0,
-                        setIndex = setIndex + 1,
-                        isAmrap = set.isAmrap
-                    )
+                .mapIndexedNotNull { setIndex, set ->
+                    val reps = set.reps.toIntOrNull()
+                    val weight = set.weight.toDoubleOrNull()
+                    if (reps == null || weight == null) {
+                        hasInvalidSets = true
+                        android.util.Log.w("ActiveWorkoutViewModel", "Skipping set with invalid reps='${set.reps}' weight='${set.weight}'")
+                        null
+                    } else {
+                        ExerciseHistory(
+                            exerciseId = exercise.exerciseId,
+                            reps = reps,
+                            weight = weight,
+                            setIndex = setIndex + 1,
+                            isAmrap = set.isAmrap
+                        )
+                    }
                 }
+        }
+        if (hasInvalidSets) {
+            _uiState.update { it.copy(error = "Some sets had invalid values and were skipped.") }
         }
 
         viewModelScope.launch {
@@ -448,14 +403,14 @@ class ActiveWorkoutViewModel @Inject constructor(
         val current = _uiState.value.exercises
             .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
             ?.weight?.toDoubleOrNull() ?: 0.0
-        setWeightValue(exerciseIndex, setIndex, formatWeight(current + 2.5))
+        setWeightValue(exerciseIndex, setIndex, formatWeight(current + WEIGHT_STEP))
     }
 
     fun decrementWeight(exerciseIndex: Int, setIndex: Int) {
         val current = _uiState.value.exercises
             .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
             ?.weight?.toDoubleOrNull() ?: 0.0
-        if (current >= 2.5) setWeightValue(exerciseIndex, setIndex, formatWeight(current - 2.5))
+        if (current >= WEIGHT_STEP) setWeightValue(exerciseIndex, setIndex, formatWeight(current - WEIGHT_STEP))
     }
 
     fun completeCurrentSet() {
@@ -471,7 +426,7 @@ class ActiveWorkoutViewModel @Inject constructor(
                 })
             })
         }
-        val exercise = _uiState.value.exercises[ei]
+        val exercise = _uiState.value.exercises.getOrNull(ei) ?: return
         when {
             si < exercise.sets.size - 1 -> {
                 _uiState.update { it.copy(currentSetIndex = si + 1) }

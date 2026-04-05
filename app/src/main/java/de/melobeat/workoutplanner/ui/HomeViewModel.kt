@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
             try {
                 repository.updateLastCompletedDayIndex(routineId, dayIndex)
             } catch (e: Exception) {
-                e.printStackTrace()
+                android.util.Log.e("HomeViewModel", "Failed to update next day", e)
             }
         }
     }

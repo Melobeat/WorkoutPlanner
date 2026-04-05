@@ -179,7 +179,7 @@ private fun TimerEditDialog(
         confirmButton = {
             TextButton(onClick = {
                 val v = inputText.toIntOrNull()
-                if (v != null && v > 0) onConfirm(v)
+                if (v != null && v in 1..3600) onConfirm(v)
             }) { Text("OK") }
         },
         dismissButton = {
