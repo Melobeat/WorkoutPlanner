@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Search
@@ -82,7 +83,7 @@ fun ExerciseSelectionDialog(
             Spacer(Modifier.height(8.dp))
             LazyColumn(modifier = Modifier.fillMaxHeight(0.75f)) {
                 items(filtered, key = { it.id }) { exercise ->
-                    Surface(onClick = { onExerciseSelected(exercise) }) {
+                    Surface(onClick = { onExerciseSelected(exercise) }, shape = RectangleShape) {
                         ListItem(
                             headlineContent = {
                                 Text(
