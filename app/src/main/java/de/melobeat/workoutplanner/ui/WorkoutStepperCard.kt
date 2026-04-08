@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -74,14 +73,14 @@ fun StepperCard(
                 FilledTonalButton(
                     onClick = onDecrement,
                     shape = CircleShape,
-                    modifier = Modifier.height(40.dp)
+                    modifier = Modifier.height(40.dp).weight(1f)
                 ) {
                     Text("−", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
-                Button(
+                FilledTonalButton(
                     onClick = onIncrement,
                     shape = CircleShape,
-                    modifier = Modifier.height(40.dp)
+                    modifier = Modifier.height(40.dp).weight(1f)
                 ) {
                     Text("+", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 }
