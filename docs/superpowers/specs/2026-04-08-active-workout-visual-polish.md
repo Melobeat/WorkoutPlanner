@@ -32,13 +32,12 @@ No layout changes inside `RestTimerBanner.kt` — only color token substitutions
 
 ### 2. `WorkoutScreen.kt`
 
-The `AnimatedVisibility` block wrapping `RestTimerBanner` gains `Modifier.padding(horizontal = 16.dp)` so the banner aligns with the 16 dp horizontal padding used by the `LazyColumn` content.
+The `RestTimerBanner` call inside the `AnimatedVisibility` block gains `modifier = Modifier.padding(horizontal = 16.dp)` so the banner aligns with the 16 dp horizontal padding used by the `LazyColumn` content. (`AnimatedVisibility` has no `modifier` parameter, so the padding goes on the composable inside it.)
 
-```
-AnimatedVisibility(
-    modifier = Modifier.padding(horizontal = 16.dp),   // ADD THIS
-    visible = restTimer != null,
-    ...
+```kotlin
+RestTimerBanner(
+    restTimer = restTimer,
+    modifier = Modifier.padding(horizontal = 16.dp)   // ADD THIS
 )
 ```
 
