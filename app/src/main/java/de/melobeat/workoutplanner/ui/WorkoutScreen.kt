@@ -211,7 +211,10 @@ fun WorkoutScreenContent(
                 exit = shrinkVertically()
             ) {
                 if (restTimer != null) {
-                    RestTimerBanner(restTimer = restTimer)
+                    RestTimerBanner(
+                        restTimer = restTimer,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
 
