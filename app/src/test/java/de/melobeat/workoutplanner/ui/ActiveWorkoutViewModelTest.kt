@@ -466,6 +466,70 @@ class ActiveWorkoutViewModelTest {
 
     // endregion
 
+    // region jumpToSet
+
+    @Test
+    fun `jumpToSet moves cursor to given exercise and set`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 3), 0, "R", "r1")
+
+        viewModel.jumpToSet(exerciseIndex = 2, setIndex = 1)
+
+        val state = viewModel.uiState.value
+        assertEquals(2, state.currentExerciseIndex)
+        assertEquals(1, state.currentSetIndex)
+    }
+
+    @Test
+    fun `jumpToSet expands the target exercise`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 3), 0, "R", "r1")
+        // collapse exercise 2 first
+        viewModel.toggleExerciseExpanded(2)
+        assertFalse(viewModel.uiState.value.exercises[2].isExpanded)
+
+        viewModel.jumpToSet(exerciseIndex = 2, setIndex = 0)
+
+        assertTrue(viewModel.uiState.value.exercises[2].isExpanded)
+    }
+
+    @Test
+    fun `jumpToSet does not modify isDone on any set`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 2), 0, "R", "r1")
+        // complete set 0 of exercise 0
+        viewModel.completeCurrentSet()
+        assertTrue(viewModel.uiState.value.exercises[0].sets[0].isDone)
+
+        viewModel.jumpToSet(exerciseIndex = 1, setIndex = 0)
+
+        // set 0 of exercise 0 still done
+        assertTrue(viewModel.uiState.value.exercises[0].sets[0].isDone)
+    }
+
+    @Test
+    fun `completeCurrentSet auto-collapses exercise when all its sets are done`() = runTest {
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "e1", name = "Ex1", muscleGroup = "",
+                    routineSets = listOf(RoutineSet(reps = 5, weight = 50.0))
+                ),
+                Exercise(
+                    id = "e2", name = "Ex2", muscleGroup = "",
+                    routineSets = listOf(RoutineSet(reps = 5, weight = 50.0))
+                )
+            )
+        )
+        viewModel.startWorkout(day, 0, "R", "r1")
+        assertTrue(viewModel.uiState.value.exercises[0].isExpanded)
+
+        // Complete the only set of exercise 0 — should auto-collapse it
+        viewModel.completeCurrentSet()
+
+        assertFalse(viewModel.uiState.value.exercises[0].isExpanded)
+    }
+
+    // endregion
+
     // region helpers
 
     private fun makeWorkoutDay(exerciseCount: Int = 2) = WorkoutDay(

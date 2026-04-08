@@ -271,6 +271,18 @@ class ActiveWorkoutViewModel @Inject constructor(
         }
     }
 
+    fun jumpToSet(exerciseIndex: Int, setIndex: Int) {
+        _uiState.update { state ->
+            state.copy(
+                currentExerciseIndex = exerciseIndex,
+                currentSetIndex = setIndex,
+                exercises = state.exercises.mapIndexed { i, ex ->
+                    if (i == exerciseIndex) ex.copy(isExpanded = true) else ex
+                }
+            )
+        }
+    }
+
     fun toggleSetDone(exerciseIndex: Int, setIndex: Int) {
         _uiState.update { state ->
             state.copy(exercises = state.exercises.mapIndexed { ei, ex ->
@@ -433,7 +445,15 @@ class ActiveWorkoutViewModel @Inject constructor(
                 startRestTimer(RestTimerContext.BetweenSets)
             }
             ei < _uiState.value.exercises.size - 1 -> {
-                _uiState.update { it.copy(currentExerciseIndex = ei + 1, currentSetIndex = 0) }
+                _uiState.update { state ->
+                    state.copy(
+                        currentExerciseIndex = ei + 1,
+                        currentSetIndex = 0,
+                        exercises = state.exercises.mapIndexed { i, ex ->
+                            if (i == ei) ex.copy(isExpanded = false) else ex
+                        }
+                    )
+                }
                 startRestTimer(RestTimerContext.BetweenExercises)
             }
             else -> requestFinish()
