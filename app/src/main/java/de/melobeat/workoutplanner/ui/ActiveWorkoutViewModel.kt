@@ -468,10 +468,13 @@ class ActiveWorkoutViewModel @Inject constructor(
             si > 0 -> _uiState.update { it.copy(currentSetIndex = si - 1) }
             ei > 0 -> {
                 val prevExercise = state.exercises[ei - 1]
-                _uiState.update {
-                    it.copy(
+                _uiState.update { s ->
+                    s.copy(
                         currentExerciseIndex = ei - 1,
-                        currentSetIndex = prevExercise.sets.size - 1
+                        currentSetIndex = prevExercise.sets.size - 1,
+                        exercises = s.exercises.mapIndexed { idx, ex ->
+                            if (idx == ei - 1) ex.copy(isExpanded = true) else ex
+                        }
                     )
                 }
             }

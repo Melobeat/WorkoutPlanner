@@ -528,6 +528,21 @@ class ActiveWorkoutViewModelTest {
         assertFalse(viewModel.uiState.value.exercises[0].isExpanded)
     }
 
+    @Test
+    fun `goToPreviousSet expands the target exercise when going back`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 2), 0, "R", "r1")
+        // advance to exercise 1
+        viewModel.jumpToSet(exerciseIndex = 1, setIndex = 0)
+        // collapse exercise 0
+        viewModel.toggleExerciseExpanded(0)
+        assertFalse(viewModel.uiState.value.exercises[0].isExpanded)
+
+        // go back to exercise 0
+        viewModel.goToPreviousSet()
+
+        assertTrue(viewModel.uiState.value.exercises[0].isExpanded)
+    }
+
     // endregion
 
     // region helpers
