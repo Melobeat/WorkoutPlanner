@@ -34,10 +34,15 @@ fun StepperCard(
     else
         MaterialTheme.colorScheme.surface
 
-    val contentColor = if (isAmrap)
+    val valueColor = if (isAmrap)
         MaterialTheme.colorScheme.onTertiaryContainer
     else
         MaterialTheme.colorScheme.onSurface
+
+    val labelColor = if (isAmrap)
+        MaterialTheme.colorScheme.onTertiaryContainer
+    else
+        MaterialTheme.colorScheme.onSurfaceVariant
 
     val displayLabel = if (isAmrap) "AMRAP" else label.uppercase()
 
@@ -55,17 +60,14 @@ fun StepperCard(
                 displayLabel,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
-                color = if (isAmrap)
-                    MaterialTheme.colorScheme.onTertiaryContainer
-                else
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                color = labelColor
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 value,
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
-                color = contentColor
+                color = valueColor
             )
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
