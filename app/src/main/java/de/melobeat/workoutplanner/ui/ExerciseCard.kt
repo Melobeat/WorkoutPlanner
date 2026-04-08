@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.SwapHoriz
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Card
@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -156,7 +157,7 @@ fun ExerciseCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (isActive) {
                         FilledTonalButton(onClick = onSwapExercise, shape = CircleShape) {
-                            Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Rounded.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Swap", style = MaterialTheme.typography.labelMedium)
                         }
@@ -179,6 +180,7 @@ fun ExerciseCard(
                 exit = shrinkVertically(spring(dampingRatio = Spring.DampingRatioMediumBouncy))
             ) {
                 Column {
+                    val primaryColor = MaterialTheme.colorScheme.primary
                     exercise.sets.forEachIndexed { si, set ->
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
@@ -218,106 +220,98 @@ fun ExerciseCard(
 
                             isActiveSet -> {
                                 // Active set — expanded with steppers + CTA
-                                Column(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(
-                                            MaterialTheme.colorScheme.surfaceVariant
-                                        )
-                                        .padding(start = 3.dp)
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    // Left accent border via Row
-                                    Row(modifier = Modifier.fillMaxWidth()) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(3.dp)
-                                                .height(1.dp) // stretches with content via parent
-                                                .background(MaterialTheme.colorScheme.primary)
-                                        )
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 12.dp, vertical = 10.dp)
-                                        ) {
-                                            Text(
-                                                "SET ${si + 1} — ACTIVE",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        .drawBehind {
+                                            drawRect(
+                                                color = primaryColor,
+                                                size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)
                                             )
-                                            Spacer(Modifier.height(10.dp))
-                                            // Stepper cards
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        }
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 15.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
+                                    ) {
+                                        Text(
+                                            "SET ${si + 1} — ACTIVE",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(Modifier.height(10.dp))
+                                        // Stepper cards
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            StepperCard(
+                                                label = "Reps",
+                                                value = set.reps,
+                                                onIncrement = { onIncrementReps(si) },
+                                                onDecrement = { onDecrementReps(si) },
+                                                isAmrap = set.isAmrap,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            StepperCard(
+                                                label = "kg",
+                                                value = set.weight,
+                                                onIncrement = { onIncrementWeight(si) },
+                                                onDecrement = { onDecrementWeight(si) },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+                                        Spacer(Modifier.height(12.dp))
+                                        // Done CTA
+                                        val isLastSet = si == exercise.sets.size - 1
+                                        val isLastExercise = exerciseIndex == totalExercises - 1
+                                        val ctaLabel = when {
+                                            isLastSet && isLastExercise -> "✓  Finish Workout"
+                                            isLastSet -> "✓  Next Exercise"
+                                            else -> "✓  Done — Set ${si + 2}"
+                                        }
+                                        Surface(
+                                            onClick = onCompleteSet,
+                                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                                            shape = RoundedCornerShape(50),
+                                            color = Color.Transparent
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .clip(RoundedCornerShape(50))
+                                                    .background(Brush.linearGradient(listOf(Purple40, Pink40))),
+                                                contentAlignment = Alignment.Center
                                             ) {
-                                                StepperCard(
-                                                    label = "Reps",
-                                                    value = set.reps,
-                                                    onIncrement = { onIncrementReps(si) },
-                                                    onDecrement = { onDecrementReps(si) },
-                                                    isAmrap = set.isAmrap,
-                                                    modifier = Modifier.weight(1f)
+                                                Text(
+                                                    ctaLabel,
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 16.sp
                                                 )
-                                                StepperCard(
-                                                    label = "kg",
-                                                    value = set.weight,
-                                                    onIncrement = { onIncrementWeight(si) },
-                                                    onDecrement = { onDecrementWeight(si) },
-                                                    modifier = Modifier.weight(1f)
-                                                )
                                             }
-                                            Spacer(Modifier.height(12.dp))
-                                            // Done CTA
-                                            val isLastSet = si == exercise.sets.size - 1
-                                            val isLastExercise = exerciseIndex == totalExercises - 1
-                                            val ctaLabel = when {
-                                                isLastSet && isLastExercise -> "✓  Finish Workout"
-                                                isLastSet -> "✓  Next Exercise"
-                                                else -> "✓  Done — Set ${si + 2}"
-                                            }
-                                            Surface(
-                                                onClick = onCompleteSet,
-                                                modifier = Modifier.fillMaxWidth().height(52.dp),
-                                                shape = RoundedCornerShape(50),
-                                                color = Color.Transparent
+                                        }
+                                        Spacer(Modifier.height(8.dp))
+                                        // Back / Skip row
+                                        val isAtStart = exerciseIndex == 0 && si == 0
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            FilledTonalButton(
+                                                onClick = onGoBack,
+                                                enabled = !isAtStart,
+                                                shape = CircleShape
                                             ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .clip(RoundedCornerShape(50))
-                                                        .background(Brush.linearGradient(listOf(Purple40, Pink40))),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        ctaLabel,
-                                                        color = Color.White,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = 16.sp
-                                                    )
-                                                }
+                                                Text("← Back", style = MaterialTheme.typography.labelMedium)
                                             }
-                                            Spacer(Modifier.height(8.dp))
-                                            // Back / Skip row
-                                            val isAtStart = exerciseIndex == 0 && si == 0
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            FilledTonalButton(
+                                                onClick = onSkipExercise,
+                                                shape = CircleShape
                                             ) {
-                                                FilledTonalButton(
-                                                    onClick = onGoBack,
-                                                    enabled = !isAtStart,
-                                                    shape = CircleShape
-                                                ) {
-                                                    Text("← Back", style = MaterialTheme.typography.labelMedium)
-                                                }
-                                                FilledTonalButton(
-                                                    onClick = onSkipExercise,
-                                                    shape = CircleShape
-                                                ) {
-                                                    Text("Skip Exercise →", style = MaterialTheme.typography.labelMedium)
-                                                }
+                                                Text("Skip Exercise →", style = MaterialTheme.typography.labelMedium)
                                             }
                                         }
                                     }
