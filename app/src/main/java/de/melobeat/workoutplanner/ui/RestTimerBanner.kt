@@ -53,7 +53,7 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
@@ -69,12 +69,13 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     text = "REST",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
                     text = formatElapsedTime(elapsed * 1000L),
                     style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Black
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             Spacer(Modifier.height(8.dp))
@@ -85,7 +86,7 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     .clip(CircleShape)
                     .height(6.dp),
                 color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
             )
             if (milestoneLabel != null) {
                 Spacer(Modifier.height(6.dp))
@@ -93,7 +94,7 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     text = milestoneLabel,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }
