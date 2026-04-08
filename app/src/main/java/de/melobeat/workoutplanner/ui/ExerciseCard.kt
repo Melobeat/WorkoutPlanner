@@ -45,8 +45,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import de.melobeat.workoutplanner.ui.theme.Pink40
-import de.melobeat.workoutplanner.ui.theme.Purple40
+import de.melobeat.workoutplanner.ui.theme.GradientHeroMid
+import de.melobeat.workoutplanner.ui.theme.GradientHeroEnd
 
 @Composable
 fun ExerciseCard(
@@ -283,7 +283,7 @@ fun ExerciseCard(
                                                 modifier = Modifier
                                                     .fillMaxSize()
                                                     .clip(RoundedCornerShape(50))
-                                                    .background(Brush.linearGradient(listOf(Purple40, Pink40))),
+                                                    .background(Brush.linearGradient(listOf(GradientHeroMid, GradientHeroEnd))),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(

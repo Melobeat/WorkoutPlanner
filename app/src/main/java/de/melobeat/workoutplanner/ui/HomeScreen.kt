@@ -59,9 +59,10 @@ import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.Routine
 import de.melobeat.workoutplanner.model.RoutineSet
 import de.melobeat.workoutplanner.model.WorkoutDay
-import de.melobeat.workoutplanner.ui.theme.Pink40
-import de.melobeat.workoutplanner.ui.theme.Purple10
-import de.melobeat.workoutplanner.ui.theme.Purple40
+import de.melobeat.workoutplanner.ui.theme.GradientHeroStart
+import de.melobeat.workoutplanner.ui.theme.GradientHeroMid
+import de.melobeat.workoutplanner.ui.theme.GradientHeroEnd
+import androidx.compose.ui.geometry.Offset
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,7 +107,11 @@ fun HomeScreenContent(
 ) {
     var showWorkoutChooser by remember { mutableStateOf(false) }
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val heroBrush = Brush.linearGradient(listOf(Purple10, Purple40, Pink40))
+    val heroBrush = Brush.linearGradient(
+        colors = listOf(GradientHeroStart, GradientHeroMid, GradientHeroEnd),
+        start = Offset(0f, Float.POSITIVE_INFINITY),
+        end = Offset(Float.POSITIVE_INFINITY, 0f)
+    )
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -229,7 +234,7 @@ fun HomeScreenContent(
                                 shape = CircleShape,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.White,
-                                    contentColor = Purple40
+                                    contentColor = GradientHeroMid
                                 )
                             ) {
                                 Text("▶ Start Workout", fontWeight = FontWeight.Bold)
@@ -266,7 +271,7 @@ fun HomeScreenContent(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.White,
-                                contentColor = Purple40
+                                contentColor = GradientHeroMid
                             )
                         ) {
                             Text("Manage Routines", fontWeight = FontWeight.Bold)
