@@ -224,7 +224,7 @@ fun WorkoutScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "EXERCISE ${(ei + 1).coerceAtLeast(1)} OF ${exercises.size}",
+                    text = "EXERCISE ${ei + 1} OF ${exercises.size}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
@@ -264,7 +264,7 @@ fun WorkoutScreenContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    itemsIndexed(exercises) { exerciseIndex, exercise ->
+                    itemsIndexed(exercises, key = { _, exercise -> exercise.exerciseId }) { exerciseIndex, exercise ->
                         ExerciseCard(
                             exercise = exercise,
                             exerciseIndex = exerciseIndex,
