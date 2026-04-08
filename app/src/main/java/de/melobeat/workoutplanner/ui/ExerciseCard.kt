@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,11 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import de.melobeat.workoutplanner.ui.theme.Pink40
 import de.melobeat.workoutplanner.ui.theme.Purple40
 
@@ -81,12 +82,10 @@ fun ExerciseCard(
     val cardAlpha = if (allDone) 0.55f else 1f
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(if (allDone || isIncompleteAway) Modifier.clickable { onToggleExpanded() } else Modifier),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, borderColor.copy(alpha = cardAlpha))
+        border = BorderStroke(1.dp, borderColor.copy(alpha = cardAlpha))
     ) {
         Column(modifier = Modifier.then(
             if (allDone) Modifier.background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = cardAlpha))
@@ -97,6 +96,7 @@ fun ExerciseCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .then(if (allDone || isIncompleteAway) Modifier.clickable { onToggleExpanded() } else Modifier)
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -226,7 +226,7 @@ fun ExerciseCard(
                                         .drawBehind {
                                             drawRect(
                                                 color = primaryColor,
-                                                size = androidx.compose.ui.geometry.Size(3.dp.toPx(), size.height)
+                                                size = Size(3.dp.toPx(), size.height)
                                             )
                                         }
                                 ) {
@@ -288,8 +288,8 @@ fun ExerciseCard(
                                                 Text(
                                                     ctaLabel,
                                                     color = Color.White,
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 16.sp
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    fontWeight = FontWeight.Bold
                                                 )
                                             }
                                         }
@@ -342,18 +342,10 @@ fun ExerciseCard(
                                     )
                                     Box(
                                         modifier = Modifier
-                                            .size(20.dp)
+                                            .size(18.dp)
                                             .clip(CircleShape)
-                                            .background(Color.Transparent),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(18.dp)
-                                                .clip(CircleShape)
-                                                .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                                        )
-                                    }
+                                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                                    )
                                 }
                             }
                         }
