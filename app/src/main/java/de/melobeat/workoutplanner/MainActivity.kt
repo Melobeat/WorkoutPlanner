@@ -25,12 +25,16 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.melobeat.workoutplanner.ui.ActiveWorkoutViewModel
+import de.melobeat.workoutplanner.ui.TimerSettingsViewModel
 import de.melobeat.workoutplanner.ui.formatElapsedTime
 import de.melobeat.workoutplanner.ui.navigation.ActiveWorkoutRoute
 import de.melobeat.workoutplanner.ui.navigation.HistoryRoute
 import de.melobeat.workoutplanner.ui.navigation.HomeRoute
 import de.melobeat.workoutplanner.ui.navigation.WorkoutNavGraph
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
+import androidx.compose.foundation.BorderStroke
+import androidx.hilt.navigation.compose.hiltViewModel
+import de.melobeat.workoutplanner.ui.theme.DarkOutlineVariant
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,7 +43,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            WorkoutPlannerTheme {
+            val timerSettingsViewModel: TimerSettingsViewModel = hiltViewModel()
+            val useDynamicColor by timerSettingsViewModel.useDynamicColor.collectAsStateWithLifecycle()
+            WorkoutPlannerTheme(useDynamicColor = useDynamicColor) {
                 WorkoutPlannerApp()
             }
         }
@@ -95,6 +101,7 @@ fun WorkoutPlannerApp() {
                         },
                         color = MaterialTheme.colorScheme.primaryContainer,
                         tonalElevation = 0.dp,
+                        border = BorderStroke(1.dp, DarkOutlineVariant),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(64.dp)
