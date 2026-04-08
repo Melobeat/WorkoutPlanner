@@ -2,6 +2,7 @@ package de.melobeat.workoutplanner.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
@@ -21,9 +22,10 @@ class RestTimerPreferencesRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
-        val BETWEEN_SETS_EASY = intPreferencesKey("between_sets_easy_seconds")
-        val BETWEEN_SETS_HARD = intPreferencesKey("between_sets_hard_seconds")
-        val BETWEEN_EXERCISES = intPreferencesKey("between_exercises_seconds")
+        val BETWEEN_SETS_EASY   = intPreferencesKey("between_sets_easy_seconds")
+        val BETWEEN_SETS_HARD   = intPreferencesKey("between_sets_hard_seconds")
+        val BETWEEN_EXERCISES   = intPreferencesKey("between_exercises_seconds")
+        val USE_DYNAMIC_COLOR   = booleanPreferencesKey("use_dynamic_color")
     }
 
     val settings: Flow<RestTimerSettings> = dataStore.data.map { prefs ->
@@ -34,11 +36,21 @@ class RestTimerPreferencesRepository(
         )
     }
 
+    val useDynamicColor: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[USE_DYNAMIC_COLOR] ?: false
+    }
+
     suspend fun update(settings: RestTimerSettings) {
         dataStore.edit { prefs ->
             prefs[BETWEEN_SETS_EASY] = settings.betweenSetsEasySeconds
             prefs[BETWEEN_SETS_HARD] = settings.betweenSetsHardSeconds
             prefs[BETWEEN_EXERCISES] = settings.betweenExercisesSeconds
+        }
+    }
+
+    suspend fun setUseDynamicColor(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[USE_DYNAMIC_COLOR] = enabled
         }
     }
 }

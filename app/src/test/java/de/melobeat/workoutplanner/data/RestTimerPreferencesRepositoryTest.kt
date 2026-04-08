@@ -48,4 +48,14 @@ class RestTimerPreferencesRepositoryTest {
         assertEquals(180, settings.betweenSetsHardSeconds) // unchanged default
         assertEquals(60, settings.betweenExercisesSeconds)  // unchanged default
     }
+
+    @Test
+    fun `useDynamicColor defaults to false and can be toggled`() = runTest {
+        val repo = makeRepo()
+        assertEquals(false, repo.useDynamicColor.first())
+        repo.setUseDynamicColor(true)
+        assertEquals(true, repo.useDynamicColor.first())
+        repo.setUseDynamicColor(false)
+        assertEquals(false, repo.useDynamicColor.first())
+    }
 }
