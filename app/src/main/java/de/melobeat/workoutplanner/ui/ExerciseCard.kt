@@ -233,6 +233,7 @@ fun ExerciseCard(
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
+                                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f))
                                             .padding(start = 15.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
                                     ) {
                                         Text(
