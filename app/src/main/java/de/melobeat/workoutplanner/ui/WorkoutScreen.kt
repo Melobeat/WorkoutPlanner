@@ -2,9 +2,13 @@ package de.melobeat.workoutplanner.ui
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -94,6 +101,8 @@ fun WorkoutScreen(
         onDecrementWeight = { ei, si -> viewModel.decrementWeight(ei, si) },
         onGoBack = { viewModel.goToPreviousSet() },
         onSkipExercise = { viewModel.skipExercise() },
+        onJumpToSet = { exerciseIndex, setIndex -> viewModel.jumpToSet(exerciseIndex, setIndex) },
+        onToggleExerciseExpanded = { exerciseIndex -> viewModel.toggleExerciseExpanded(exerciseIndex) },
         onNavigateBack = onNavigateBack,
         modifier = modifier
     )
@@ -117,24 +126,32 @@ fun WorkoutScreenContent(
     onDecrementWeight: (exerciseIndex: Int, setIndex: Int) -> Unit,
     onGoBack: () -> Unit,
     onSkipExercise: () -> Unit,
+    onJumpToSet: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onToggleExerciseExpanded: (exerciseIndex: Int) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showAddExerciseDialog by remember { mutableStateOf(false) }
-    var showSwapDialog by remember { mutableStateOf(false) }
+    var showSwapExerciseIndex by remember { mutableStateOf<Int?>(null) }
     var showCancelDialog by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
 
     val exercises = uiState.exercises
-    val ei = uiState.currentExerciseIndex.coerceIn(0, (exercises.size - 1).coerceAtLeast(0))
-    val currentExercise = exercises.getOrNull(ei)
-    val si = uiState.currentSetIndex.coerceIn(
-        0, ((currentExercise?.sets?.size ?: 1) - 1).coerceAtLeast(0)
-    )
-    val currentSet = currentExercise?.sets?.getOrNull(si)
-    val nextExercise = exercises.getOrNull(ei + 1)
+    val ei = uiState.currentExerciseIndex
+    val si = uiState.currentSetIndex
+
     val progress = if (exercises.isEmpty()) 0f
-    else (ei.toFloat() + (si.toFloat() / (currentExercise?.sets?.size?.toFloat() ?: 1f))) / exercises.size
+    else {
+        val currentExercise = exercises.getOrNull(ei)
+        (ei.toFloat() + (si.toFloat() / (currentExercise?.sets?.size?.toFloat() ?: 1f))) / exercises.size
+    }
+
+    val listState = rememberLazyListState()
+    LaunchedEffect(ei) {
+        if (exercises.isNotEmpty()) {
+            listState.animateScrollToItem(ei.coerceIn(0, exercises.size - 1))
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -168,17 +185,11 @@ fun WorkoutScreenContent(
                         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                             DropdownMenuItem(
                                 text = { Text("Finish Workout") },
-                                onClick = {
-                                    showMenu = false
-                                    onFinishWorkout()
-                                }
+                                onClick = { showMenu = false; onFinishWorkout() }
                             )
                             DropdownMenuItem(
                                 text = { Text("Cancel Workout", color = MaterialTheme.colorScheme.error) },
-                                onClick = {
-                                    showMenu = false
-                                    showCancelDialog = true
-                                }
+                                onClick = { showMenu = false; showCancelDialog = true }
                             )
                         }
                     }
@@ -192,15 +203,28 @@ fun WorkoutScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
         ) {
+            // Rest timer banner — sticky below TopAppBar
+            AnimatedVisibility(
+                visible = restTimer != null,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                if (restTimer != null) {
+                    RestTimerBanner(restTimer = restTimer)
+                }
+            }
+
+            // Progress row
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "EXERCISE ${ei + 1} OF ${exercises.size}",
+                    text = "EXERCISE ${(ei + 1).coerceAtLeast(1)} OF ${exercises.size}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
@@ -214,39 +238,57 @@ fun WorkoutScreenContent(
             }
             LinearProgressIndicator(
                 progress = { progress },
-                modifier = Modifier.fillMaxWidth().clip(CircleShape).height(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .clip(CircleShape)
+                    .height(6.dp),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
 
-            if (currentExercise != null && currentSet != null) {
-                WorkoutExerciseContent(
-                    exercise = currentExercise,
-                    currentSet = currentSet,
-                    nextExercise = nextExercise,
-                    exerciseIndex = ei,
-                    setIndex = si,
-                    totalExercises = exercises.size,
-                    restTimer = restTimer,
-                    onSwapExercise = { showSwapDialog = true },
-                    onIncrementReps = { onIncrementReps(ei, si) },
-                    onDecrementReps = { onDecrementReps(ei, si) },
-                    onIncrementWeight = { onIncrementWeight(ei, si) },
-                    onDecrementWeight = { onDecrementWeight(ei, si) },
-                    onCompleteSet = onCompleteSet,
-                    onGoBack = onGoBack,
-                    onSkipExercise = onSkipExercise
-                )
-            } else {
+            if (exercises.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No exercises in this workout.")
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        bottom = 24.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    itemsIndexed(exercises) { exerciseIndex, exercise ->
+                        ExerciseCard(
+                            exercise = exercise,
+                            exerciseIndex = exerciseIndex,
+                            totalExercises = exercises.size,
+                            currentExerciseIndex = ei,
+                            currentSetIndex = si,
+                            onActivateSet = { setIndex -> onJumpToSet(exerciseIndex, setIndex) },
+                            onToggleExpanded = { onToggleExerciseExpanded(exerciseIndex) },
+                            onSwapExercise = { showSwapExerciseIndex = exerciseIndex },
+                            onIncrementReps = { setIndex -> onIncrementReps(exerciseIndex, setIndex) },
+                            onDecrementReps = { setIndex -> onDecrementReps(exerciseIndex, setIndex) },
+                            onIncrementWeight = { setIndex -> onIncrementWeight(exerciseIndex, setIndex) },
+                            onDecrementWeight = { setIndex -> onDecrementWeight(exerciseIndex, setIndex) },
+                            onCompleteSet = onCompleteSet,
+                            onGoBack = onGoBack,
+                            onSkipExercise = onSkipExercise
+                        )
+                    }
                 }
             }
         }
     }
 
+    // Dialogs
     if (showAddExerciseDialog) {
         ExerciseSelectionDialog(
             title = "Add Exercise",
@@ -259,14 +301,14 @@ fun WorkoutScreenContent(
         )
     }
 
-    if (showSwapDialog) {
+    showSwapExerciseIndex?.let { swapIndex ->
         ExerciseSelectionDialog(
             title = "Swap Exercise",
             exercises = availableExercises,
-            onDismiss = { showSwapDialog = false },
+            onDismiss = { showSwapExerciseIndex = null },
             onExerciseSelected = { exercise ->
-                onSwapExercise(ei, exercise)
-                showSwapDialog = false
+                onSwapExercise(swapIndex, exercise)
+                showSwapExerciseIndex = null
             }
         )
     }
@@ -333,6 +375,8 @@ fun WorkoutScreenContentPreview() {
             onDecrementWeight = { _, _ -> },
             onGoBack = {},
             onSkipExercise = {},
+            onJumpToSet = { _, _ -> },
+            onToggleExerciseExpanded = {},
             onNavigateBack = {}
         )
     }
