@@ -1,4 +1,6 @@
 .superpowers/
+docs/superpowers/
+.screenshots/
 *.iml
 .gradle
 /local.properties

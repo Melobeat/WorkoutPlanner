@@ -29,7 +29,30 @@ Single-module Android app (`de.melobeat.workoutplanner`). Kotlin + Jetpack Compo
 ./gradlew clean
 ```
 
-No Makefile, no CI, no pre-commit hooks, no formatter config (Ktlint/Spotless not configured).
+No Makefile, no CI, no formatter config (Ktlint/Spotless not configured).
+
+Git hooks are active (stored in `.git/hooks/`, not committed):
+- **commit-msg**: enforces Conventional Commits format (`feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert`)
+- **pre-push**: runs `:app:testDebugUnitTest` before every push; bypass with `SKIP_TESTS=1 git push` (emergency only)
+
+## Git Workflow (GitHub Flow)
+
+- Default branch: **`main`** (remote: `origin/master` until renamed on GitHub — see below)
+- `main` is always in a working state
+- Feature work: create a short-lived branch off `main`, open a PR, merge when green
+- Branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`
+- Commit style: Conventional Commits — `feat(scope): description` (≤72 chars subject)
+- Never commit directly to `main` for non-trivial changes
+
+**Rename remote branch on GitHub (one-time):**
+```bash
+# After pushing main to remote:
+git push origin main
+# Then on GitHub → Settings → Branches → rename default branch to main
+# Then update local tracking:
+git branch -u origin/main main
+git remote set-head origin -a
+```
 
 Gradle has `org.gradle.configuration-cache=true` and `org.gradle.caching=true` active. After schema changes that require `clean`, run `./gradlew clean` normally — the configuration cache is compatible.
 
