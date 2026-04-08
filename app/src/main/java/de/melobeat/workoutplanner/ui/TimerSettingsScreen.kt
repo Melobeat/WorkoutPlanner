@@ -51,6 +51,13 @@ class TimerSettingsViewModel @Inject constructor(
     val settings: StateFlow<RestTimerSettings> = timerPrefs.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RestTimerSettings())
 
+    val useDynamicColor: StateFlow<Boolean> = timerPrefs.useDynamicColor
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun setUseDynamicColor(enabled: Boolean) {
+        viewModelScope.launch { timerPrefs.setUseDynamicColor(enabled) }
+    }
+
     fun updateEasyThreshold(seconds: Int) {
         viewModelScope.launch { timerPrefs.update(settings.value.copy(betweenSetsEasySeconds = seconds)) }
     }
