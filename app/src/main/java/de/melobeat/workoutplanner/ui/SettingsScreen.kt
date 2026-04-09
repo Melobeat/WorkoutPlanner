@@ -46,7 +46,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     timerSettingsViewModel: TimerSettingsViewModel = hiltViewModel()
 ) {
-    val useDynamicColor by timerSettingsViewModel.useDynamicColor.collectAsStateWithLifecycle()
+    val themeMode by timerSettingsViewModel.themeMode.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
@@ -71,7 +71,7 @@ fun SettingsScreen(
                 ListItem(
                     headlineContent = { Text("Theme", fontWeight = FontWeight.SemiBold) },
                     supportingContent = {
-                        Text(if (useDynamicColor) "Dynamic color (wallpaper)" else "Custom dark theme")
+                        Text(if (themeMode == "system") "System default" else if (themeMode == "light") "Light theme" else "Custom dark theme")
                     },
                     leadingContent = {
                         Icon(
@@ -83,8 +83,8 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         Switch(
-                            checked = useDynamicColor,
-                            onCheckedChange = { timerSettingsViewModel.setUseDynamicColor(it) }
+                            checked = themeMode != "dark",
+                            onCheckedChange = { timerSettingsViewModel.setThemeMode(if (it) "system" else "dark") }
                         )
                     }
                 )

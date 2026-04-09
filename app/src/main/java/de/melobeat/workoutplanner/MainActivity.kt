@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val timerSettingsViewModel: TimerSettingsViewModel = hiltViewModel()
-            val useDynamicColor by timerSettingsViewModel.useDynamicColor.collectAsStateWithLifecycle()
-            WorkoutPlannerTheme(useDynamicColor = useDynamicColor) {
+            val themeMode by timerSettingsViewModel.themeMode.collectAsStateWithLifecycle()
+            WorkoutPlannerTheme(themeMode = themeMode) {
                 WorkoutPlannerApp()
             }
         }
