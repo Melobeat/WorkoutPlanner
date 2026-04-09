@@ -183,20 +183,22 @@ Lives in `MainActivity` inner `Scaffold` `bottomBar` when `isActive && !isFullSc
 
 `android.enableR8.fullMode=true` in `gradle.properties`. `@Serializable` classes survive via the Kotlin serialization plugin (`kotlin-serialization` applied at app level). `proguard-rules.pro` is essentially empty — do not add manual keeps for serialization.
 
-## M3 Expressive + Dynamic Color
+## Theme — Dark & Deep
 
-- `WorkoutPlannerTheme` passes `dynamicColor = true`. On API 31+ (all real devices given minSdk 33) the seed palette is irrelevant — wallpaper colors dominate. The static purple/pink palette in `Color.kt` is dead code and never activates.
-- M3 Expressive components require `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`. The BOM already includes them — no extra dependency needed.
-- `motionScheme` is **not** yet wired. The `MaterialTheme(...)` call in `Theme.kt` currently only passes `colorScheme` and `typography`. To add it, the parameter must be added to that call site specifically.
+- App is **dark-only**. `WorkoutPlannerTheme(useDynamicColor = false)` by default. Dynamic color is an opt-in user preference persisted in DataStore (`RestTimerPreferencesRepository.USE_DYNAMIC_COLOR`), toggled via the Settings screen Theme switch.
+- When dynamic color is on, `dynamicDarkColorScheme` is used — never the light variant.
+- The fixed palette lives in `Color.kt` (`DarkBackground`, `DarkSurface`, `DarkSurfaceContainer`, etc. + `GradientHeroStart/Mid/End`, `GradientCardStart/End`). This is the active palette, not dead code.
+- `motionScheme = MotionScheme.expressive()` is **not wired** — the API is `internal` in M3 1.4.0 even though it is `ACC_PUBLIC` in bytecode. `MaterialTheme(colorScheme, typography, content)` is used. Wire it when the API is promoted to stable.
+- M3 Expressive components require `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`. BOM already includes them — no extra dependency needed.
 
 ## UI Conventions (from `docs/design-guidelines.md`)
 
 - All buttons: pill-shaped (`CircleShape`).
-- All cards: `surfaceVariant` container color. Never custom background.
-- Colors: `MaterialTheme.colorScheme.*` only. Raw hex only in the hardcoded gradient hero (`#4A0080`, `#6750A4`, `#B5488A`).
+- All cards: `surfaceVariant` container color (`#1A1A28`). Never custom background.
+- Colors: `MaterialTheme.colorScheme.*` only. Raw hex only in gradients and translucent overlays where tokens cannot express the intent. Named gradient constants (`GradientHeroStart/Mid/End`, `GradientCardStart/End`) are in `Color.kt` — use those, not inline hex.
 - `error` color is exclusively for the "End workout" button.
 - Icons: `Icons.Rounded.*` from `material-icons-extended`.
-- `LargeTopAppBar` always pairs with `exitUntilCollapsedScrollBehavior` + `nestedScroll`.
+- `LargeTopAppBar` always pairs with `exitUntilCollapsedScrollBehavior` + `nestedScroll`. Screens using it: History, Settings, TimerSettings, Routines, RoutineDetail, CreateRoutine, Exercises, Equipment.
 - No custom font (M3 defaults / Roboto only).
 - Home screen has **no TopAppBar** — gradient hero replaces it.
 - Acid green (`#C8FF00`) is launcher icon only; never in-app.
