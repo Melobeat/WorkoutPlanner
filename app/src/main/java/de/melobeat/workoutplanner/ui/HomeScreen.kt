@@ -66,6 +66,8 @@ import de.melobeat.workoutplanner.ui.theme.GradientCtaStart
 import de.melobeat.workoutplanner.ui.theme.GradientCtaEnd
 import androidx.compose.ui.geometry.Offset
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,7 +145,7 @@ fun HomeScreenContent(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                "Workout Planner",
+                                stringResource(R.string.home_app_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
@@ -152,7 +154,7 @@ fun HomeScreenContent(
                         IconButton(onClick = onNavigateToSettings) {
                             Icon(
                                 Icons.Rounded.Tune,
-                                contentDescription = "Settings",
+                                contentDescription = stringResource(R.string.home_settings_cd),
                                 tint = Color.White
                             )
                         }
@@ -167,7 +169,7 @@ fun HomeScreenContent(
 
                         // Routine label
                         Text(
-                            text = "${routine.name.uppercase()} · DAY ${nextDayIndex + 1} OF ${routine.workoutDays.size}",
+                            text = stringResource(R.string.home_routine_label, routine.name.uppercase(), nextDayIndex + 1, routine.workoutDays.size),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White.copy(alpha = 0.7f),
                             fontWeight = FontWeight.Bold
@@ -181,7 +183,7 @@ fun HomeScreenContent(
                             lineHeight = MaterialTheme.typography.displaySmall.lineHeight
                         )
                         Text(
-                            text = "${nextDay.exercises.size} exercises",
+                            text = stringResource(R.string.home_exercises_count, nextDay.exercises.size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.65f)
                         )
@@ -209,7 +211,7 @@ fun HomeScreenContent(
                                         color = Color.White.copy(alpha = 0.15f)
                                     ) {
                                         Text(
-                                            "+${nextDay.exercises.size - 2} more",
+                                            stringResource(R.string.home_more_exercises, nextDay.exercises.size - 2),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.White,
                                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp)
@@ -243,7 +245,7 @@ fun HomeScreenContent(
                                     contentColor = Color.White
                                 )
                             ) {
-                                Text("▶ Start Workout", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.home_start_workout), fontWeight = FontWeight.Bold)
                             }
                             FilledTonalButton(
                                 onClick = { showWorkoutChooser = true },
@@ -254,20 +256,20 @@ fun HomeScreenContent(
                                 ),
                                 modifier = Modifier.height(48.dp)
                             ) {
-                                Icon(Icons.Rounded.SwapHoriz, contentDescription = "Swap Day")
+                                Icon(Icons.Rounded.SwapHoriz, contentDescription = stringResource(R.string.home_swap_day_cd))
                             }
                         }
                     } else {
                         // Empty state
                         Text(
-                            "No Active Routine",
+                            stringResource(R.string.home_no_active_routine),
                             style = MaterialTheme.typography.headlineMedium,
                             color = Color.White,
                             fontWeight = FontWeight.Black
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Select a routine to start tracking your progress.",
+                            stringResource(R.string.home_no_routine_hint),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.7f)
                         )
@@ -285,7 +287,7 @@ fun HomeScreenContent(
                                 contentColor = Color.White
                             )
                         ) {
-                            Text("Manage Routines", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.home_manage_routines), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -296,7 +298,7 @@ fun HomeScreenContent(
         if (uiState.recentHistory.isNotEmpty()) {
             item {
                 Text(
-                    "RECENT WORKOUTS",
+                    stringResource(R.string.home_recent_workouts),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -334,7 +336,7 @@ fun WorkoutDayChooserDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Choose Next Workout") },
+        title = { Text(stringResource(R.string.home_choose_next_workout)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 workoutDays.forEachIndexed { index, day ->
@@ -346,7 +348,7 @@ fun WorkoutDayChooserDialog(
                         ListItem(
                             headlineContent = {
                                 Text(
-                                    "Day ${index + 1}: ${day.name}",
+                                    stringResource(R.string.home_day_item_label, index + 1, day.name),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -385,7 +387,7 @@ fun WorkoutDayChooserDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         },
         confirmButton = {}
     )
