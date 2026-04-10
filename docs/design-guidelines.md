@@ -1,6 +1,6 @@
 # WorkoutPlanner Design Guidelines
 
-**Last updated:** 2026-04-09
+**Last updated:** 2026-04-10
 **Status:** Authoritative — supersedes all individual spec files in `docs/superpowers/specs/`
 
 This is the single source of truth for the app's visual design, component patterns, and interaction conventions. Read this before implementing any new screen or modifying an existing one.
@@ -13,17 +13,17 @@ This is the single source of truth for the app's visual design, component patter
 
 ### Personality
 
-**Dark, premium, and purposeful.** WorkoutPlanner is a focused fitness tool. The design is confident and modern: near-black surfaces with a subtle purple tint, the gradient hero banner as the primary color moment, and premium polish through weight contrast and refined spacing — not decoration. Large touch targets serve gym use.
+**Dark, premium, and purposeful.** WorkoutPlanner is a focused fitness tool. The design is confident and modern: near-black forest-green surfaces, an emerald gradient hero banner as the primary color moment, and premium polish through weight contrast and refined spacing — not decoration. Large touch targets serve gym use.
 
 ### Color Story
 
-The app uses a fixed **Dark & Deep** theme by default. Dynamic color (wallpaper-driven) is available as an opt-in user setting.
+The app uses a **Dark Forest** theme by default, with a **Day** (light) variant selectable in Settings. The preference is stored in DataStore as `"dark"` / `"light"` / `"system"`.
 
-Three gradient variants carry the identity:
+Three gradient variants carry the identity — all emerald green:
 
-- **Home hero gradient:** diagonal (bottom-left → top-right) `#4A0080 → #6750A4 → #B5488A` — used only on the Home screen hero banner.
-- **Active card header gradient:** diagonal (top-left → bottom-right) `#2D1060 → #4A2280` — used only on the active exercise card header strip. Intentionally darker than the hero to avoid competition.
-- **CTA button gradient:** horizontal `#6750A4 → #B5488A` — used only on the "Done" action pill in the workout screen.
+- **Home hero gradient:** diagonal (bottom-left → top-right) `GradientHeroStart → GradientHeroMid → GradientHeroEnd` (`#0D2E18 → #1A4A28 → #0F3520`) — used only on the Home screen hero banner.
+- **Active card header gradient:** diagonal (top-left → bottom-right) `GradientCardStart → GradientCardEnd` (`#0C2B16 → #1A4A28`) — used only on the active exercise card header strip. Intentionally darker than the hero to avoid competition.
+- **CTA button gradient:** horizontal `GradientCtaStart → GradientCtaEnd` (`#1E8449 → #27AE60`) — used only on action CTA pills (workout Done, Home Start Workout, Summary Finish).
 
 ### Launcher Icon
 
@@ -38,59 +38,74 @@ Three gradient variants carry the identity:
 
 ## 2. Color Tokens
 
-### Fixed Dark Theme Surfaces
+### Dark Forest Theme Surfaces (dark mode)
 
-| Name | Hex | M3 token in `AppDarkColorScheme` | Role |
-|---|---|---|---|
-| Screen background | `#0D0D14` | `background` / `surface` | Base surface for all screens |
-| Card surface | `#1A1A28` | `surfaceVariant` | All cards, elevated surfaces |
-| Nav bar | `#141422` | `surfaceContainerLow` (semantic only — not mapped in scheme) | Bottom navigation bar background |
-| Stepper inner | `#12102A` | `surfaceContainerLowest` (semantic only — not mapped in scheme) | Documented intent only; stepper cards use `colorScheme.surface` (`#0D0D14`) in code |
-| Border / divider | `rgba(255,255,255,0.07)` i.e. `0x12FFFFFF` | `outline` / `outlineVariant` | Structural lines, nav bar top border, mini-bar top border |
+| Name | Constant | Hex | M3 token in `AppDarkColorScheme` | Role |
+|---|---|---|---|---|
+| Screen background | `DarkBackground` | `#0A0E0B` | `background` | Base surface for all screens |
+| App bar / nav surface | `DarkSurface` | `#0D1410` | `surface` | App bars, nav bar background |
+| Card surface | `DarkSurfaceContainer` | `#111A12` | `surfaceVariant` | All cards, elevated surfaces |
+| Stepper inner | `DarkSurfaceContainerHigh` | `#172019` | (semantic — not mapped) | Documented intent; steppers use `colorScheme.surface` in code |
+| Border (subtle) | `DarkOutlineVariant` | `0x0DFFFFFF` (~5% white) | `outlineVariant` | Mini-bar top border, subtle dividers. Never use as progress track. |
+| Border (visible) | `DarkOutline` | `0x14FFFFFF` (~8% white) | `outline` | Structural dividers |
 
-> **Note on stepper colors:** `StepperCard` uses `containerColor = colorScheme.surface` for normal mode and `colorScheme.tertiaryContainer` for AMRAP mode — not `#12102A`. The `DarkSurfaceContainerLowest` constant exists in `Color.kt` but is currently unused in components.
+### Day Theme Surfaces (light mode)
+
+| Name | Constant | Hex | M3 token in `AppLightColorScheme` | Role |
+|---|---|---|---|---|
+| Screen background | `LightBackground` | `#F4F8F5` | `background` | Base surface |
+| App bar / nav surface | `LightSurface` | `#FFFFFF` | `surface` | App bars, nav bar |
+| Card surface | `LightSurfaceContainer` | `#F0F4F1` | `surfaceVariant` | All cards |
+| Border (subtle) | `LightOutlineVariant` | `#DDE8DE` | `outlineVariant` | Subtle borders |
+| Border (visible) | `LightOutline` | `#C8DECA` | `outline` | Structural dividers |
 
 ### Text Colors
 
-| Role | Token | Hex | Usage |
+| Role | Token | Dark hex | Light hex | Usage |
+|---|---|---|---|---|
+| Primary text | `colorScheme.onSurface` / `colorScheme.onBackground` | `#D4E8D6` | `#1A2E1C` | Body text, card titles, headlines |
+| Secondary text | `colorScheme.onSurfaceVariant` | `#D4E8D6` @ 40% alpha | `#1A2E1C` @ 50% alpha | Dates, durations, supporting metadata, inactive icons |
+| On-gradient primary | `Color.White` 100% | `#FFFFFF` | `#FFFFFF` | Titles and icons directly on gradient backgrounds |
+| On-gradient secondary | `Color.White.copy(alpha = 0.65f)` | `#FFFFFF` ~65% | `#FFFFFF` ~65% | Sub-labels on gradient backgrounds |
+
+### Accent / Interactive (dark / light)
+
+| Token | Dark hex | Light hex | Usage |
 |---|---|---|---|
-| Primary text | `colorScheme.onSurface` / `colorScheme.onBackground` | `#EEE8FF` | Body text, card titles, headlines on dark surfaces |
-| Secondary text | `colorScheme.onSurfaceVariant` | `#7A7590` | Dates, durations, supporting metadata, inactive icons |
-| On-gradient primary | `Color.White` 100% | `#FFFFFF` | Titles and icons directly on gradient backgrounds |
-| On-gradient secondary | `Color.White.copy(alpha = 0.65f–0.70f)` | `#FFFFFF` ~65–70% | Sub-labels on gradient backgrounds |
+| `colorScheme.primary` | `#27AE60` | `#16A34A` | Active tab indicators, icon tints, elapsed-time text, progress bar fill, `+N more` labels, active routine name |
+| `colorScheme.primaryContainer` | `#27AE60` @ 14% alpha | `#16A34A` @ 10% alpha | Tonal button containers, nav indicator pill, mini-bar surface |
+| `colorScheme.onPrimaryContainer` | `#D4E8D6` | `#15803D` | Text/icons on `primaryContainer` surfaces |
+| `colorScheme.secondary` | `#A78BFA` | `#7C3AED` | **Rest timer and UP NEXT badge only.** Do not use for general text or generic UI. |
+| `colorScheme.secondaryContainer` | `#A78BFA` @ 14% alpha | `#7C3AED` @ 10% alpha | Rest timer banner surface, UP NEXT badge surface |
+| `colorScheme.onSecondaryContainer` | `#A78BFA` | `#7C3AED` | Text on `secondaryContainer` surfaces |
+| `colorScheme.tertiary` | `#60A5FA` | `#2563EB` | **History chart bars and PR/stat values only.** |
+| `colorScheme.tertiaryContainer` | `#60A5FA` @ 14% alpha | `#2563EB` @ 10% alpha | AMRAP stepper card background, AMRAP set badge |
+| `colorScheme.onTertiaryContainer` | `#60A5FA` | `#2563EB` | Text on `tertiaryContainer` surfaces |
+| `colorScheme.error` | `#E05252` | `#DC2626` | Delete icons, delete confirmation actions, "End / Cancel" workout destructive actions |
+| `colorScheme.errorContainer` | `#E05252` @ 12% alpha | `#DC2626` @ 7% alpha | "End" button tonal container |
 
-### Accent / Interactive
-
-| Token | Hex | Usage |
-|---|---|---|
-| `colorScheme.primary` | `#D0BCFF` | Active tab indicators, icon tints, elapsed-time text, progress bar fill, chip borders, `+N more` labels |
-| `colorScheme.primaryContainer` | `#3B2F6B` | Tonal button containers, nav indicator pill, mini-bar surface, rest timer banner surface |
-| `colorScheme.onPrimaryContainer` | `#EEE8FF` | Text/icons on `primaryContainer` surfaces |
-| `colorScheme.secondary` | `#FFB0C8` | Equipment text in detail views |
-| `colorScheme.secondaryContainer` | `#5E2750` | Duration `SuggestionChip` background, Total Volume card |
-| `colorScheme.onSecondaryContainer` | `#FFD8E4` | Text on `secondaryContainer` surfaces |
-| `colorScheme.tertiary` | `#EADDFF` | — (available; currently unused in components) |
-| `colorScheme.tertiaryContainer` | `#4A3278` | AMRAP stepper card background, AMRAP set badge |
-| `colorScheme.onTertiaryContainer` | `#EADDFF` | Text on `tertiaryContainer` surfaces |
-| `colorScheme.error` | M3 dark default `#FFB4AB` | Delete icons, delete confirmation actions, "End / Cancel" workout destructive actions |
-| `colorScheme.errorContainer` | M3 dark default `#93000A` | "End" button tonal container |
-
-> **`error` scope:** `error` and `errorContainer` are used for all destructive actions throughout the app (delete icons, delete dialogs, "Cancel Workout"), not just the "End workout" button. Apply `error` color to any irreversible action.
+> **Color role rules:**
+> - `secondary`/`secondaryContainer` — violet — **rest timer and UP NEXT badge only**. Do not use for text labels or generic UI elements.
+> - `tertiary`/`tertiaryContainer` — steel blue — **history chart bars and PR/stat values only**.
+> - `error`/`errorContainer` — used for all destructive/irreversible actions (delete, cancel workout, end workout).
 
 ### Gradient Named Constants (in `Color.kt`)
 
-| Constant | Hex | Used in |
-|---|---|---|
-| `GradientHeroStart` | `#4A0080` | Home hero |
-| `GradientHeroMid` | `#6750A4` | Home hero (mid), CTA button gradient (start) |
-| `GradientHeroEnd` | `#B5488A` | Home hero (end), CTA button gradient (end) |
-| `GradientCardStart` | `#2D1060` | Active exercise card header start |
-| `GradientCardEnd` | `#4A2280` | Active exercise card header end |
+| Constant | Dark hex | Light hex | Used in |
+|---|---|---|---|
+| `GradientHeroStart` | `#0D2E18` | `#14532D` | Home hero start |
+| `GradientHeroMid` | `#1A4A28` | `#1A6B38` | Home hero mid |
+| `GradientHeroEnd` | `#0F3520` | `#1A7A3E` | Home hero end |
+| `GradientCardStart` | `#0C2B16` | `#14532D` | Active exercise card header start |
+| `GradientCardEnd` | `#1A4A28` | `#166534` | Active exercise card header end |
+| `GradientCtaStart` | `#1E8449` | `#15803D` | CTA button gradient start |
+| `GradientCtaEnd` | `#27AE60` | `#16A34A` | CTA button gradient end |
 
 **Usage rules:**
 - Raw hex is only permitted for gradients and translucent overlays where `MaterialTheme.colorScheme` cannot express the intent. Use the named constants — never inline hex for these.
 - All other color must use `MaterialTheme.colorScheme.*` tokens.
 - Acid green (`#C8FF00`) is launcher icon only — never in-app.
+- In light mode, use the `*Light` gradient variants (`GradientHeroStartLight`, etc.).
 
 ### Gradient Brush Construction
 
@@ -109,15 +124,30 @@ Brush.linearGradient(
     end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
 )
 
-// CTA "Done" pill — horizontal left to right
-Brush.linearGradient(colors = listOf(GradientHeroMid, GradientHeroEnd))
+// CTA gradient pill — horizontal left to right
+Brush.linearGradient(colors = listOf(GradientCtaStart, GradientCtaEnd))
 ```
 
-Apply with `Modifier.background(brush = ...)`.
+Apply with `Modifier.background(brush = ..., shape = CircleShape)`.
 
-### Dynamic Color
+### Gradient CTA Button Pattern
 
-`WorkoutPlannerTheme(useDynamicColor = false)` by default. A `useDynamicColor` boolean preference in DataStore gates the opt-in. When enabled, `dynamicDarkColorScheme(context)` activates on API 31+ (always dark — no light variant).
+Used in HomeScreen, ExerciseCard, WorkoutSummaryScreen:
+
+```kotlin
+Button(
+    modifier = Modifier.background(
+        brush = Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd)),
+        shape = CircleShape
+    ),
+    shape = CircleShape,
+    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = Color.White)
+)
+```
+
+### Theme System
+
+`WorkoutPlannerTheme(themeMode: String = "dark")` — accepts `"dark"`, `"light"`, `"system"`. Preference stored as `stringPreferencesKey("theme_mode")` in DataStore via `RestTimerPreferencesRepository.themeMode: Flow<String>`. Settings screen uses `SingleChoiceSegmentedButtonRow` + `SegmentedButton` (not `FilterChip`s).
 
 ---
 
@@ -220,7 +250,7 @@ All action buttons use pill shape (`CircleShape`).
 
 | Variant | When to use |
 |---|---|
-| `Button` with `containerColor = Color.White`, `contentColor = GradientHeroMid` | Primary CTA on gradient hero ("Start Workout", "Manage Routines") |
+| `Button` with gradient `Modifier.background(GradientCtaStart→GradientCtaEnd)`, `containerColor = Color.Transparent`, `contentColor = Color.White` | Primary CTA on gradient hero ("Start Workout", "Manage Routines") and other primary actions |
 | Gradient pill (`Surface(shape = RoundedCornerShape(50))` + gradient brush) | Active workout "Done — Next Set" / "Done — Finish Exercise" CTA |
 | `FilledTonalButton` | All secondary actions: Back, Skip Exercise, Swap, Resume (mini-bar), "Swap Day" in hero |
 | `FilledTonalButton` with `containerColor = colorScheme.errorContainer` | "End" workout action in TopAppBar |
@@ -256,7 +286,7 @@ Scaffold(
 )
 ```
 
-App bar `surface` color resolves to `#0D0D14` in the dark theme — seamless with screen background.
+App bar `surface` color resolves to `#0D1410` (dark) / `#FFFFFF` (light) — seamless with screen background.
 
 TopAppBar titles always use `FontWeight.Black`.
 
@@ -264,8 +294,8 @@ TopAppBar titles always use `FontWeight.Black`.
 
 | Pattern | Shape | Container color | Usage |
 |---|---|---|---|
-| History session card | `RoundedCornerShape(20.dp)` | `colorScheme.surfaceVariant` (`#1A1A28`) | Expandable session cards in History |
-| History inner detail card | `RoundedCornerShape(12.dp)` | `colorScheme.surface` (`#0D0D14`) | Exercise breakdown inside expanded session |
+| History session card | `RoundedCornerShape(20.dp)` | `colorScheme.surfaceVariant` (`#111A12` dark) | Expandable session cards in History |
+| History inner detail card | `RoundedCornerShape(12.dp)` | `colorScheme.surface` (`#0D1410` dark) | Exercise breakdown inside expanded session |
 | Recent workout card (`WorkoutSessionCard`) | `MaterialTheme.shapes.small` | `colorScheme.surfaceVariant` | Home screen recent workouts |
 | Routine list card | `RoundedCornerShape(16.dp)` | `colorScheme.surfaceVariant` | Routines list items |
 | Workout day item (RoutineDetail) | `RoundedCornerShape(16.dp)` | `colorScheme.surfaceVariant` | Day breakdown in RoutineDetail |
@@ -273,7 +303,7 @@ TopAppBar titles always use `FontWeight.Black`.
 | Total volume (Summary) | `RoundedCornerShape(16.dp)` | `colorScheme.secondaryContainer` | Total volume surface in WorkoutSummary |
 | Routine day card (CreateRoutine) | `OutlinedCard`, `RoundedCornerShape(16.dp)` | Default outlined card bg | Day containers in CreateRoutine |
 
-**Rule:** All standard cards use `colorScheme.surfaceVariant` (`#1A1A28`). Never use raw hex directly for card surface color.
+**Rule:** All standard cards use `colorScheme.surfaceVariant` (`#111A12` dark / `#F0F4F1` light). Never use raw hex directly for card surface color.
 
 ### Active Exercise Card (Workout Screen)
 
@@ -311,8 +341,8 @@ Completed exercise cards: `alpha = 0.35f`.
 
 | State | `containerColor` | Value color | Label color |
 |---|---|---|---|
-| Normal | `colorScheme.surface` (`#0D0D14`) | `colorScheme.onSurface` | `colorScheme.onSurfaceVariant` |
-| AMRAP | `colorScheme.tertiaryContainer` (`#4A3278`) | `colorScheme.onTertiaryContainer` | `colorScheme.onTertiaryContainer` |
+| Normal | `colorScheme.surface` (`#0D1410` dark) | `colorScheme.onSurface` | `colorScheme.onSurfaceVariant` |
+| AMRAP | `colorScheme.tertiaryContainer` (`#60A5FA` @ 14% dark) | `colorScheme.onTertiaryContainer` | `colorScheme.onTertiaryContainer` |
 
 Shape: `RoundedCornerShape(20.dp)`. Elevation: `2.dp`. Stepper value: `typography.displaySmall`, `FontWeight.Black`. Label: `typography.labelSmall`, `FontWeight.Bold`.
 
@@ -347,11 +377,11 @@ Do not mix icon families within a single screen. When adding new icons, default 
 | Home | `Icons.Rounded.Home` | `HomeRoute` |
 | History | `Icons.Rounded.History` | `HistoryRoute` |
 
-- Background: `#141422` (renders as `surfaceContainerLow`)
+- Background: `#0D1410` dark / `#FFFFFF` light (renders as `colorScheme.surface`)
 - Top border: `BorderStroke(1.dp, DarkOutlineVariant)` (`0x12FFFFFF`)
 - Active indicator: M3 default translucent `primaryContainer` pill
-- Active label/icon: `colorScheme.primary` (`#D0BCFF`)
-- Inactive: `colorScheme.onSurfaceVariant` (`#7A7590`)
+- Active label/icon: `colorScheme.primary` (`#27AE60` dark)
+- Inactive: `colorScheme.onSurfaceVariant`
 
 Settings reachable via tune icon (`Icons.Rounded.Tune`) in the Home hero — not a tab.
 
@@ -361,7 +391,7 @@ Shown in `MainActivity` inner `Scaffold` `bottomBar` when `isActive && !isFullSc
 
 | Property | Value |
 |---|---|
-| Surface color | `colorScheme.primaryContainer` (`#3B2F6B`) |
+| Surface color | `colorScheme.primaryContainer` (`#27AE60` @ 14% dark) |
 | Height | `64.dp` |
 | Top border | `BorderStroke(1.dp, DarkOutlineVariant)` |
 | Leading icon | `Icons.Rounded.FitnessCenter`, tint `onPrimaryContainer` |
@@ -456,7 +486,7 @@ No `TopAppBar`. Gradient hero bleeds under status bar (edge-to-edge). Root layou
 - Day name: `typography.displaySmall`, `FontWeight.Black`, white
 - Exercise count: `typography.bodyMedium`, white 65%
 - Exercise chips: `CircleShape`, `color = Color.White.copy(alpha = 0.15f)`, text `typography.labelSmall`, white. Show first 2 + "+N more" if overflow.
-- Button row: `FilledButton` (`containerColor = Color.White`, `contentColor = GradientHeroMid`) "▶ Start Workout" (flex 1, height 48dp) + `FilledTonalButton` (`containerColor = Color.White.copy(alpha = 0.2f)`, `contentColor = Color.White`) swap icon (fixed width, `CircleShape`)
+- Button row: gradient CTA pill `Button` (see gradient CTA button pattern in Section 2) "▶ Start Workout" (flex 1, height 48dp) + `FilledTonalButton` (`containerColor = Color.White.copy(alpha = 0.2f)`, `contentColor = Color.White`) swap icon (fixed width, `CircleShape`)
 - Gap between buttons: `12.dp`
 
 **Hero — no routine:**
@@ -517,7 +547,7 @@ Defined in `HistoryScreen.kt`. Used on both the Home screen (recent workouts) an
 
 `LargeTopAppBar` "Settings" + `exitUntilCollapsedScrollBehavior` + `nestedScroll`. `LazyColumn` with `HorizontalDivider` between each `ListItem`. Icon family: `Icons.Outlined.*`.
 
-- First row: Theme toggle — `Switch` trailing content; toggles `useDynamicColor` DataStore preference.
+- First row: Theme selector — `SingleChoiceSegmentedButtonRow` with three `SegmentedButton`s: Dark / Light / System. Updates `theme_mode` string preference in DataStore via `RestTimerPreferencesRepository`.
 - Remaining rows: "Timer Settings", "Manage Exercises", "Manage Equipment", "Manage Routines" — each navigates to respective route.
 - All leading icons `tint = colorScheme.onSurfaceVariant`; trailing chevrons `tint = colorScheme.onSurfaceVariant`.
 - List item headlines: `FontWeight.SemiBold`.
