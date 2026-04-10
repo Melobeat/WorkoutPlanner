@@ -86,7 +86,8 @@ class WorkoutRepository @Inject constructor(
         muscleGroup: String,
         description: String,
         equipmentId: String?,
-        existingId: String?
+        existingId: String?,
+        isBodyweight: Boolean = false
     ) = withContext(dispatcher) {
         dao.insertExercise(
             ExerciseEntity(
@@ -94,7 +95,8 @@ class WorkoutRepository @Inject constructor(
                 name = name,
                 muscleGroup = muscleGroup,
                 description = description,
-                equipmentId = equipmentId
+                equipmentId = equipmentId,
+                isBodyweight = isBodyweight
             )
         )
     }
@@ -103,9 +105,17 @@ class WorkoutRepository @Inject constructor(
         dao.deleteExercise(exerciseId)
     }
 
-    suspend fun saveEquipment(name: String, existingId: String?) = withContext(dispatcher) {
+    suspend fun saveEquipment(
+        name: String,
+        existingId: String?,
+        defaultWeight: Double? = null
+    ) = withContext(dispatcher) {
         dao.insertEquipment(
-            EquipmentEntity(id = existingId ?: UUID.randomUUID().toString(), name = name)
+            EquipmentEntity(
+                id = existingId ?: UUID.randomUUID().toString(),
+                name = name,
+                defaultWeight = defaultWeight
+            )
         )
     }
 

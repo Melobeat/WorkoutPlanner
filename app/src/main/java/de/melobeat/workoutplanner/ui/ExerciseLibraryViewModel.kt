@@ -47,11 +47,12 @@ class ExerciseLibraryViewModel @Inject constructor(
         muscleGroup: String,
         description: String,
         equipmentId: String?,
-        existingId: String?
+        existingId: String?,
+        isBodyweight: Boolean = false
     ) {
         viewModelScope.launch {
             try {
-                repository.saveExercise(name, muscleGroup, description, equipmentId, existingId)
+                repository.saveExercise(name, muscleGroup, description, equipmentId, existingId, isBodyweight)
             } catch (e: Exception) {
                 _state.update { it.copy(error = "Failed to save exercise") }
             }
@@ -68,10 +69,10 @@ class ExerciseLibraryViewModel @Inject constructor(
         }
     }
 
-    fun saveEquipment(name: String, existingId: String?) {
+    fun saveEquipment(name: String, existingId: String?, defaultWeight: Double? = null) {
         viewModelScope.launch {
             try {
-                repository.saveEquipment(name, existingId)
+                repository.saveEquipment(name, existingId, defaultWeight)
             } catch (e: Exception) {
                 _state.update { it.copy(error = "Failed to save equipment") }
             }
