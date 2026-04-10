@@ -271,7 +271,7 @@ fun ExerciseLibraryItem(
                         Text(
                             text = " • $it",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

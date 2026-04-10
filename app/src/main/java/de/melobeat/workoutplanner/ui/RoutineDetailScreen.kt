@@ -165,7 +165,7 @@ fun WorkoutDayItem(day: WorkoutDay) {
                             Text(
                                 text = " • $it",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.secondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
