@@ -71,7 +71,9 @@ fun EquipmentScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("Add Equipment") }
+                text = { Text("Add Equipment") },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         },
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)

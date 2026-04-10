@@ -74,7 +74,9 @@ fun RoutinesScreenContent(
             ExtendedFloatingActionButton(
                 onClick = onCreateRoutineClick,
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("New Routine") }
+                text = { Text("New Routine") },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         },
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)

@@ -79,7 +79,9 @@ fun ExercisesScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("Add Exercise") }
+                text = { Text("Add Exercise") },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         },
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
