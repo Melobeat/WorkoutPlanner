@@ -50,12 +50,34 @@ class RestTimerPreferencesRepositoryTest {
     }
 
     @Test
-    fun `useDynamicColor defaults to false and can be toggled`() = runTest {
+    fun `setThemeMode persists and themeMode flow emits correct value`() = runTest {
         val repo = makeRepo()
-        assertEquals(false, repo.useDynamicColor.first())
-        repo.setUseDynamicColor(true)
-        assertEquals(true, repo.useDynamicColor.first())
-        repo.setUseDynamicColor(false)
-        assertEquals(false, repo.useDynamicColor.first())
+        repo.setThemeMode("light")
+        assertEquals("light", repo.themeMode.first())
+
+        repo.setThemeMode("system")
+        assertEquals("system", repo.themeMode.first())
+
+        repo.setThemeMode("dark")
+        assertEquals("dark", repo.themeMode.first())
+    }
+
+    @Test
+    fun `themeMode defaults to dark when unset`() = runTest {
+        val repo = makeRepo()
+        assertEquals("dark", repo.themeMode.first())
+    }
+
+    @Test
+    fun `setThemeMode rejects invalid mode`() = runTest {
+        val repo = makeRepo()
+        try {
+            repo.setThemeMode("invalid")
+            org.junit.Assert.fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            // expected
+        }
+        // themeMode should still be the default
+        assertEquals("dark", repo.themeMode.first())
     }
 }

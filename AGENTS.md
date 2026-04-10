@@ -79,7 +79,7 @@ app/src/main/java/de/melobeat/workoutplanner/
     *.kt                       Screens, ViewModels, sub-component composables
 app/src/main/assets/           equipment.json, exercises.json (DB seed — loaded only on onCreate)
                                equipment_schema.json, exercises_schema.json (not loaded at runtime)
-docs/design-guidelines.md      Authoritative UI spec — read before any UI change
+docs/design-guidelines.md      Authoritative UI spec — **read before any UI change**. Supersedes older spec files in `docs/superpowers/specs/`.
 ```
 
 **ViewModels in `ui/`:** `ActiveWorkoutViewModel`, `RoutinesViewModel`, `HomeViewModel`, `HistoryViewModel`, `ExerciseLibraryViewModel`.
@@ -178,30 +178,63 @@ data class ExerciseHistory(
 Lives in `MainActivity` inner `Scaffold` `bottomBar` when `isActive && !isFullScreen`. Implementation diverges from `docs/design-guidelines.md` in two ways — do not "fix" without intent:
 - Surface color: `primaryContainer` (spec says `surfaceVariant`)
 - Text styles: elapsed time uses `labelSmall`, workout name uses `titleSmall` + `FontWeight.Bold` (spec says `bodySmall` and `titleMedium` weight 700)
+- Border: `outlineVariant` (nearly transparent 5% white) — intentional subtle separation
 
 ## R8 Full Mode
 
 `android.enableR8.fullMode=true` in `gradle.properties`. `@Serializable` classes survive via the Kotlin serialization plugin (`kotlin-serialization` applied at app level). `proguard-rules.pro` is essentially empty — do not add manual keeps for serialization.
 
-## Theme — Dark & Deep
+## Theme
 
-- App is **dark-only**. `WorkoutPlannerTheme(useDynamicColor = false)` by default. Dynamic color is an opt-in user preference persisted in DataStore (`RestTimerPreferencesRepository.USE_DYNAMIC_COLOR`), toggled via the Settings screen Theme switch.
-- When dynamic color is on, `dynamicDarkColorScheme` is used — never the light variant.
-- The fixed palette lives in `Color.kt` (`DarkBackground`, `DarkSurface`, `DarkSurfaceContainer`, etc. + `GradientHeroStart/Mid/End`, `GradientCardStart/End`). This is the active palette, not dead code.
-- `motionScheme = MotionScheme.expressive()` is **not wired** — the API is `internal` in M3 1.4.0 even though it is `ACC_PUBLIC` in bytecode. `MaterialTheme(colorScheme, typography, content)` is used. Wire it when the API is promoted to stable.
-- M3 Expressive components require `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`. BOM already includes them — no extra dependency needed.
+`WorkoutPlannerTheme(themeMode: String = "dark")` — accepts `"dark"`, `"light"`, or `"system"`. The preference is stored as a `stringPreferencesKey("theme_mode")` in DataStore, surfaced via `RestTimerPreferencesRepository.themeMode: Flow<String>` (defaults to `"dark"`).
+
+`TimerSettingsViewModel.themeMode` uses `SharingStarted.Eagerly` (not `WhileSubscribed`) to avoid first-frame flicker. Every other StateFlow in the app uses `WhileSubscribed(5000)`.
+
+**Color role assignments — strictly enforced:**
+- `primary`/`primaryContainer` — emerald green (`#27AE60` dark / `#16A34A` light). Active/selected states, CTA buttons.
+- `secondary`/`secondaryContainer` — violet (`#A78BFA` dark / `#7C3AED` light). **Rest timer and UP NEXT badge only.** Do not use for text labels or generic UI.
+- `tertiary`/`tertiaryContainer` — steel blue (`#60A5FA` dark / `#2563EB` light). **History chart bars and PR/stat values only.**
+- `surfaceVariant` — card containers (`#111A12` dark). Use for all non-gradient card backgrounds.
+- `outlineVariant` — `0x0DFFFFFF` (5 % white in dark) — nearly transparent. Used for subtle borders, mini-bar border. Do not use as a progress track.
+- `outline` — `0x14FFFFFF` (8 % white in dark) — slightly more visible.
+- `error` — "End workout" button **only**.
+
+**Gradient constants** (in `Color.kt`, use these — no inline hex):
+- `GradientHeroStart/Mid/End` — hero section backgrounds
+- `GradientCardStart/End` — active exercise card header strip
+- `GradientCtaStart/End` — CTA buttons (`#1E8449 → #27AE60`)
+- Light variants: `GradientHeroStartLight/…`, `GradientCtaStartLight/…`
+
+**Gradient CTA button pattern** — used in HomeScreen, ExerciseCard, WorkoutSummaryScreen:
+```kotlin
+Button(
+    modifier = Modifier.background(
+        brush = Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd)),
+        shape = CircleShape
+    ),
+    shape = CircleShape,
+    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = Color.White)
+)
+```
+
+`Color.White` is permitted inside gradient hero surfaces (white-on-green is intentional per design spec).
+
+`motionScheme = MotionScheme.expressive()` is **not wired** — API is `internal` in M3 1.4.0. Wire when promoted to stable.
+
+M3 Expressive components require `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`. BOM already includes them.
 
 ## UI Conventions (from `docs/design-guidelines.md`)
 
 - All buttons: pill-shaped (`CircleShape`).
-- All cards: `surfaceVariant` container color (`#1A1A28`). Never custom background.
-- Colors: `MaterialTheme.colorScheme.*` only. Raw hex only in gradients and translucent overlays where tokens cannot express the intent. Named gradient constants (`GradientHeroStart/Mid/End`, `GradientCardStart/End`) are in `Color.kt` — use those, not inline hex.
-- `error` color is exclusively for the "End workout" button.
-- Icons: `Icons.Rounded.*` from `material-icons-extended`.
+- All cards: `surfaceVariant` container color. Never custom background.
+- Colors: `MaterialTheme.colorScheme.*` only. Raw hex only in gradients and translucent overlays. Use named gradient constants from `Color.kt`.
+- Icons: `Icons.Rounded.*` from `material-icons-extended`. `Icons.Default.*` and `Icons.Outlined.*` are banned. Exception: `Icons.AutoMirrored.*` keeps its family (e.g., `Icons.AutoMirrored.Outlined.ListAlt`).
 - `LargeTopAppBar` always pairs with `exitUntilCollapsedScrollBehavior` + `nestedScroll`. Screens using it: History, Settings, TimerSettings, Routines, RoutineDetail, CreateRoutine, Exercises, Equipment.
 - No custom font (M3 defaults / Roboto only).
 - Home screen has **no TopAppBar** — gradient hero replaces it.
 - Acid green (`#C8FF00`) is launcher icon only; never in-app.
+- Settings screen theme selector uses `SingleChoiceSegmentedButtonRow` + `SegmentedButton` (not `FilterChip`s).
+- Progress bar track in `WorkoutScreen`: uses `surfaceVariant` (not `outlineVariant` — `outlineVariant` is near-transparent at 5% and would be invisible as a track).
 
 ## Test Patterns
 

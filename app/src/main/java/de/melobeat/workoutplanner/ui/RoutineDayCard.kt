@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +54,7 @@ fun DayCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
                     contentDescription = null,
                     modifier = Modifier.clickable { onToggleExpand() }
                 )
@@ -67,16 +67,16 @@ fun DayCard(
                 )
                 onMoveUp?.let {
                     IconButton(onClick = it) {
-                        Icon(Icons.Default.ArrowUpward, contentDescription = "Move Day Up")
+                        Icon(Icons.Rounded.ArrowUpward, contentDescription = "Move Day Up")
                     }
                 }
                 onMoveDown?.let {
                     IconButton(onClick = it) {
-                        Icon(Icons.Default.ArrowDownward, contentDescription = "Move Day Down")
+                        Icon(Icons.Rounded.ArrowDownward, contentDescription = "Move Day Down")
                     }
                 }
                 IconButton(onClick = onRemoveDay) {
-                    Icon(Icons.Default.Delete, contentDescription = "Remove Day")
+                    Icon(Icons.Rounded.Delete, contentDescription = "Remove Day")
                 }
             }
 
@@ -101,7 +101,7 @@ fun DayCard(
                         onClick = onAddExercise,
                         modifier = Modifier.align(Alignment.End)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(Icons.Rounded.Add, contentDescription = null)
                         Text("Add Exercise")
                     }
                 }

@@ -2,9 +2,9 @@ package de.melobeat.workoutplanner.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,7 +25,7 @@ class RestTimerPreferencesRepository(
         val BETWEEN_SETS_EASY   = intPreferencesKey("between_sets_easy_seconds")
         val BETWEEN_SETS_HARD   = intPreferencesKey("between_sets_hard_seconds")
         val BETWEEN_EXERCISES   = intPreferencesKey("between_exercises_seconds")
-        val USE_DYNAMIC_COLOR   = booleanPreferencesKey("use_dynamic_color")
+        val THEME_MODE          = stringPreferencesKey("theme_mode")
     }
 
     val settings: Flow<RestTimerSettings> = dataStore.data.map { prefs ->
@@ -36,8 +36,8 @@ class RestTimerPreferencesRepository(
         )
     }
 
-    val useDynamicColor: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[USE_DYNAMIC_COLOR] ?: false
+    val themeMode: Flow<String> = dataStore.data.map { prefs ->
+        prefs[THEME_MODE] ?: "dark"
     }
 
     suspend fun update(settings: RestTimerSettings) {
@@ -48,9 +48,10 @@ class RestTimerPreferencesRepository(
         }
     }
 
-    suspend fun setUseDynamicColor(enabled: Boolean) {
+    suspend fun setThemeMode(mode: String) {
+        require(mode in listOf("dark", "light", "system")) { "Invalid theme mode: $mode" }
         dataStore.edit { prefs ->
-            prefs[USE_DYNAMIC_COLOR] = enabled
+            prefs[THEME_MODE] = mode
         }
     }
 }

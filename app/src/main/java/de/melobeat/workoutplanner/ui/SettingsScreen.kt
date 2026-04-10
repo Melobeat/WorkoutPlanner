@@ -7,11 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.outlined.Construction
-import androidx.compose.material.icons.outlined.FitnessCenter
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Construction
+import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -20,7 +20,9 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,7 +48,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     timerSettingsViewModel: TimerSettingsViewModel = hiltViewModel()
 ) {
-    val useDynamicColor by timerSettingsViewModel.useDynamicColor.collectAsStateWithLifecycle()
+    val themeMode by timerSettingsViewModel.themeMode.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
@@ -71,21 +73,33 @@ fun SettingsScreen(
                 ListItem(
                     headlineContent = { Text("Theme", fontWeight = FontWeight.SemiBold) },
                     supportingContent = {
-                        Text(if (useDynamicColor) "Dynamic color (wallpaper)" else "Custom dark theme")
+                        val label = when (themeMode) {
+                            "light"  -> "Light"
+                            "system" -> "Follow system"
+                            else     -> "Dark"
+                        }
+                        Text(label)
                     },
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Palette,
+                            Icons.Rounded.Palette,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
                     },
                     trailingContent = {
-                        Switch(
-                            checked = useDynamicColor,
-                            onCheckedChange = { timerSettingsViewModel.setUseDynamicColor(it) }
-                        )
+                        SingleChoiceSegmentedButtonRow {
+                            listOf("dark" to "Dark", "light" to "Light", "system" to "System")
+                                .forEachIndexed { index, (mode, label) ->
+                                    SegmentedButton(
+                                        shape = SegmentedButtonDefaults.itemShape(index = index, count = 3),
+                                        onClick = { timerSettingsViewModel.setThemeMode(mode) },
+                                        selected = themeMode == mode,
+                                        label = { Text(label, style = MaterialTheme.typography.labelSmall) }
+                                    )
+                                }
+                        }
                     }
                 )
                 HorizontalDivider()
@@ -94,7 +108,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Timer Settings",
                     subtitle = "Rest timer durations between sets and exercises",
-                    icon = Icons.Outlined.Timer,
+                    icon = Icons.Rounded.Timer,
                     onClick = onNavigateToTimerSettings
                 )
                 HorizontalDivider()
@@ -103,7 +117,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Exercises",
                     subtitle = "Add, edit or delete exercises",
-                    icon = Icons.Outlined.FitnessCenter,
+                    icon = Icons.Rounded.FitnessCenter,
                     onClick = onNavigateToExercises
                 )
                 HorizontalDivider()
@@ -112,7 +126,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Equipment",
                     subtitle = "Dumbbells, barbells, machines, etc.",
-                    icon = Icons.Outlined.Construction,
+                    icon = Icons.Rounded.Construction,
                     onClick = onNavigateToEquipment
                 )
                 HorizontalDivider()
@@ -149,7 +163,7 @@ fun SettingsListItem(
         },
         trailingContent = {
             Icon(
-                Icons.Default.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -179,7 +193,7 @@ fun SettingsListItemPreview() {
         SettingsListItem(
             title = "Manage Exercises",
             subtitle = "Add, edit or delete exercises",
-            icon = Icons.Outlined.FitnessCenter,
+            icon = Icons.Rounded.FitnessCenter,
             onClick = {}
         )
     }

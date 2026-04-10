@@ -6,8 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +68,7 @@ fun EquipmentScreenContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text("Add Equipment") }
             )
         },
@@ -84,7 +84,7 @@ fun EquipmentScreenContent(
                     headlineContent = { Text(item.name, fontWeight = FontWeight.SemiBold) },
                     trailingContent = {
                         IconButton(onClick = { equipmentToDelete = item }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Rounded.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
                         }
                     },
                     modifier = Modifier.clickable { equipmentToEdit = item }
@@ -192,7 +192,7 @@ fun EquipmentItem(
             )
             IconButton(onClick = onDelete) {
                 Icon(
-                    Icons.Default.Delete,
+                    Icons.Rounded.Delete,
                     contentDescription = "Delete Equipment",
                     tint = MaterialTheme.colorScheme.error
                 )

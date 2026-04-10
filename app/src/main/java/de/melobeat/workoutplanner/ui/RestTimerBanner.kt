@@ -1,5 +1,6 @@
 package de.melobeat.workoutplanner.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,8 +54,9 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        shape = RoundedCornerShape(16.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -69,13 +71,13 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     text = "REST",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
                 )
                 Text(
                     text = formatElapsedTime(elapsed * 1000L),
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
             Spacer(Modifier.height(8.dp))
@@ -85,8 +87,8 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     .fillMaxWidth()
                     .clip(CircleShape)
                     .height(6.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
             )
             if (milestoneLabel != null) {
                 Spacer(Modifier.height(6.dp))
@@ -94,7 +96,7 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                     text = milestoneLabel,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         }

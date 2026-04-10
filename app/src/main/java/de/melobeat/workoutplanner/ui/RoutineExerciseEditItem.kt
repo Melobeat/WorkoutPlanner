@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +53,7 @@ fun ExerciseEditItem(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
                 contentDescription = null,
                 modifier = Modifier.clickable { isExpanded = !isExpanded }
             )
@@ -65,16 +65,16 @@ fun ExerciseEditItem(
             )
             onMoveUp?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Default.ArrowUpward, contentDescription = "Move Exercise Up")
+                    Icon(Icons.Rounded.ArrowUpward, contentDescription = "Move Exercise Up")
                 }
             }
             onMoveDown?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Default.ArrowDownward, contentDescription = "Move Exercise Down")
+                    Icon(Icons.Rounded.ArrowDownward, contentDescription = "Move Exercise Down")
                 }
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Default.Close, contentDescription = "Remove Exercise")
+                Icon(Icons.Rounded.Close, contentDescription = "Remove Exercise")
             }
         }
 
@@ -138,7 +138,7 @@ fun ExerciseEditItem(
                             val newSets = exercise.routineSets.toMutableList().apply { removeAt(index) }
                             onUpdate(exercise.copy(routineSets = newSets))
                         }) {
-                            Icon(Icons.Default.Remove, contentDescription = "Remove Set")
+                            Icon(Icons.Rounded.Remove, contentDescription = "Remove Set")
                         }
                     }
                 }
@@ -149,7 +149,7 @@ fun ExerciseEditItem(
                     },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Rounded.Add, contentDescription = null)
                     Text("Add Set")
                 }
             }
