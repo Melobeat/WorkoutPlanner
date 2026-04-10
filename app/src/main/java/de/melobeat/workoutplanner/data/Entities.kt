@@ -27,7 +27,8 @@ class Converters {
 @Entity(tableName = "equipment")
 data class EquipmentEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
-    val name: String
+    val name: String,
+    val defaultWeight: Double? = null
 )
 
 @Entity(
@@ -47,7 +48,8 @@ data class ExerciseEntity(
     val name: String,
     val muscleGroup: String,
     val description: String,
-    val equipmentId: String? = null
+    val equipmentId: String? = null,
+    val isBodyweight: Boolean = false
 )
 
 @Entity(tableName = "routines")
