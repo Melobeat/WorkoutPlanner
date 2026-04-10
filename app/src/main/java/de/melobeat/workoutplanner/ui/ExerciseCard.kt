@@ -50,6 +50,8 @@ import de.melobeat.workoutplanner.ui.theme.GradientCardEnd
 import de.melobeat.workoutplanner.ui.theme.GradientCardStart
 import de.melobeat.workoutplanner.ui.theme.GradientCtaStart
 import de.melobeat.workoutplanner.ui.theme.GradientCtaEnd
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 
 @Composable
 private fun ActiveCardHeader(
@@ -74,7 +76,7 @@ private fun ActiveCardHeader(
     ) {
         Column {
             Text(
-                text = "EXERCISE ${exerciseIndex + 1} OF $totalExercises",
+                text = stringResource(R.string.workout_exercise_counter, exerciseIndex + 1, totalExercises),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White.copy(alpha = 0.65f),
                 letterSpacing = 1.5.sp
@@ -102,11 +104,11 @@ private fun ActiveCardHeader(
                 ) {
                     Icon(
                         Icons.Rounded.SwapHoriz,
-                        contentDescription = "Swap exercise",
+                        contentDescription = stringResource(R.string.workout_swap_exercise_cd),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Swap", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.workout_swap_button), style = MaterialTheme.typography.labelMedium)
                 }
             }
         }
@@ -181,20 +183,20 @@ fun ExerciseCard(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                "Set ${si + 1}",
+                                                stringResource(R.string.workout_set_label, si + 1),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier.weight(0.6f)
                                             )
                                             Text(
-                                                "${set.reps} × ${set.weight} kg",
+                                                stringResource(R.string.workout_set_reps_weight, set.reps, set.weight),
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 fontWeight = FontWeight.Medium,
                                                 modifier = Modifier.weight(1f)
                                             )
                                             Icon(
                                                 Icons.Rounded.CheckCircle,
-                                                contentDescription = "Done",
+                                                contentDescription = stringResource(R.string.workout_done_cd),
                                                 tint = MaterialTheme.colorScheme.primary,
                                                 modifier = Modifier.size(20.dp)
                                             )
@@ -209,7 +211,7 @@ fun ExerciseCard(
                                                 .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
                                         ) {
                                             Text(
-                                                "SET ${si + 1} — ACTIVE",
+                                                 stringResource(R.string.workout_set_active_label, si + 1),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -241,9 +243,9 @@ fun ExerciseCard(
                                             val isLastSet = si == exercise.sets.size - 1
                                             val isLastExercise = exerciseIndex == totalExercises - 1
                                             val ctaLabel = when {
-                                                isLastSet && isLastExercise -> "✓  Finish Workout"
-                                                isLastSet -> "✓  Next Exercise"
-                                                else -> "✓  Done — Set ${si + 2}"
+                                                isLastSet && isLastExercise -> stringResource(R.string.workout_cta_finish)
+                                                isLastSet -> stringResource(R.string.workout_cta_next_exercise)
+                                                else -> stringResource(R.string.workout_cta_done_set, si + 2)
                                             }
                                             Surface(
                                                 onClick = onCompleteSet,
@@ -278,13 +280,13 @@ fun ExerciseCard(
                                                     enabled = !isAtStart,
                                                     shape = CircleShape
                                                 ) {
-                                                    Text("← Back", style = MaterialTheme.typography.labelMedium)
+                                                    Text(stringResource(R.string.workout_back_button), style = MaterialTheme.typography.labelMedium)
                                                 }
                                                 FilledTonalButton(
                                                     onClick = onSkipExercise,
                                                     shape = CircleShape
                                                 ) {
-                                                    Text("Skip Exercise →", style = MaterialTheme.typography.labelMedium)
+                                                    Text(stringResource(R.string.workout_skip_exercise), style = MaterialTheme.typography.labelMedium)
                                                 }
                                             }
                                         }
@@ -301,13 +303,13 @@ fun ExerciseCard(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                "Set ${si + 1}",
+                                                stringResource(R.string.workout_set_label, si + 1),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                                 modifier = Modifier.weight(0.6f)
                                             )
                                             Text(
-                                                "${set.reps} × ${set.weight} kg",
+                                                stringResource(R.string.workout_set_reps_weight, set.reps, set.weight),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                                 modifier = Modifier.weight(1f)
@@ -358,7 +360,7 @@ fun ExerciseCard(
                         if (allDone) {
                             Icon(
                                 Icons.Rounded.CheckCircle,
-                                contentDescription = "Completed",
+                                contentDescription = stringResource(R.string.workout_completed_cd),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -372,7 +374,7 @@ fun ExerciseCard(
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f))
                                 ) {
                                     Text(
-                                        "UP NEXT",
+                                        stringResource(R.string.workout_up_next),
                                         color = MaterialTheme.colorScheme.secondary,
                                         style = MaterialTheme.typography.labelSmall,
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
@@ -387,14 +389,14 @@ fun ExerciseCard(
                             // Subtitle for collapsed states
                             if (!exercise.isExpanded) {
                                 val subtitle = when {
-                                    allDone -> "${exercise.sets.size} sets done"
+                                    allDone -> stringResource(R.string.workout_sets_done, exercise.sets.size)
                                     isIncompleteAway -> {
                                         val doneCount = exercise.sets.count { it.isDone }
-                                        "Set $doneCount done · Set ${doneCount + 1} incomplete"
+                                        stringResource(R.string.workout_set_done_incomplete, doneCount, doneCount + 1)
                                     }
                                     else -> {
                                         val first = exercise.sets.firstOrNull()
-                                        "${exercise.sets.size} sets · ${first?.reps ?: "0"} reps · ${first?.weight ?: "0"} kg"
+                                        stringResource(R.string.workout_sets_summary, exercise.sets.size, first?.reps ?: "0", first?.weight ?: "0")
                                     }
                                 }
                                 Text(
@@ -409,7 +411,7 @@ fun ExerciseCard(
                     IconButton(onClick = onToggleExpanded) {
                         Icon(
                             if (exercise.isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = if (exercise.isExpanded) "Collapse" else "Expand",
+                            contentDescription = if (exercise.isExpanded) stringResource(R.string.workout_collapse_cd) else stringResource(R.string.workout_expand_cd),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -436,23 +438,23 @@ fun ExerciseCard(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            "Set ${si + 1}",
+                                            stringResource(R.string.workout_set_label, si + 1),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.weight(0.6f)
                                         )
                                         Text(
-                                            "${set.reps} × ${set.weight} kg",
+                                            stringResource(R.string.workout_set_reps_weight, set.reps, set.weight),
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Medium,
                                             modifier = Modifier.weight(1f)
                                         )
                                         Icon(
-                                            Icons.Rounded.CheckCircle,
-                                            contentDescription = "Done",
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
+                                             Icons.Rounded.CheckCircle,
+                                             contentDescription = stringResource(R.string.workout_done_cd),
+                                             tint = MaterialTheme.colorScheme.primary,
+                                             modifier = Modifier.size(20.dp)
+                                         )
                                     }
                                 }
 
@@ -466,13 +468,13 @@ fun ExerciseCard(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            "Set ${si + 1}",
+                                            stringResource(R.string.workout_set_label, si + 1),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                             modifier = Modifier.weight(0.6f)
                                         )
                                         Text(
-                                            "${set.reps} × ${set.weight} kg",
+                                            stringResource(R.string.workout_set_reps_weight, set.reps, set.weight),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                             modifier = Modifier.weight(1f)
@@ -492,7 +494,7 @@ fun ExerciseCard(
                         if (!allDone) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                             Text(
-                                "Tap any set to jump to it",
+                                stringResource(R.string.workout_tap_to_jump),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier
