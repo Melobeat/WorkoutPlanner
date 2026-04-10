@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.outlined.ListAlt
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Construction
 import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +45,7 @@ fun SettingsScreen(
     onNavigateToRoutines: () -> Unit,
     onNavigateToEquipment: () -> Unit,
     onNavigateToTimerSettings: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     timerSettingsViewModel: TimerSettingsViewModel = hiltViewModel()
@@ -115,6 +117,15 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
+                    title = "My Profile",
+                    subtitle = "Age, height and body weight",
+                    icon = Icons.Rounded.Person,
+                    onClick = onNavigateToProfile
+                )
+                HorizontalDivider()
+            }
+            item {
+                SettingsListItem(
                     title = "Manage Exercises",
                     subtitle = "Add, edit or delete exercises",
                     icon = Icons.Rounded.FitnessCenter,
@@ -181,6 +192,7 @@ fun SettingsScreenPreview() {
             onNavigateToRoutines = {},
             onNavigateToEquipment = {},
             onNavigateToTimerSettings = {},
+            onNavigateToProfile = {},
             onBack = {}
         )
     }
