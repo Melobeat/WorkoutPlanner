@@ -6,9 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -78,7 +78,7 @@ fun ExercisesScreenContent(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text("Add Exercise") }
             )
         },
@@ -95,7 +95,7 @@ fun ExercisesScreenContent(
                     supportingContent = { Text(exercise.muscleGroup) },
                     trailingContent = {
                         IconButton(onClick = { exerciseToDelete = exercise }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Rounded.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
                         }
                     },
                     modifier = Modifier.clickable { exerciseToEdit = exercise }
@@ -199,7 +199,7 @@ fun AddExerciseDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(text = selectedEquipmentName, modifier = Modifier.weight(1f))
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
                         }
                     }
                     DropdownMenu(
@@ -284,7 +284,7 @@ fun ExerciseLibraryItem(
                 }
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Rounded.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
             }
         }
     }

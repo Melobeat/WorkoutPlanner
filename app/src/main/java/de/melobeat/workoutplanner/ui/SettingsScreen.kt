@@ -7,10 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.outlined.Construction
-import androidx.compose.material.icons.outlined.FitnessCenter
-import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Construction
+import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -108,7 +108,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Timer Settings",
                     subtitle = "Rest timer durations between sets and exercises",
-                    icon = Icons.Outlined.Timer,
+                    icon = Icons.Rounded.Timer,
                     onClick = onNavigateToTimerSettings
                 )
                 HorizontalDivider()
@@ -117,7 +117,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Exercises",
                     subtitle = "Add, edit or delete exercises",
-                    icon = Icons.Outlined.FitnessCenter,
+                    icon = Icons.Rounded.FitnessCenter,
                     onClick = onNavigateToExercises
                 )
                 HorizontalDivider()
@@ -126,7 +126,7 @@ fun SettingsScreen(
                 SettingsListItem(
                     title = "Manage Equipment",
                     subtitle = "Dumbbells, barbells, machines, etc.",
-                    icon = Icons.Outlined.Construction,
+                    icon = Icons.Rounded.Construction,
                     onClick = onNavigateToEquipment
                 )
                 HorizontalDivider()
@@ -163,7 +163,7 @@ fun SettingsListItem(
         },
         trailingContent = {
             Icon(
-                Icons.Default.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -193,7 +193,7 @@ fun SettingsListItemPreview() {
         SettingsListItem(
             title = "Manage Exercises",
             subtitle = "Add, edit or delete exercises",
-            icon = Icons.Outlined.FitnessCenter,
+            icon = Icons.Rounded.FitnessCenter,
             onClick = {}
         )
     }
