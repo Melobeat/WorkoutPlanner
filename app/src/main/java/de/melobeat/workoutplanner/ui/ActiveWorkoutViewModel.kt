@@ -59,7 +59,7 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun startWorkout(day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String?) {
         viewModelScope.launch {
             try {
-                val exerciseStates = day.exercises.map { exercise ->
+                val exerciseStates = day.exercises.mapIndexed { index, exercise ->
                     val history = repository.getHistoryForExercise(exercise.id).first()
                     val lastSets = if (history.isNotEmpty()) {
                         val latestWorkoutId = history[0].workoutHistoryId
@@ -68,7 +68,7 @@ class ActiveWorkoutViewModel @Inject constructor(
                             .map { it.weight to it.reps }
                     } else emptyList()
 
-                    buildExerciseUiState(exercise, lastSets)
+                    buildExerciseUiState(exercise, lastSets).copy(isExpanded = index == 0)
                 }
 
                 currentWorkoutDay = day
@@ -450,7 +450,11 @@ class ActiveWorkoutViewModel @Inject constructor(
                         currentExerciseIndex = ei + 1,
                         currentSetIndex = 0,
                         exercises = state.exercises.mapIndexed { i, ex ->
-                            if (i == ei) ex.copy(isExpanded = false) else ex
+                            when (i) {
+                                ei -> ex.copy(isExpanded = false)
+                                ei + 1 -> ex.copy(isExpanded = true)
+                                else -> ex
+                            }
                         }
                     )
                 }

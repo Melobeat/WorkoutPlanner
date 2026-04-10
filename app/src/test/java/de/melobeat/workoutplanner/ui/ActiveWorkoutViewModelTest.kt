@@ -117,6 +117,16 @@ class ActiveWorkoutViewModelTest {
         assertEquals("100", viewModel.uiState.value.exercises[0].sets[0].weight)
     }
 
+    @Test
+    fun `startWorkout only expands the first exercise`() = runTest {
+        viewModel.startWorkout(makeWorkoutDay(exerciseCount = 3), 0, "My Routine", "routine1")
+
+        val exercises = viewModel.uiState.value.exercises
+        assertTrue(exercises[0].isExpanded)
+        assertFalse(exercises[1].isExpanded)
+        assertFalse(exercises[2].isExpanded)
+    }
+
     // endregion
 
     // region cancelWorkout
@@ -482,8 +492,7 @@ class ActiveWorkoutViewModelTest {
     @Test
     fun `jumpToSet expands the target exercise`() = runTest {
         viewModel.startWorkout(makeWorkoutDay(exerciseCount = 3), 0, "R", "r1")
-        // collapse exercise 2 first
-        viewModel.toggleExerciseExpanded(2)
+        // exercise 2 starts collapsed (only exercise 0 is expanded on start)
         assertFalse(viewModel.uiState.value.exercises[2].isExpanded)
 
         viewModel.jumpToSet(exerciseIndex = 2, setIndex = 0)
@@ -526,6 +535,35 @@ class ActiveWorkoutViewModelTest {
         viewModel.completeCurrentSet()
 
         assertFalse(viewModel.uiState.value.exercises[0].isExpanded)
+        assertTrue(viewModel.uiState.value.exercises[1].isExpanded)
+    }
+
+    @Test
+    fun `completeCurrentSet expands next exercise even if it was manually collapsed`() = runTest {
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "e1", name = "Ex1", muscleGroup = "",
+                    routineSets = listOf(RoutineSet(reps = 5, weight = 50.0))
+                ),
+                Exercise(
+                    id = "e2", name = "Ex2", muscleGroup = "",
+                    routineSets = listOf(RoutineSet(reps = 5, weight = 50.0))
+                )
+            )
+        )
+        viewModel.startWorkout(day, 0, "R", "r1")
+        // exercise 1 already starts collapsed; toggling it expands it, then collapse it again
+        // to explicitly verify completeCurrentSet still forces it open
+        viewModel.toggleExerciseExpanded(1) // now expanded
+        viewModel.toggleExerciseExpanded(1) // back to collapsed
+        assertFalse(viewModel.uiState.value.exercises[1].isExpanded)
+
+        // Complete the only set of exercise 0 — exercise 1 must be expanded
+        viewModel.completeCurrentSet()
+
+        assertTrue(viewModel.uiState.value.exercises[1].isExpanded)
     }
 
     @Test
