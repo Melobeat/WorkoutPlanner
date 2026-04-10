@@ -56,6 +56,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,27 +170,27 @@ fun WorkoutScreenContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = onMinimize) {
-                        Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = "Minimize")
+                        Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = stringResource(R.string.workout_minimize_cd))
                     }
                 },
                 actions = {
                     FilledTonalButton(onClick = { showAddExerciseDialog = true }, shape = CircleShape) {
                         Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("Exercise", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.workout_add_exercise), style = MaterialTheme.typography.labelMedium)
                     }
                     Spacer(Modifier.width(4.dp))
                     Box {
                         IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Rounded.MoreVert, contentDescription = "More options")
+                            Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.workout_more_options_cd))
                         }
                         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("Finish Workout") },
+                                text = { Text(stringResource(R.string.workout_menu_finish)) },
                                 onClick = { showMenu = false; onFinishWorkout() }
                             )
                             DropdownMenuItem(
-                                text = { Text("Cancel Workout", color = MaterialTheme.colorScheme.error) },
+                                text = { Text(stringResource(R.string.workout_menu_cancel), color = MaterialTheme.colorScheme.error) },
                                 onClick = { showMenu = false; showCancelDialog = true }
                             )
                         }
@@ -227,7 +229,7 @@ fun WorkoutScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "EXERCISE ${ei + 1} OF ${exercises.size}",
+                    text = stringResource(R.string.workout_exercise_counter, ei + 1, exercises.size),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
@@ -254,7 +256,7 @@ fun WorkoutScreenContent(
 
             if (exercises.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No exercises in this workout.")
+                    Text(stringResource(R.string.workout_no_exercises))
                 }
             } else {
                 LazyColumn(
@@ -294,7 +296,7 @@ fun WorkoutScreenContent(
     // Dialogs
     if (showAddExerciseDialog) {
         ExerciseSelectionDialog(
-            title = "Add Exercise",
+            title = stringResource(R.string.workout_dialog_add_exercise_title),
             exercises = availableExercises,
             onDismiss = { showAddExerciseDialog = false },
             onExerciseSelected = { exercise ->
@@ -306,7 +308,7 @@ fun WorkoutScreenContent(
 
     showSwapExerciseIndex?.let { swapIndex ->
         ExerciseSelectionDialog(
-            title = "Swap Exercise",
+            title = stringResource(R.string.workout_dialog_swap_exercise_title),
             exercises = availableExercises,
             onDismiss = { showSwapExerciseIndex = null },
             onExerciseSelected = { exercise ->
@@ -319,15 +321,15 @@ fun WorkoutScreenContent(
     if (showCancelDialog) {
         AlertDialog(
             onDismissRequest = { showCancelDialog = false },
-            title = { Text("Cancel Workout?") },
-            text = { Text("All progress in this session will be lost.") },
+            title = { Text(stringResource(R.string.workout_cancel_dialog_title)) },
+            text = { Text(stringResource(R.string.workout_cancel_dialog_body)) },
             confirmButton = {
                 TextButton(onClick = { onCancelWorkout() }) {
-                    Text("Cancel Workout", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.workout_menu_cancel), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showCancelDialog = false }) { Text("Keep Going") }
+                TextButton(onClick = { showCancelDialog = false }) { Text(stringResource(R.string.workout_keep_going)) }
             }
         )
     }
