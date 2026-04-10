@@ -33,6 +33,7 @@ import de.melobeat.workoutplanner.ui.navigation.HomeRoute
 import de.melobeat.workoutplanner.ui.navigation.WorkoutNavGraph
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -65,8 +66,8 @@ fun WorkoutPlannerApp() {
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             item(
-                icon = { Icon(Icons.Rounded.Home, contentDescription = "Home") },
-                label = { Text("Home") },
+                icon = { Icon(Icons.Rounded.Home, contentDescription = stringResource(R.string.nav_home)) },
+                label = { Text(stringResource(R.string.nav_home)) },
                 selected = currentDestination?.hasRoute<HomeRoute>() == true,
                 onClick = {
                     navController.navigate(HomeRoute) {
@@ -76,8 +77,8 @@ fun WorkoutPlannerApp() {
                 }
             )
             item(
-                icon = { Icon(Icons.Rounded.History, contentDescription = "History") },
-                label = { Text("History") },
+                icon = { Icon(Icons.Rounded.History, contentDescription = stringResource(R.string.nav_history)) },
+                label = { Text(stringResource(R.string.nav_history)) },
                 selected = currentDestination?.hasRoute<HistoryRoute>() == true,
                 onClick = {
                     navController.navigate(HistoryRoute) {
@@ -140,7 +141,7 @@ fun WorkoutPlannerApp() {
                                 },
                                 shape = CircleShape
                             ) {
-                                Text("Resume")
+                                Text(stringResource(R.string.minibar_resume))
                             }
                         }
                     }
