@@ -214,7 +214,8 @@ fun HistorySessionCard(
                         label = { Text(durationString, fontWeight = FontWeight.Bold) },
                         icon = { Icon(Icons.Rounded.Schedule, contentDescription = null) },
                         colors = SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            labelColor     = MaterialTheme.colorScheme.primary
                         )
                     )
                     Icon(
