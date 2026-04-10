@@ -362,9 +362,9 @@ Delete icons everywhere use `tint = colorScheme.error`. Confirm actions in delet
 
 **Exceptions:**
 - Settings screen uses `Icons.Outlined.*` for category icons (`Palette`, `Timer`, `FitnessCenter`, `Construction`, `ListAlt`)
-- Routine selection uses `Icons.Default.CheckCircle` / `Icons.Default.RadioButtonUnchecked`
-- Edit actions use `Icons.Default.Edit`
-- Add FAB uses `Icons.Default.Add`
+- Routine selection uses `Icons.Rounded.CheckCircle` / `Icons.Rounded.RadioButtonUnchecked`
+- Edit actions use `Icons.Rounded.Edit`
+- Add FAB uses `Icons.Rounded.Add`
 
 Do not mix icon families within a single screen. When adding new icons, default to `Icons.Rounded.*` unless the screen already uses a different family.
 
@@ -558,18 +558,18 @@ Defined in `HistoryScreen.kt`. Used on both the Home screen (recent workouts) an
 
 ### Routines Screen
 
-`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "New Routine" (+ `Icons.Default.Add`).
+`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "New Routine" (`Icons.Rounded.Add`, `containerColor = colorScheme.primary`, `contentColor = colorScheme.onPrimary`).
 
 - Routine cards: `RoundedCornerShape(16.dp)`, `containerColor = colorScheme.surfaceVariant`.
-- Active routine: name `color = colorScheme.primary`, select icon `Icons.Default.CheckCircle` `tint = colorScheme.primary`.
-- Inactive routine: name `colorScheme.onSurface`, select icon `Icons.Default.RadioButtonUnchecked` `tint = colorScheme.onSurfaceVariant`.
+- Active routine: name `color = colorScheme.primary`, select icon `Icons.Rounded.CheckCircle` `tint = colorScheme.primary`.
+- Inactive routine: name `colorScheme.onSurface`, select icon `Icons.Rounded.RadioButtonUnchecked` `tint = colorScheme.onSurfaceVariant`.
 - Day count: `typography.bodySmall`, `colorScheme.onSurfaceVariant`.
 - Delete icon trailing: `tint = colorScheme.error`.
 - `LazyColumn`: `padding(horizontal = 16.dp)`, `verticalArrangement = spacedBy(10.dp)`, `contentPadding = PaddingValues(vertical = 8.dp)`.
 
 ### Routine Detail Screen
 
-`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. Trailing "Edit" action: `Icons.Default.Edit`. Loading state: centered `CircularProgressIndicator`.
+`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. Trailing "Edit" action: `Icons.Rounded.Edit`. Loading state: centered `CircularProgressIndicator`.
 
 - Day cards: `RoundedCornerShape(16.dp)`, `containerColor = colorScheme.surfaceVariant`, `padding(horizontal=16, vertical=6.dp)`, inner `padding(16.dp)`.
 - Day name: `typography.titleMedium`, `color = colorScheme.primary`.
@@ -588,7 +588,7 @@ Defined in `HistoryScreen.kt`. Used on both the Home screen (recent workouts) an
 
 ### Exercises Screen
 
-`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "Add Exercise".
+`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "Add Exercise" (`Icons.Rounded.Add`, `containerColor = colorScheme.primary`, `contentColor = colorScheme.onPrimary`).
 
 - `ListItem` per exercise. `HorizontalDivider` between items.
 - Trailing delete: `Icons.Rounded.Delete`, `tint = colorScheme.error`.
@@ -597,7 +597,7 @@ Defined in `HistoryScreen.kt`. Used on both the Home screen (recent workouts) an
 
 ### Equipment Screen
 
-`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "Add Equipment". Same pattern as Exercises: `ListItem`, delete icon, single-field `AlertDialog`.
+`TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll`. `ExtendedFloatingActionButton` "Add Equipment" (`Icons.Rounded.Add`, `containerColor = colorScheme.primary`, `contentColor = colorScheme.onPrimary`). Same pattern as Exercises: `ListItem`, delete icon, single-field `AlertDialog`.
 
 ---
 
