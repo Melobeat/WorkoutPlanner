@@ -62,6 +62,8 @@ import de.melobeat.workoutplanner.model.WorkoutDay
 import de.melobeat.workoutplanner.ui.theme.GradientHeroStart
 import de.melobeat.workoutplanner.ui.theme.GradientHeroMid
 import de.melobeat.workoutplanner.ui.theme.GradientHeroEnd
+import de.melobeat.workoutplanner.ui.theme.GradientCtaStart
+import de.melobeat.workoutplanner.ui.theme.GradientCtaEnd
 import androidx.compose.ui.geometry.Offset
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
@@ -230,11 +232,15 @@ fun HomeScreenContent(
                                 },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(48.dp),
+                                    .height(48.dp)
+                                    .background(
+                                        brush = Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd)),
+                                        shape = CircleShape
+                                    ),
                                 shape = CircleShape,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.White,
-                                    contentColor = GradientHeroMid
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color.White
                                 )
                             ) {
                                 Text("▶ Start Workout", fontWeight = FontWeight.Bold)
@@ -268,10 +274,15 @@ fun HomeScreenContent(
                         Spacer(Modifier.height(16.dp))
                         Button(
                             onClick = onNavigateToSettings,
+                            modifier = Modifier
+                                .background(
+                                    brush = Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd)),
+                                    shape = CircleShape
+                                ),
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White,
-                                contentColor = GradientHeroMid
+                                containerColor = Color.Transparent,
+                                contentColor = Color.White
                             )
                         ) {
                             Text("Manage Routines", fontWeight = FontWeight.Bold)
