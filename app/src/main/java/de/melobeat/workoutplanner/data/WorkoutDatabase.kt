@@ -35,14 +35,14 @@ abstract class WorkoutDatabase : RoomDatabase() {
         fun getDatabase(context: Context): WorkoutDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, WorkoutDatabase::class.java, "workout_database")
-                    .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5, 6, 7, 8)
+                    .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5, 6, 7)
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             val databaseContext = context.applicationContext
                             CoroutineScope(Dispatchers.IO).launch {
                                 try {
-                                    val dao = getDatabase(databaseContext).workoutDao()
+                                    val dao = Instance!!.workoutDao()
                                     val json = Json { ignoreUnknownKeys = true }
 
                                     val equipmentJson = databaseContext.assets.open("equipment.json")
