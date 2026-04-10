@@ -8,6 +8,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
 import de.melobeat.workoutplanner.data.WorkoutDao
 import de.melobeat.workoutplanner.data.WorkoutDatabase
+import de.melobeat.workoutplanner.data.UserProfileRepository
 import de.melobeat.workoutplanner.data.WorkoutRepository
 import dagger.Module
 import dagger.Provides
@@ -22,6 +23,14 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class IoDispatcher
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RestTimerDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class UserProfileDataStore
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,6 +60,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    @RestTimerDataStore
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("rest_timer_prefs") }
@@ -58,7 +68,21 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    @UserProfileDataStore
+    fun provideUserProfileDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("user_profile_prefs") }
+        )
+
+    @Provides
+    @Singleton
     fun provideRestTimerPreferencesRepository(
-        dataStore: DataStore<Preferences>
+        @RestTimerDataStore dataStore: DataStore<Preferences>
     ): RestTimerPreferencesRepository = RestTimerPreferencesRepository(dataStore)
+
+    @Provides
+    @Singleton
+    fun provideUserProfileRepository(
+        @UserProfileDataStore dataStore: DataStore<Preferences>
+    ): UserProfileRepository = UserProfileRepository(dataStore)
 }

@@ -15,3 +15,4 @@ import kotlinx.serialization.Serializable
 @Serializable object ActiveWorkoutRoute
 @Serializable object WorkoutSummaryRoute
 @Serializable object TimerSettingsRoute
+@Serializable object ProfileRoute

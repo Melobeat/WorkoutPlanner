@@ -39,8 +39,8 @@ fun ExercisesScreen(
         exercises = uiState.exercises,
         equipment = uiState.equipment,
         onBack = onBack,
-        onSaveExercise = { name, muscle, desc, equipId, id ->
-            viewModel.saveExercise(name, muscle, desc, equipId, id)
+        onSaveExercise = { name, muscle, desc, equipId, id, isBodyweight ->
+            viewModel.saveExercise(name, muscle, desc, equipId, id, isBodyweight)
         },
         onDeleteExercise = { id -> viewModel.deleteExercise(id) },
         modifier = modifier
@@ -53,7 +53,7 @@ fun ExercisesScreenContent(
     exercises: List<Exercise>,
     equipment: List<Equipment>,
     onBack: () -> Unit,
-    onSaveExercise: (name: String, muscle: String, desc: String, equipId: String?, id: String?) -> Unit,
+    onSaveExercise: (name: String, muscle: String, desc: String, equipId: String?, id: String?, isBodyweight: Boolean) -> Unit,
     onDeleteExercise: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -112,8 +112,8 @@ fun ExercisesScreenContent(
                     showAddDialog = false
                     exerciseToEdit = null
                 },
-                onConfirm = { name, muscle, desc, equipId ->
-                    onSaveExercise(name, muscle, desc, equipId, exerciseToEdit?.id)
+                onConfirm = { name, muscle, desc, equipId, isBodyweight ->
+                    onSaveExercise(name, muscle, desc, equipId, exerciseToEdit?.id, isBodyweight)
                     showAddDialog = false
                     exerciseToEdit = null
                 }
@@ -152,12 +152,13 @@ fun AddExerciseDialog(
     initialExercise: Exercise? = null,
     equipmentList: List<Equipment>,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String, String?) -> Unit
+    onConfirm: (String, String, String, String?, Boolean) -> Unit
 ) {
     var name by remember { mutableStateOf(initialExercise?.name ?: "") }
     var muscleGroup by remember { mutableStateOf(initialExercise?.muscleGroup ?: "") }
     var description by remember { mutableStateOf(initialExercise?.description ?: "") }
     var selectedEquipmentId by remember { mutableStateOf(initialExercise?.equipmentId) }
+    var isBodyweight by remember { mutableStateOf(initialExercise?.isBodyweight ?: false) }
 
     var expanded by remember { mutableStateOf(false) }
     val selectedEquipmentName = equipmentList.find { it.id == selectedEquipmentId }?.name ?: "No Equipment"
@@ -185,6 +186,23 @@ fun AddExerciseDialog(
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Bodyweight exercise",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = isBodyweight,
+                        onCheckedChange = { isBodyweight = it }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -229,7 +247,7 @@ fun AddExerciseDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(name, muscleGroup, description, selectedEquipmentId) },
+                onClick = { onConfirm(name, muscleGroup, description, selectedEquipmentId, isBodyweight) },
                 enabled = name.isNotBlank() && muscleGroup.isNotBlank()
             ) {
                 Text(if (initialExercise == null) "Add" else "Save")
@@ -303,7 +321,7 @@ fun ExercisesScreenContentPreview() {
             ),
             equipment = listOf(Equipment(id = "eq1", name = "Barbell")),
             onBack = {},
-            onSaveExercise = { _, _, _, _, _ -> },
+            onSaveExercise = { _, _, _, _, _, _ -> },
             onDeleteExercise = {}
         )
     }
@@ -320,7 +338,7 @@ fun AddExerciseDialogPreview() {
                 Equipment(id = "eq2", name = "Dumbbell")
             ),
             onDismiss = {},
-            onConfirm = { _, _, _, _ -> }
+            onConfirm = { _, _, _, _, _ -> }
         )
     }
 }

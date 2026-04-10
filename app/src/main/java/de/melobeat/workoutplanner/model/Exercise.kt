@@ -7,5 +7,6 @@ data class Exercise(
     val muscleGroup: String = "",
     val equipmentId: String? = null,
     val equipmentName: String? = null,
+    val isBodyweight: Boolean = false,
     val routineSets: List<RoutineSet> = emptyList()
 )

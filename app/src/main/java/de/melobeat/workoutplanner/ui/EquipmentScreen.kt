@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Add
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,7 +34,7 @@ fun EquipmentScreen(
     EquipmentScreenContent(
         equipment = uiState.equipment,
         onBack = onBack,
-        onSaveEquipment = { name, id -> viewModel.saveEquipment(name, id) },
+        onSaveEquipment = { name, id, defaultWeight -> viewModel.saveEquipment(name, id, defaultWeight) },
         onDeleteEquipment = { id -> viewModel.deleteEquipment(id) },
         modifier = modifier
     )
@@ -43,7 +45,7 @@ fun EquipmentScreen(
 fun EquipmentScreenContent(
     equipment: List<Equipment>,
     onBack: () -> Unit,
-    onSaveEquipment: (name: String, id: String?) -> Unit,
+    onSaveEquipment: (name: String, id: String?, defaultWeight: Double?) -> Unit,
     onDeleteEquipment: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -82,6 +84,9 @@ fun EquipmentScreenContent(
             items(equipment) { item ->
                 ListItem(
                     headlineContent = { Text(item.name, fontWeight = FontWeight.SemiBold) },
+                    supportingContent = item.defaultWeight?.let { w ->
+                        { Text("Bar weight: ${if (w % 1.0 == 0.0) w.toInt().toString() else w.toString()} kg") }
+                    },
                     trailingContent = {
                         IconButton(onClick = { equipmentToDelete = item }) {
                             Icon(Icons.Rounded.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
@@ -100,8 +105,8 @@ fun EquipmentScreenContent(
                     showAddDialog = false
                     equipmentToEdit = null
                 },
-                onConfirm = { name ->
-                    onSaveEquipment(name, equipmentToEdit?.id)
+                onConfirm = { name, defaultWeight ->
+                    onSaveEquipment(name, equipmentToEdit?.id, defaultWeight)
                     showAddDialog = false
                     equipmentToEdit = null
                 }
@@ -138,24 +143,43 @@ fun EquipmentScreenContent(
 fun EquipmentDialog(
     initialEquipment: Equipment? = null,
     onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (name: String, defaultWeight: Double?) -> Unit
 ) {
     var name by remember { mutableStateOf(initialEquipment?.name ?: "") }
+    var weightText by remember {
+        mutableStateOf(
+            initialEquipment?.defaultWeight?.let {
+                if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()
+            } ?: ""
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (initialEquipment == null) "Add Equipment" else "Edit Equipment") },
         text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Equipment Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Equipment Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = weightText,
+                    onValueChange = { weightText = it },
+                    label = { Text("Bar weight (kg, optional)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(name) },
+                onClick = {
+                    val weight = weightText.trim().toDoubleOrNull()
+                    onConfirm(name, weight)
+                },
                 enabled = name.isNotBlank()
             ) {
                 Text(if (initialEquipment == null) "Add" else "Save")
@@ -212,7 +236,7 @@ fun EquipmentScreenContentPreview() {
                 Equipment(id = "3", name = "Cable Machine")
             ),
             onBack = {},
-            onSaveEquipment = { _, _ -> },
+            onSaveEquipment = { _, _, _ -> },
             onDeleteEquipment = {}
         )
     }
@@ -225,7 +249,7 @@ fun EquipmentDialogPreview() {
         EquipmentDialog(
             initialEquipment = null,
             onDismiss = {},
-            onConfirm = {}
+            onConfirm = { _, _ -> }
         )
     }
 }
