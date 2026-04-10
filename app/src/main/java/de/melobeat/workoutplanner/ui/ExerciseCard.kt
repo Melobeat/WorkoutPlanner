@@ -7,6 +7,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,8 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.melobeat.workoutplanner.ui.theme.GradientCardEnd
 import de.melobeat.workoutplanner.ui.theme.GradientCardStart
-import de.melobeat.workoutplanner.ui.theme.GradientHeroMid
-import de.melobeat.workoutplanner.ui.theme.GradientHeroEnd
+import de.melobeat.workoutplanner.ui.theme.GradientCtaStart
+import de.melobeat.workoutplanner.ui.theme.GradientCtaEnd
 
 @Composable
 private fun ActiveCardHeader(
@@ -144,6 +145,7 @@ fun ExerciseCard(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
+                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
         ) {
             ActiveCardHeader(
                 exercise = exercise,
@@ -253,7 +255,7 @@ fun ExerciseCard(
                                                     modifier = Modifier
                                                         .fillMaxSize()
                                                         .clip(RoundedCornerShape(50))
-                                                        .background(Brush.linearGradient(listOf(GradientHeroMid, GradientHeroEnd))),
+                                                        .background(Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd))),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Text(
@@ -364,12 +366,18 @@ fun ExerciseCard(
                         }
                         Column {
                             if (isUpNext) {
-                                Text(
-                                    "UP NEXT",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f))
+                                ) {
+                                    Text(
+                                        "UP NEXT",
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    )
+                                }
                             }
                             Text(
                                 exercise.name,
