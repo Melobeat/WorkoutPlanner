@@ -36,6 +36,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,10 +58,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("Settings", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.settings_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -73,12 +75,12 @@ fun SettingsScreen(
         ) {
             item {
                 ListItem(
-                    headlineContent = { Text("Theme", fontWeight = FontWeight.SemiBold) },
+                    headlineContent = { Text(stringResource(R.string.settings_theme), fontWeight = FontWeight.SemiBold) },
                     supportingContent = {
                         val label = when (themeMode) {
-                            "light"  -> "Light"
-                            "system" -> "Follow system"
-                            else     -> "Dark"
+                            "light"  -> stringResource(R.string.settings_theme_light)
+                            "system" -> stringResource(R.string.settings_theme_follow_system)
+                            else     -> stringResource(R.string.settings_theme_dark)
                         }
                         Text(label)
                     },
@@ -92,7 +94,11 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         SingleChoiceSegmentedButtonRow {
-                            listOf("dark" to "Dark", "light" to "Light", "system" to "System")
+                            listOf(
+                                "dark" to stringResource(R.string.settings_theme_dark),
+                                "light" to stringResource(R.string.settings_theme_light),
+                                "system" to stringResource(R.string.settings_theme_system)
+                            )
                                 .forEachIndexed { index, (mode, label) ->
                                     SegmentedButton(
                                         shape = SegmentedButtonDefaults.itemShape(index = index, count = 3),
@@ -108,8 +114,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
-                    title = "Timer Settings",
-                    subtitle = "Rest timer durations between sets and exercises",
+                    title = stringResource(R.string.settings_timer_title),
+                    subtitle = stringResource(R.string.settings_timer_subtitle),
                     icon = Icons.Rounded.Timer,
                     onClick = onNavigateToTimerSettings
                 )
@@ -117,8 +123,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
-                    title = "My Profile",
-                    subtitle = "Age, height and body weight",
+                    title = stringResource(R.string.settings_profile_title),
+                    subtitle = stringResource(R.string.settings_profile_subtitle),
                     icon = Icons.Rounded.Person,
                     onClick = onNavigateToProfile
                 )
@@ -126,8 +132,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
-                    title = "Manage Exercises",
-                    subtitle = "Add, edit or delete exercises",
+                    title = stringResource(R.string.settings_exercises_title),
+                    subtitle = stringResource(R.string.settings_exercises_subtitle),
                     icon = Icons.Rounded.FitnessCenter,
                     onClick = onNavigateToExercises
                 )
@@ -135,8 +141,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
-                    title = "Manage Equipment",
-                    subtitle = "Dumbbells, barbells, machines, etc.",
+                    title = stringResource(R.string.settings_equipment_title),
+                    subtitle = stringResource(R.string.settings_equipment_subtitle),
                     icon = Icons.Rounded.Construction,
                     onClick = onNavigateToEquipment
                 )
@@ -144,8 +150,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsListItem(
-                    title = "Manage Routines",
-                    subtitle = "Create and organize your workout routines",
+                    title = stringResource(R.string.settings_routines_title),
+                    subtitle = stringResource(R.string.settings_routines_subtitle),
                     icon = Icons.AutoMirrored.Outlined.ListAlt,
                     onClick = onNavigateToRoutines
                 )
