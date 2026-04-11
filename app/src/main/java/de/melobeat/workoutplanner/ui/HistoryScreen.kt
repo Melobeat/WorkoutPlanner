@@ -49,6 +49,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.data.ExerciseHistoryEntity
 import de.melobeat.workoutplanner.data.WorkoutHistoryEntity
 import de.melobeat.workoutplanner.data.WorkoutHistoryWithExercises
@@ -81,7 +83,7 @@ fun HistoryScreenContent(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("History", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.history_title), fontWeight = FontWeight.Black) },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -103,12 +105,12 @@ fun HistoryScreenContent(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            "No workouts yet",
+                            stringResource(R.string.history_empty_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Complete a workout to see it here.",
+                            stringResource(R.string.history_empty_body),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -138,8 +140,13 @@ fun HistoryScreenContent(
                 ) {
                     orderedKeys.forEachIndexed { groupIndex, groupLabel ->
                         item(key = "header_$groupLabel") {
+                            val displayLabel = when (groupLabel) {
+                                "This Week" -> stringResource(R.string.history_this_week)
+                                "Last Week" -> stringResource(R.string.history_last_week)
+                                else -> groupLabel
+                            }
                             Text(
-                                groupLabel.uppercase(),
+                                displayLabel.uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -260,7 +267,7 @@ fun HistorySessionCard(
                             }
                             if (displayEntries.size > 3) {
                                 Text(
-                                    "+${displayEntries.size - 3} more exercises",
+                                    stringResource(R.string.history_more_exercises, displayEntries.size - 3),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold,
@@ -363,7 +370,7 @@ fun WorkoutSessionCard(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Set ${set.sets}: ${set.reps}${if (set.isAmrap) "+" else ""} reps",
+                             text = stringResource(R.string.history_set_reps_label, set.sets, set.reps, if (set.isAmrap) "+" else ""),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
