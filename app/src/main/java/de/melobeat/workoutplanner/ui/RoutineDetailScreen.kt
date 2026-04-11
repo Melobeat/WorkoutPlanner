@@ -30,11 +30,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.Routine
 import de.melobeat.workoutplanner.model.RoutineSet
@@ -84,12 +86,12 @@ fun RoutineDetailScreenContent(
                 title = { Text(routine.name, fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back_cd))
                     }
                 },
                 actions = {
                     IconButton(onClick = onEditClick) {
-                        Icon(Icons.Rounded.Edit, contentDescription = "Edit Routine")
+                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.routines_edit_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior

@@ -15,11 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Routine
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
@@ -61,10 +63,10 @@ fun RoutinesScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Routines", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.routines_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.routines_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -74,7 +76,7 @@ fun RoutinesScreenContent(
             ExtendedFloatingActionButton(
                 onClick = onCreateRoutineClick,
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("New Routine") },
+                text = { Text(stringResource(R.string.routines_new_fab)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -108,7 +110,7 @@ fun RoutinesScreenContent(
                                         else MaterialTheme.colorScheme.onSurface
                             )
                             Text(
-                                "${routine.workoutDays.size} days",
+                                stringResource(R.string.routines_days_count, routine.workoutDays.size),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -119,7 +121,7 @@ fun RoutinesScreenContent(
                             }) {
                                 Icon(
                                     if (isActive) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
-                                    contentDescription = if (isActive) "Active" else "Set Active",
+                                    contentDescription = if (isActive) stringResource(R.string.routines_active_cd) else stringResource(R.string.routines_set_active_cd),
                                     tint = if (isActive) MaterialTheme.colorScheme.primary
                                            else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -127,7 +129,7 @@ fun RoutinesScreenContent(
                             IconButton(onClick = { routineToDelete = routine }) {
                                 Icon(
                                     Icons.Rounded.Delete,
-                                    contentDescription = "Delete",
+                                    contentDescription = stringResource(R.string.routines_delete_cd),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -141,18 +143,18 @@ fun RoutinesScreenContent(
     routineToDelete?.let { routine ->
         AlertDialog(
             onDismissRequest = { routineToDelete = null },
-            title = { Text("Delete Routine?") },
-            text = { Text("\"${routine.name}\" will be permanently deleted.") },
+            title = { Text(stringResource(R.string.routines_delete_dialog_title)) },
+            text = { Text(stringResource(R.string.routines_delete_dialog_body, routine.name)) },
             confirmButton = {
                 TextButton(onClick = {
                     onDeleteRoutine(routine.id)
                     routineToDelete = null
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { routineToDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { routineToDelete = null }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
