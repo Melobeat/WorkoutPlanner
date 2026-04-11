@@ -18,11 +18,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Equipment
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
@@ -66,10 +68,10 @@ fun ExercisesScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Exercise Library", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.exercises_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.exercises_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -79,7 +81,7 @@ fun ExercisesScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("Add Exercise") },
+                text = { Text(stringResource(R.string.exercises_add_fab)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -97,7 +99,7 @@ fun ExercisesScreenContent(
                     supportingContent = { Text(exercise.muscleGroup) },
                     trailingContent = {
                         IconButton(onClick = { exerciseToDelete = exercise }) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.exercises_delete_cd), tint = MaterialTheme.colorScheme.error)
                         }
                     },
                     modifier = Modifier.clickable { exerciseToEdit = exercise }
@@ -125,8 +127,8 @@ fun ExercisesScreenContent(
         if (exerciseToDelete != null) {
             AlertDialog(
                 onDismissRequest = { exerciseToDelete = null },
-                title = { Text("Delete Exercise") },
-                text = { Text("Are you sure you want to delete '${exerciseToDelete?.name}'? This may affect existing routines.") },
+                title = { Text(stringResource(R.string.exercises_delete_dialog_title)) },
+                text = { Text(stringResource(R.string.exercises_delete_dialog_body, exerciseToDelete?.name ?: "")) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -135,12 +137,12 @@ fun ExercisesScreenContent(
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Delete")
+                        Text(stringResource(R.string.action_delete))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { exerciseToDelete = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -163,29 +165,29 @@ fun AddExerciseDialog(
     var isBodyweight by remember { mutableStateOf(initialExercise?.isBodyweight ?: false) }
 
     var expanded by remember { mutableStateOf(false) }
-    val selectedEquipmentName = equipmentList.find { it.id == selectedEquipmentId }?.name ?: "No Equipment"
+    val selectedEquipmentName = equipmentList.find { it.id == selectedEquipmentId }?.name ?: stringResource(R.string.exercises_no_equipment)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialExercise == null) "Add New Exercise" else "Edit Exercise") },
+        title = { Text(if (initialExercise == null) stringResource(R.string.exercises_add_dialog_title) else stringResource(R.string.exercises_edit_dialog_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Exercise Name") },
+                    label = { Text(stringResource(R.string.exercises_name_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = muscleGroup,
                     onValueChange = { muscleGroup = it },
-                    label = { Text("Muscle Group") },
+                    label = { Text(stringResource(R.string.exercises_muscle_label)) },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.exercises_description_label)) },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                 )
 
@@ -196,7 +198,7 @@ fun AddExerciseDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Bodyweight exercise",
+                        text = stringResource(R.string.exercises_bodyweight_label),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -208,7 +210,7 @@ fun AddExerciseDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text("Equipment", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.exercises_equipment_label), style = MaterialTheme.typography.labelMedium)
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedCard(
                         onClick = { expanded = true },
@@ -228,7 +230,7 @@ fun AddExerciseDialog(
                         modifier = Modifier.fillMaxWidth(0.8f)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("No Equipment") },
+                            text = { Text(stringResource(R.string.exercises_no_equipment)) },
                             onClick = {
                                 selectedEquipmentId = null
                                 expanded = false
@@ -252,12 +254,12 @@ fun AddExerciseDialog(
                 onClick = { onConfirm(name, muscleGroup, description, selectedEquipmentId, isBodyweight) },
                 enabled = name.isNotBlank() && muscleGroup.isNotBlank()
             ) {
-                Text(if (initialExercise == null) "Add" else "Save")
+                Text(if (initialExercise == null) stringResource(R.string.action_add) else stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -304,7 +306,7 @@ fun ExerciseLibraryItem(
                 }
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Rounded.Delete, contentDescription = "Delete Exercise", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.exercises_delete_cd), tint = MaterialTheme.colorScheme.error)
             }
         }
     }
