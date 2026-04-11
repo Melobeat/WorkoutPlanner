@@ -19,20 +19,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.melobeat.workoutplanner.R
 
 @Composable
 fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) {
     val elapsed = restTimer.elapsedSeconds
+    val hardMilestone = stringResource(R.string.rest_timer_hard_milestone)
+    val easyMilestone = stringResource(R.string.rest_timer_easy_milestone)
+    val exerciseMilestone = stringResource(R.string.rest_timer_exercise_milestone)
+
     val milestoneLabel: String? = when (restTimer.context) {
         RestTimerContext.BetweenSets -> when {
-            elapsed >= restTimer.hardThresholdSeconds -> "HARD? TIME TO GO"
-            elapsed >= restTimer.easyThresholdSeconds -> "EASY? TIME TO GO"
+            elapsed >= restTimer.hardThresholdSeconds -> hardMilestone
+            elapsed >= restTimer.easyThresholdSeconds -> easyMilestone
             else -> null
         }
         RestTimerContext.BetweenExercises -> when {
-            elapsed >= restTimer.singleThresholdSeconds -> "READY FOR NEXT EXERCISE?"
+            elapsed >= restTimer.singleThresholdSeconds -> exerciseMilestone
             else -> null
         }
     }
@@ -68,7 +74,7 @@ fun RestTimerBanner(restTimer: RestTimerUiState, modifier: Modifier = Modifier) 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "REST",
+                    text = stringResource(R.string.rest_timer_label),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)

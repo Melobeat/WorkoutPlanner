@@ -37,8 +37,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 
 internal fun filterExercises(exercises: List<Exercise>, query: String): List<Exercise> {
@@ -75,7 +77,7 @@ fun ExerciseSelectionDialog(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                placeholder = { Text("Search...") },
+                placeholder = { Text(stringResource(R.string.exercises_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
