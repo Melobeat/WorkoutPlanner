@@ -34,6 +34,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
 import de.melobeat.workoutplanner.data.RestTimerSettings
@@ -84,10 +86,10 @@ fun TimerSettingsScreen(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("Timer Settings", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.timer_settings_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.timer_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -101,22 +103,22 @@ fun TimerSettingsScreen(
                 .padding(innerPadding)
         ) {
             TimerSettingRow(
-                title = "Easy set rest",
-                subtitle = "Notify when it's time for the next easy set",
+                title = stringResource(R.string.timer_easy_set_rest),
+                subtitle = stringResource(R.string.timer_easy_set_rest_subtitle),
                 seconds = settings.betweenSetsEasySeconds,
                 onValueChange = { viewModel.updateEasyThreshold(it) }
             )
             HorizontalDivider()
             TimerSettingRow(
-                title = "Hard set rest",
-                subtitle = "Notify when it's time for the next hard set",
+                title = stringResource(R.string.timer_hard_set_rest),
+                subtitle = stringResource(R.string.timer_hard_set_rest_subtitle),
                 seconds = settings.betweenSetsHardSeconds,
                 onValueChange = { viewModel.updateHardThreshold(it) }
             )
             HorizontalDivider()
             TimerSettingRow(
-                title = "Between exercises",
-                subtitle = "Notify when it's time for the next exercise",
+                title = stringResource(R.string.timer_between_exercises),
+                subtitle = stringResource(R.string.timer_between_exercises_subtitle),
                 seconds = settings.betweenExercisesSeconds,
                 onValueChange = { viewModel.updateExerciseThreshold(it) }
             )
@@ -173,7 +175,7 @@ private fun TimerEditDialog(
         title = { Text(title) },
         text = {
             Column {
-                Text("Enter duration in seconds:")
+                Text(stringResource(R.string.timer_dialog_enter_duration))
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = inputText,
@@ -187,10 +189,10 @@ private fun TimerEditDialog(
             TextButton(onClick = {
                 val v = inputText.toIntOrNull()
                 if (v != null && v in 1..3600) onConfirm(v)
-            }) { Text("OK") }
+            }) { Text(stringResource(R.string.timer_dialog_ok)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }
