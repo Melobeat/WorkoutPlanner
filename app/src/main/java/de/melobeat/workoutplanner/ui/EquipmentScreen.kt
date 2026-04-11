@@ -14,12 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Equipment
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
@@ -58,10 +60,10 @@ fun EquipmentScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Equipment", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.equipment_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.equipment_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -71,7 +73,7 @@ fun EquipmentScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("Add Equipment") },
+                text = { Text(stringResource(R.string.equipment_add_fab)) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
@@ -87,11 +89,11 @@ fun EquipmentScreenContent(
                 ListItem(
                     headlineContent = { Text(item.name, fontWeight = FontWeight.SemiBold) },
                     supportingContent = item.defaultWeight?.let { w ->
-                        { Text("Bar weight: ${if (w % 1.0 == 0.0) w.toInt().toString() else w.toString()} kg") }
+                        { Text(stringResource(R.string.equipment_bar_weight, if (w % 1.0 == 0.0) w.toInt().toString() else w.toString())) }
                     },
                     trailingContent = {
                         IconButton(onClick = { equipmentToDelete = item }) {
-                            Icon(Icons.Rounded.Delete, contentDescription = "Delete Equipment", tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.equipment_delete_cd), tint = MaterialTheme.colorScheme.error)
                         }
                     },
                     modifier = Modifier.clickable { equipmentToEdit = item }
@@ -118,8 +120,8 @@ fun EquipmentScreenContent(
         if (equipmentToDelete != null) {
             AlertDialog(
                 onDismissRequest = { equipmentToDelete = null },
-                title = { Text("Delete Equipment") },
-                text = { Text("Are you sure you want to delete '${equipmentToDelete?.name}'?") },
+                title = { Text(stringResource(R.string.equipment_delete_dialog_title)) },
+                text = { Text(stringResource(R.string.equipment_delete_dialog_body, equipmentToDelete?.name ?: "")) },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -128,12 +130,12 @@ fun EquipmentScreenContent(
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Delete")
+                        Text(stringResource(R.string.action_delete))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { equipmentToDelete = null }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                 }
             )
@@ -158,19 +160,19 @@ fun EquipmentDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialEquipment == null) "Add Equipment" else "Edit Equipment") },
+        title = { Text(if (initialEquipment == null) stringResource(R.string.equipment_add_dialog_title) else stringResource(R.string.equipment_edit_dialog_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Equipment Name") },
+                    label = { Text(stringResource(R.string.equipment_name_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = weightText,
                     onValueChange = { weightText = it },
-                    label = { Text("Bar weight (kg, optional)") },
+                    label = { Text(stringResource(R.string.equipment_bar_weight_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -184,12 +186,12 @@ fun EquipmentDialog(
                 },
                 enabled = name.isNotBlank()
             ) {
-                Text(if (initialEquipment == null) "Add" else "Save")
+                Text(if (initialEquipment == null) stringResource(R.string.action_add) else stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -219,7 +221,7 @@ fun EquipmentItem(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Rounded.Delete,
-                    contentDescription = "Delete Equipment",
+                    contentDescription = stringResource(R.string.equipment_delete_cd),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
