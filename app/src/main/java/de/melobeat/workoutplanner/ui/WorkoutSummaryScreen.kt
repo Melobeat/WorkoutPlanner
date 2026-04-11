@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.melobeat.workoutplanner.ui.theme.GradientCtaEnd
 import de.melobeat.workoutplanner.ui.theme.GradientCtaStart
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +89,7 @@ fun WorkoutSummaryScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onResumeWorkout) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back to workout")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.summary_back_to_workout_cd))
                     }
                 }
             )
@@ -113,12 +115,12 @@ fun WorkoutSummaryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Total Volume",
+                        stringResource(R.string.summary_total_volume),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        "${totalVolumeKg.toInt()} kg",
+                        stringResource(R.string.summary_total_volume_kg, totalVolumeKg.toInt()),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -153,7 +155,7 @@ fun WorkoutSummaryScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        "Set ${index + 1}",
+                                        stringResource(R.string.summary_set_label, index + 1),
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Medium,
                                         color = if (isSkipped)
@@ -178,13 +180,13 @@ fun WorkoutSummaryScreen(
                                 }
                                 if (isSkipped) {
                                     Text(
-                                        "Skipped",
+                                        stringResource(R.string.summary_skipped),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                     )
                                 } else {
                                     Text(
-                                        "${set.reps} reps × ${set.weight} kg",
+                                        stringResource(R.string.summary_reps_weight, set.reps, set.weight),
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Medium
                                     )
@@ -218,7 +220,7 @@ fun WorkoutSummaryScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Save & Exit", fontWeight = FontWeight.Black)
+                    Text(stringResource(R.string.summary_save_exit), fontWeight = FontWeight.Black)
                 }
                 OutlinedButton(
                     onClick = onResumeWorkout,
@@ -228,7 +230,7 @@ fun WorkoutSummaryScreen(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
-                    Text("Resume Workout")
+                    Text(stringResource(R.string.summary_resume))
                 }
                 Spacer(Modifier.height(4.dp))
             }
