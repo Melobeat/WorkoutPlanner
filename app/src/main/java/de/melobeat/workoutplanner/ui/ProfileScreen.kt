@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.UserProfile
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
@@ -61,10 +63,10 @@ fun ProfileScreenContent(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("My Profile", fontWeight = FontWeight.Black) },
+                title = { Text(stringResource(R.string.profile_title), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.profile_back_cd))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -84,7 +86,7 @@ fun ProfileScreenContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "Personal Details",
+                        text = stringResource(R.string.profile_personal_details),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
@@ -93,7 +95,7 @@ fun ProfileScreenContent(
                     OutlinedTextField(
                         value = ageText,
                         onValueChange = { ageText = it },
-                        label = { Text("Age (years)") },
+                        label = { Text(stringResource(R.string.profile_age_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -101,7 +103,7 @@ fun ProfileScreenContent(
                     OutlinedTextField(
                         value = heightText,
                         onValueChange = { heightText = it },
-                        label = { Text("Height (cm)") },
+                        label = { Text(stringResource(R.string.profile_height_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -109,7 +111,7 @@ fun ProfileScreenContent(
                     OutlinedTextField(
                         value = bodyWeightText,
                         onValueChange = { bodyWeightText = it },
-                        label = { Text("Body weight (kg)") },
+                        label = { Text(stringResource(R.string.profile_body_weight_label)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -133,7 +135,7 @@ fun ProfileScreenContent(
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
-                        Text("Save Profile", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.profile_save), fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
