@@ -35,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
 import de.melobeat.workoutplanner.model.WorkoutDay
@@ -109,10 +111,10 @@ fun CreateRoutineScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (routineId == null) "New Routine" else "Edit Routine", fontWeight = FontWeight.Black) },
+                title = { Text(if (routineId == null) stringResource(R.string.create_routine_title_new) else stringResource(R.string.create_routine_title_edit), fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.create_routine_back_cd))
                     }
                 },
                 actions = {
@@ -120,7 +122,7 @@ fun CreateRoutineScreenContent(
                         onClick = { onSave(name, description, days) },
                         enabled = name.isNotBlank() && days.isNotEmpty()
                     ) {
-                        Text("Save")
+                        Text(stringResource(R.string.create_routine_save))
                     }
                 },
                 scrollBehavior = scrollBehavior
@@ -139,7 +141,7 @@ fun CreateRoutineScreenContent(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Routine Name") },
+                    label = { Text(stringResource(R.string.create_routine_name_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -147,7 +149,7 @@ fun CreateRoutineScreenContent(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text(stringResource(R.string.create_routine_description_label)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -214,7 +216,7 @@ fun CreateRoutineScreenContent(
                 ) {
                     Icon(Icons.Rounded.Add, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Add Day")
+                    Text(stringResource(R.string.create_routine_add_day))
                 }
             }
         }

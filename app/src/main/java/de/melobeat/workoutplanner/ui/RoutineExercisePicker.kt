@@ -10,6 +10,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 
 @Composable
@@ -20,7 +22,7 @@ fun ExercisePicker(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Exercise") },
+        title = { Text(stringResource(R.string.create_routine_select_exercise)) },
         text = {
             LazyColumn {
                 itemsIndexed(exercises) { _, exercise ->
@@ -33,7 +35,7 @@ fun ExercisePicker(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }

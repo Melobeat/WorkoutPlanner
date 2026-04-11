@@ -28,7 +28,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.WorkoutDay
 
@@ -61,22 +63,22 @@ fun DayCard(
                 OutlinedTextField(
                     value = day.name,
                     onValueChange = onNameChange,
-                    label = { Text("Day Name") },
+                    label = { Text(stringResource(R.string.create_routine_day_name_label)) },
                     modifier = Modifier.weight(1f),
                     textStyle = MaterialTheme.typography.titleMedium
                 )
                 onMoveUp?.let {
                     IconButton(onClick = it) {
-                        Icon(Icons.Rounded.ArrowUpward, contentDescription = "Move Day Up")
+                        Icon(Icons.Rounded.ArrowUpward, contentDescription = stringResource(R.string.create_routine_move_day_up_cd))
                     }
                 }
                 onMoveDown?.let {
                     IconButton(onClick = it) {
-                        Icon(Icons.Rounded.ArrowDownward, contentDescription = "Move Day Down")
+                        Icon(Icons.Rounded.ArrowDownward, contentDescription = stringResource(R.string.create_routine_move_day_down_cd))
                     }
                 }
                 IconButton(onClick = onRemoveDay) {
-                    Icon(Icons.Rounded.Delete, contentDescription = "Remove Day")
+                    Icon(Icons.Rounded.Delete, contentDescription = stringResource(R.string.create_routine_remove_day_cd))
                 }
             }
 
@@ -102,7 +104,7 @@ fun DayCard(
                         modifier = Modifier.align(Alignment.End)
                     ) {
                         Icon(Icons.Rounded.Add, contentDescription = null)
-                        Text("Add Exercise")
+                        Text(stringResource(R.string.create_routine_add_exercise))
                     }
                 }
             }

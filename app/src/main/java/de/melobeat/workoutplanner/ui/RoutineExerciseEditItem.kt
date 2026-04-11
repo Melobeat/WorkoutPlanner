@@ -31,9 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import de.melobeat.workoutplanner.R
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
 
@@ -65,16 +67,16 @@ fun ExerciseEditItem(
             )
             onMoveUp?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.ArrowUpward, contentDescription = "Move Exercise Up")
+                    Icon(Icons.Rounded.ArrowUpward, contentDescription = stringResource(R.string.create_routine_move_exercise_up_cd))
                 }
             }
             onMoveDown?.let {
                 IconButton(onClick = it) {
-                    Icon(Icons.Rounded.ArrowDownward, contentDescription = "Move Exercise Down")
+                    Icon(Icons.Rounded.ArrowDownward, contentDescription = stringResource(R.string.create_routine_move_exercise_down_cd))
                 }
             }
             IconButton(onClick = onRemove) {
-                Icon(Icons.Rounded.Close, contentDescription = "Remove Exercise")
+                Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.create_routine_remove_exercise_cd))
             }
         }
 
@@ -100,7 +102,7 @@ fun ExerciseEditItem(
                                     onUpdate(exercise.copy(routineSets = newSets))
                                 }
                             },
-                            label = { Text("Reps") },
+                            label = { Text(stringResource(R.string.create_routine_reps_label)) },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
@@ -117,13 +119,13 @@ fun ExerciseEditItem(
                                     onUpdate(exercise.copy(routineSets = newSets))
                                 }
                             },
-                            label = { Text("Weight") },
+                            label = { Text(stringResource(R.string.create_routine_weight_label)) },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("AMRAP", style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(R.string.label_amrap), style = MaterialTheme.typography.labelSmall)
                             Checkbox(
                                 checked = set.isAmrap,
                                 onCheckedChange = { isChecked ->
@@ -138,7 +140,7 @@ fun ExerciseEditItem(
                             val newSets = exercise.routineSets.toMutableList().apply { removeAt(index) }
                             onUpdate(exercise.copy(routineSets = newSets))
                         }) {
-                            Icon(Icons.Rounded.Remove, contentDescription = "Remove Set")
+                            Icon(Icons.Rounded.Remove, contentDescription = stringResource(R.string.create_routine_remove_set_cd))
                         }
                     }
                 }
@@ -150,7 +152,7 @@ fun ExerciseEditItem(
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Icon(Icons.Rounded.Add, contentDescription = null)
-                    Text("Add Set")
+                    Text(stringResource(R.string.create_routine_add_set))
                 }
             }
         }
