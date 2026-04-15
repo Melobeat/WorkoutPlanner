@@ -222,7 +222,8 @@ fun CreateRoutineScreenContent(
         }
 
         if (showExercisePickerForDayIndex != null) {
-            ExercisePicker(
+            ExerciseSelectionDialog(
+                title = stringResource(R.string.create_routine_select_exercise),
                 exercises = availableExercises,
                 onDismiss = { showExercisePickerForDayIndex = null },
                 onExerciseSelected = { exercise ->
