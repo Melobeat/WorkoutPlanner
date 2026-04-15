@@ -584,7 +584,7 @@ Defined in `HistoryScreen.kt`. Used on both the Home screen (recent workouts) an
 - `OutlinedTextField` for routine name and description.
 - `DayCard` per day: `OutlinedCard`, `RoundedCornerShape(16.dp)`, header row with expand/collapse icon + name field + move up/down + delete.
 - "Add Day" button: `FilledTonalButton`, `CircleShape`, `fillMaxWidth().height(52.dp)`.
-- Exercise picker: `AlertDialog` (`ExercisePicker`) with flat `LazyColumn` list. (Not a bottom sheet.)
+- Exercise picker: `ExerciseSelectionDialog` — `ModalBottomSheet` with `skipPartiallyExpanded = true`, search `OutlinedTextField`, and `LazyColumn`. Title: `R.string.create_routine_select_exercise`. Same component as the active workout add/swap flow.
 
 ### Exercises Screen
 
