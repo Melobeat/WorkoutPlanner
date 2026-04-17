@@ -5,7 +5,7 @@ import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.Routine
 import de.melobeat.workoutplanner.model.WorkoutDay
 
-fun EquipmentEntity.toDomain() = Equipment(id = id, name = name, defaultWeight = defaultWeight)
+fun EquipmentEntity.toDomain() = Equipment(id = id, name = name, defaultWeight = defaultWeight, weightStep = weightStep)
 
 fun ExerciseWithEquipment.toDomain() = Exercise(
     id = exercise.id,

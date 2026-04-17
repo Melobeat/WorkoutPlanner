@@ -28,7 +28,8 @@ class Converters {
 data class EquipmentEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val name: String,
-    val defaultWeight: Double? = null
+    val defaultWeight: Double? = null,
+    val weightStep: Double = 2.5
 )
 
 @Entity(

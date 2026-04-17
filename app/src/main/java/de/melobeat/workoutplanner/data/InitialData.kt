@@ -3,7 +3,7 @@ package de.melobeat.workoutplanner.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InitialEquipment(val id: String, val name: String, val defaultWeight: Double? = null)
+data class InitialEquipment(val id: String, val name: String, val defaultWeight: Double? = null, val weightStep: Double? = null)
 
 @Serializable
 data class InitialExercise(

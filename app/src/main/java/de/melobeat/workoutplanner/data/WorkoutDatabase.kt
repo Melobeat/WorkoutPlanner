@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
         ExerciseHistoryEntity::class,
         EquipmentEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,7 +35,7 @@ abstract class WorkoutDatabase : RoomDatabase() {
         fun getDatabase(context: Context): WorkoutDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, WorkoutDatabase::class.java, "workout_database")
-                    .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5, 6, 7)
+                    .fallbackToDestructiveMigrationFrom(1, 2, 3, 4, 5, 6, 7, 8)
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
@@ -58,7 +58,8 @@ abstract class WorkoutDatabase : RoomDatabase() {
                                             EquipmentEntity(
                                                 id = equip.id,
                                                 name = equip.name,
-                                                defaultWeight = equip.defaultWeight
+                                                defaultWeight = equip.defaultWeight,
+                                                weightStep = equip.weightStep ?: 2.5
                                             )
                                         )
                                     }
