@@ -5,6 +5,7 @@ import de.melobeat.workoutplanner.data.ExerciseHistoryEntity
 import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
 import de.melobeat.workoutplanner.data.RestTimerSettings
 import de.melobeat.workoutplanner.data.WorkoutRepository
+import de.melobeat.workoutplanner.model.Equipment
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
 import de.melobeat.workoutplanner.model.WorkoutDay
@@ -38,6 +39,7 @@ class ActiveWorkoutViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         every { repository.getHistoryForExercise(any()) } returns flowOf(emptyList())
+        every { repository.getEquipmentStream() } returns flowOf(emptyList())
         every { timerPrefs.settings } returns flowOf(RestTimerSettings())
         viewModel = ActiveWorkoutViewModel(repository, timerPrefs)
     }
@@ -579,6 +581,105 @@ class ActiveWorkoutViewModelTest {
         viewModel.goToPreviousSet()
 
         assertTrue(viewModel.uiState.value.exercises[0].isExpanded)
+    }
+
+    // endregion
+
+    // region weightStep
+
+    @Test
+    fun `incrementWeight uses exercise weightStep`() = runTest {
+        val equipment = listOf(Equipment(id = "equip1", name = "Test", weightStep = 1.0))
+        every { repository.getEquipmentStream() } returns flowOf(equipment)
+
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "ex1", name = "Ex", equipmentId = "equip1",
+                    routineSets = listOf(RoutineSet(reps = 10, weight = 50.0))
+                )
+            )
+        )
+        val freshVm = ActiveWorkoutViewModel(repository, timerPrefs)
+        freshVm.startWorkout(day, 0, "R", null)
+
+        freshVm.incrementWeight(0, 0)
+
+        val set = freshVm.uiState.value.exercises[0].sets[0]
+        assertEquals("51", set.weight)
+    }
+
+    @Test
+    fun `decrementWeight uses exercise weightStep`() = runTest {
+        val equipment = listOf(Equipment(id = "equip1", name = "Test", weightStep = 1.25))
+        every { repository.getEquipmentStream() } returns flowOf(equipment)
+
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "ex1", name = "Ex", equipmentId = "equip1",
+                    routineSets = listOf(RoutineSet(reps = 10, weight = 50.0))
+                )
+            )
+        )
+        val freshVm = ActiveWorkoutViewModel(repository, timerPrefs)
+        freshVm.startWorkout(day, 0, "R", null)
+
+        freshVm.incrementWeight(0, 0)
+        freshVm.incrementWeight(0, 0)
+        freshVm.incrementWeight(0, 0) // 50 + 3 * 1.25 = 53.75
+
+        freshVm.decrementWeight(0, 0) // 53.75 - 1.25 = 52.5
+
+        val set = freshVm.uiState.value.exercises[0].sets[0]
+        assertEquals("52.5", set.weight)
+    }
+
+    @Test
+    fun `decrementWeight does nothing when weight is less than weightStep`() = runTest {
+        val equipment = listOf(Equipment(id = "equip1", name = "Test", weightStep = 2.5))
+        every { repository.getEquipmentStream() } returns flowOf(equipment)
+
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "ex1", name = "Ex", equipmentId = "equip1",
+                    routineSets = listOf(RoutineSet(reps = 10, weight = 0.0))
+                )
+            )
+        )
+        val freshVm = ActiveWorkoutViewModel(repository, timerPrefs)
+        freshVm.startWorkout(day, 0, "R", null)
+
+        freshVm.decrementWeight(0, 0) // weight is 0, should stay 0
+
+        val set = freshVm.uiState.value.exercises[0].sets[0]
+        assertEquals("0", set.weight)
+    }
+
+    @Test
+    fun `exercises use fallback weightStep 1_0 when equipment stream is empty`() = runTest {
+        every { repository.getEquipmentStream() } returns flowOf(emptyList())
+
+        val day = WorkoutDay(
+            id = "d1", name = "Day",
+            exercises = listOf(
+                Exercise(
+                    id = "ex1", name = "Ex", equipmentId = "equip_unknown",
+                    routineSets = listOf(RoutineSet(reps = 10, weight = 50.0))
+                )
+            )
+        )
+        val freshVm = ActiveWorkoutViewModel(repository, timerPrefs)
+        freshVm.startWorkout(day, 0, "R", null)
+
+        freshVm.incrementWeight(0, 0) // 50 + 1.0 = 51
+
+        val set = freshVm.uiState.value.exercises[0].sets[0]
+        assertEquals("51", set.weight)
     }
 
     // endregion
