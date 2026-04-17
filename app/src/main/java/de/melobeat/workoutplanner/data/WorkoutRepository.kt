@@ -108,13 +108,15 @@ class WorkoutRepository @Inject constructor(
     suspend fun saveEquipment(
         name: String,
         existingId: String?,
-        defaultWeight: Double? = null
+        defaultWeight: Double? = null,
+        weightStep: Double = 2.5
     ) = withContext(dispatcher) {
         dao.insertEquipment(
             EquipmentEntity(
                 id = existingId ?: UUID.randomUUID().toString(),
                 name = name,
-                defaultWeight = defaultWeight
+                defaultWeight = defaultWeight,
+                weightStep = weightStep
             )
         )
     }

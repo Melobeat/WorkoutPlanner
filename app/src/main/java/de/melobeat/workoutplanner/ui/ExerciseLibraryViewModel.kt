@@ -69,10 +69,10 @@ class ExerciseLibraryViewModel @Inject constructor(
         }
     }
 
-    fun saveEquipment(name: String, existingId: String?, defaultWeight: Double? = null) {
+    fun saveEquipment(name: String, existingId: String?, defaultWeight: Double? = null, weightStep: Double = 2.5) {
         viewModelScope.launch {
             try {
-                repository.saveEquipment(name, existingId, defaultWeight)
+                repository.saveEquipment(name, existingId, defaultWeight, weightStep)
             } catch (e: Exception) {
                 _state.update { it.copy(error = "Failed to save equipment") }
             }
