@@ -36,7 +36,7 @@ fun EquipmentScreen(
     EquipmentScreenContent(
         equipment = uiState.equipment,
         onBack = onBack,
-        onSaveEquipment = { name, id, defaultWeight -> viewModel.saveEquipment(name, id, defaultWeight) },
+        onSaveEquipment = { name, id, defaultWeight, weightStep -> viewModel.saveEquipment(name, id, defaultWeight, weightStep) },
         onDeleteEquipment = { id -> viewModel.deleteEquipment(id) },
         modifier = modifier
     )
@@ -47,7 +47,7 @@ fun EquipmentScreen(
 fun EquipmentScreenContent(
     equipment: List<Equipment>,
     onBack: () -> Unit,
-    onSaveEquipment: (name: String, id: String?, defaultWeight: Double?) -> Unit,
+    onSaveEquipment: (name: String, id: String?, defaultWeight: Double?, weightStep: Double) -> Unit,
     onDeleteEquipment: (id: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -88,8 +88,13 @@ fun EquipmentScreenContent(
             items(equipment) { item ->
                 ListItem(
                     headlineContent = { Text(item.name, fontWeight = FontWeight.SemiBold) },
-                    supportingContent = item.defaultWeight?.let { w ->
-                        { Text(stringResource(R.string.equipment_bar_weight, if (w % 1.0 == 0.0) w.toInt().toString() else w.toString())) }
+                    supportingContent = {
+                        val parts = mutableListOf<String>()
+                        item.defaultWeight?.let { w ->
+                            parts.add(stringResource(R.string.equipment_bar_weight, if (w % 1.0 == 0.0) w.toInt().toString() else w.toString()))
+                        }
+                        parts.add(stringResource(R.string.equipment_weight_step, if (item.weightStep % 1.0 == 0.0) item.weightStep.toInt().toString() else item.weightStep.toString()))
+                        Text(parts.joinToString(" · "))
                     },
                     trailingContent = {
                         IconButton(onClick = { equipmentToDelete = item }) {
@@ -109,8 +114,8 @@ fun EquipmentScreenContent(
                     showAddDialog = false
                     equipmentToEdit = null
                 },
-                onConfirm = { name, defaultWeight ->
-                    onSaveEquipment(name, equipmentToEdit?.id, defaultWeight)
+                onConfirm = { name, defaultWeight, weightStep ->
+                    onSaveEquipment(name, equipmentToEdit?.id, defaultWeight, weightStep)
                     showAddDialog = false
                     equipmentToEdit = null
                 }
@@ -147,7 +152,7 @@ fun EquipmentScreenContent(
 fun EquipmentDialog(
     initialEquipment: Equipment? = null,
     onDismiss: () -> Unit,
-    onConfirm: (name: String, defaultWeight: Double?) -> Unit
+    onConfirm: (name: String, defaultWeight: Double?, weightStep: Double) -> Unit
 ) {
     var name by remember { mutableStateOf(initialEquipment?.name ?: "") }
     var weightText by remember {
@@ -155,6 +160,13 @@ fun EquipmentDialog(
             initialEquipment?.defaultWeight?.let {
                 if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()
             } ?: ""
+        )
+    }
+    var stepText by remember {
+        mutableStateOf(
+            initialEquipment?.let {
+                if (it.weightStep % 1.0 == 0.0) it.weightStep.toInt().toString() else it.weightStep.toString()
+            } ?: "2.5"
         )
     }
 
@@ -176,13 +188,21 @@ fun EquipmentDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
+                OutlinedTextField(
+                    value = stepText,
+                    onValueChange = { stepText = it },
+                    label = { Text(stringResource(R.string.equipment_weight_step_label)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
                     val weight = weightText.trim().toDoubleOrNull()
-                    onConfirm(name, weight)
+                    val step = stepText.trim().toDoubleOrNull()?.takeIf { it > 0 } ?: 2.5
+                    onConfirm(name, weight, step)
                 },
                 enabled = name.isNotBlank()
             ) {
@@ -235,12 +255,12 @@ fun EquipmentScreenContentPreview() {
     WorkoutPlannerTheme {
         EquipmentScreenContent(
             equipment = listOf(
-                Equipment(id = "1", name = "Barbell"),
-                Equipment(id = "2", name = "Dumbbell"),
-                Equipment(id = "3", name = "Cable Machine")
+                Equipment(id = "1", name = "Barbell", weightStep = 2.5),
+                Equipment(id = "2", name = "Dumbbell", weightStep = 1.0),
+                Equipment(id = "3", name = "Cable Machine", weightStep = 1.0)
             ),
             onBack = {},
-            onSaveEquipment = { _, _, _ -> },
+            onSaveEquipment = { _, _, _, _ -> },
             onDeleteEquipment = {}
         )
     }
@@ -253,7 +273,7 @@ fun EquipmentDialogPreview() {
         EquipmentDialog(
             initialEquipment = null,
             onDismiss = {},
-            onConfirm = { _, _ -> }
+            onConfirm = { _, _, _ -> }
         )
     }
 }
@@ -263,7 +283,7 @@ fun EquipmentDialogPreview() {
 fun EquipmentItemPreview() {
     WorkoutPlannerTheme {
         EquipmentItem(
-            equipment = Equipment(id = "1", name = "Barbell"),
+            equipment = Equipment(id = "1", name = "Barbell", weightStep = 2.5),
             onClick = {},
             onDelete = {}
         )

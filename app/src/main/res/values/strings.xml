@@ -157,6 +157,8 @@
     <string name="equipment_edit_dialog_title">Edit Equipment</string>
     <string name="equipment_name_label">Equipment Name</string>
     <string name="equipment_bar_weight_label">Bar weight (kg, optional)</string>
+    <string name="equipment_weight_step">Step: %1$s kg</string>
+    <string name="equipment_weight_step_label">Weight step (kg)</string>
 
     <!-- RoutinesScreen -->
     <string name="routines_title">Routines</string>

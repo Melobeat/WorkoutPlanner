@@ -157,6 +157,8 @@
     <string name="equipment_edit_dialog_title">Equipment bearbeiten</string>
     <string name="equipment_name_label">Equipment-Name</string>
     <string name="equipment_bar_weight_label">Stangengewicht (kg, optional)</string>
+    <string name="equipment_weight_step">Schritt: %1$s kg</string>
+    <string name="equipment_weight_step_label">Gewichtsschritt (kg)</string>
 
     <!-- RoutinesScreen -->
     <string name="routines_title">Programme</string>
