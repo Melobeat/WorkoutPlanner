@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
 import de.melobeat.workoutplanner.data.RestTimerSettings
 import de.melobeat.workoutplanner.data.WorkoutRepository
+import de.melobeat.workoutplanner.model.Equipment
 import de.melobeat.workoutplanner.model.Exercise
 import de.melobeat.workoutplanner.model.RoutineSet
 import de.melobeat.workoutplanner.model.WorkoutDay
@@ -32,10 +33,6 @@ class ActiveWorkoutViewModel @Inject constructor(
     private val timerPrefs: RestTimerPreferencesRepository
 ) : ViewModel() {
 
-    companion object {
-        private const val WEIGHT_STEP = 2.5
-    }
-
     private val _uiState = MutableStateFlow(ActiveWorkoutUiState())
     val uiState: StateFlow<ActiveWorkoutUiState> = _uiState.asStateFlow()
 
@@ -46,6 +43,7 @@ class ActiveWorkoutViewModel @Inject constructor(
     private var currentDayIndex: Int = 0
     private var currentRoutineName: String = ""
     private var currentRoutineId: String? = null
+    private var equipmentCache: List<Equipment> = emptyList()
 
     private val _restTimerEvents = MutableSharedFlow<RestTimerEvent>()
     val restTimerEvents: SharedFlow<RestTimerEvent> = _restTimerEvents.asSharedFlow()
@@ -59,6 +57,8 @@ class ActiveWorkoutViewModel @Inject constructor(
     fun startWorkout(day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String?) {
         viewModelScope.launch {
             try {
+                equipmentCache = repository.getEquipmentStream().first()
+                
                 val exerciseStates = day.exercises.mapIndexed { index, exercise ->
                     val history = repository.getHistoryForExercise(exercise.id).first()
                     val lastSets = if (history.isNotEmpty()) {
@@ -95,6 +95,12 @@ class ActiveWorkoutViewModel @Inject constructor(
         }
     }
 
+    private fun resolveWeightStep(exercise: Exercise): Double {
+        if (exercise.isBodyweight) return 1.0
+        val equipment = equipmentCache.find { it.id == exercise.equipmentId }
+        return equipment?.weightStep ?: 1.0
+    }
+
     private fun buildExerciseUiState(
         exercise: Exercise,
         lastSets: List<Pair<Double, Int>>
@@ -113,7 +119,8 @@ class ActiveWorkoutViewModel @Inject constructor(
             exerciseId = exercise.id,
             name = exercise.name,
             sets = sets,
-            lastSets = lastSets
+            lastSets = lastSets,
+            weightStep = resolveWeightStep(exercise)
         )
     }
 
@@ -356,8 +363,13 @@ class ActiveWorkoutViewModel @Inject constructor(
     }
 
     fun addExercise(exercise: Exercise) {
-        _uiState.update { state ->
-            state.copy(exercises = state.exercises + buildExerciseUiState(exercise, emptyList()))
+        viewModelScope.launch {
+            if (equipmentCache.isEmpty()) {
+                equipmentCache = repository.getEquipmentStream().first()
+            }
+            _uiState.update { state ->
+                state.copy(exercises = state.exercises + buildExerciseUiState(exercise, emptyList()))
+            }
         }
     }
 
@@ -412,17 +424,17 @@ class ActiveWorkoutViewModel @Inject constructor(
     }
 
     fun incrementWeight(exerciseIndex: Int, setIndex: Int) {
-        val current = _uiState.value.exercises
-            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
-            ?.weight?.toDoubleOrNull() ?: 0.0
-        setWeightValue(exerciseIndex, setIndex, formatWeight(current + WEIGHT_STEP))
+        val exercise = _uiState.value.exercises.getOrNull(exerciseIndex) ?: return
+        val set = exercise.sets.getOrNull(setIndex) ?: return
+        val current = set.weight.toDoubleOrNull() ?: 0.0
+        setWeightValue(exerciseIndex, setIndex, formatWeight(current + exercise.weightStep))
     }
 
     fun decrementWeight(exerciseIndex: Int, setIndex: Int) {
-        val current = _uiState.value.exercises
-            .getOrNull(exerciseIndex)?.sets?.getOrNull(setIndex)
-            ?.weight?.toDoubleOrNull() ?: 0.0
-        if (current >= WEIGHT_STEP) setWeightValue(exerciseIndex, setIndex, formatWeight(current - WEIGHT_STEP))
+        val exercise = _uiState.value.exercises.getOrNull(exerciseIndex) ?: return
+        val set = exercise.sets.getOrNull(setIndex) ?: return
+        val current = set.weight.toDoubleOrNull() ?: 0.0
+        if (current >= exercise.weightStep) setWeightValue(exerciseIndex, setIndex, formatWeight(current - exercise.weightStep))
     }
 
     fun completeCurrentSet() {

@@ -48,7 +48,8 @@ data class ExerciseUiState(
     val name: String,
     val sets: List<SetUiState>,
     val isExpanded: Boolean = true,
-    val lastSets: List<Pair<Double, Int>> = emptyList()
+    val lastSets: List<Pair<Double, Int>> = emptyList(),
+    val weightStep: Double = 2.5
 )
 
 data class SetUiState(
