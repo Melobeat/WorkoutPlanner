@@ -6,9 +6,9 @@ Single-module Android app (`de.melobeat.workoutplanner`). Kotlin + Jetpack Compo
 
 | Item | Version |
 |---|---|
-| AGP | 9.1.0 |
+| AGP | 9.1.1 |
 | Kotlin | 2.3.20 |
-| KSP | 2.2.20-2.0.3 |
+| KSP | 2.3.2 |
 | Navigation Compose | 2.9.7 |
 | Gradle wrapper | 9.4.1 |
 | JVM toolchain | 21 (via Foojay resolver in `settings.gradle.kts`; source/target compat: 11) |
@@ -82,7 +82,7 @@ app/src/main/assets/           equipment.json, exercises.json (DB seed — loade
 docs/design-guidelines.md      Authoritative UI spec — **read before any UI change**. Supersedes older spec files in `docs/superpowers/specs/`.
 ```
 
-**ViewModels in `ui/`:** `ActiveWorkoutViewModel`, `RoutinesViewModel`, `HomeViewModel`, `HistoryViewModel`, `ExerciseLibraryViewModel`.
+**ViewModels in `ui/`:** `ActiveWorkoutViewModel`, `RoutinesViewModel`, `HomeViewModel`, `HistoryViewModel`, `ExerciseLibraryViewModel`, `UserProfileViewModel`, `TimerSettingsViewModel`.
 
 ## Critical Hilt / ViewModel Scoping
 
@@ -96,7 +96,7 @@ Every other `@HiltViewModel` inside `NavHost` destinations uses `hiltViewModel()
 
 ## Room — No Migrations
 
-- DB version: **7**; entities: `ExerciseEntity`, `RoutineEntity`, `WorkoutDayEntity`, `WorkoutDayExerciseEntity`, `WorkoutHistoryEntity`, `ExerciseHistoryEntity`, `EquipmentEntity`.
+- DB version: **8**; entities: `ExerciseEntity`, `RoutineEntity`, `WorkoutDayEntity`, `WorkoutDayExerciseEntity`, `WorkoutHistoryEntity`, `ExerciseHistoryEntity`, `EquipmentEntity`.
 - `fallbackToDestructiveMigrationFrom(1,2,3,4,5,6,7)` — schema changes **destroy all data**. No migration objects exist.
 - `exportSchema = false` — no schema export files.
 - When adding an entity/column: bump version integer + update `@Database` entities list.
@@ -116,6 +116,7 @@ Routes are `@Serializable` objects/data classes in `NavRoutes.kt`, not string co
 - `RoutineDetailRoute(routineId: String)` — required arg, no default
 - `CreateRoutineRoute(routineId: String? = null)` — `null` = create new, non-null = edit existing
 - `ExercisesRoute`, `EquipmentRoute`
+- `ProfileRoute`
 
 Navigate to `SettingsGraphRoute` (not `SettingsRoute`) — Navigation Compose resolves the start destination automatically.
 
@@ -229,21 +230,26 @@ M3 Expressive components require `@OptIn(ExperimentalMaterial3ExpressiveApi::cla
 - All cards: `surfaceVariant` container color. Never custom background.
 - Colors: `MaterialTheme.colorScheme.*` only. Raw hex only in gradients and translucent overlays. Use named gradient constants from `Color.kt`.
 - Icons: `Icons.Rounded.*` from `material-icons-extended`. `Icons.Default.*` and `Icons.Outlined.*` are banned. Exception: `Icons.AutoMirrored.*` keeps its family (e.g., `Icons.AutoMirrored.Outlined.ListAlt`).
-- `LargeTopAppBar` always pairs with `exitUntilCollapsedScrollBehavior` + `nestedScroll`. Screens using it: History, Settings, TimerSettings, Routines, RoutineDetail, CreateRoutine, Exercises, Equipment.
+- `LargeTopAppBar` always pairs with `exitUntilCollapsedScrollBehavior` + `nestedScroll`. Screens using it: History, Settings, TimerSettings, Routines, RoutineDetail, Exercises, Equipment, Profile. **`CreateRoutineScreen` uses plain `TopAppBar` + `enterAlwaysScrollBehavior` instead.**
 - No custom font (M3 defaults / Roboto only).
 - Home screen has **no TopAppBar** — gradient hero replaces it.
 - Acid green (`#C8FF00`) is launcher icon only; never in-app.
 - Settings screen theme selector uses `SingleChoiceSegmentedButtonRow` + `SegmentedButton` (not `FilterChip`s).
 - Progress bar track in `WorkoutScreen`: uses `surfaceVariant` (not `outlineVariant` — `outlineVariant` is near-transparent at 5% and would be invisible as a track).
 
+## Workflow Skills
+
+Use the `test-driven-development` skill when implementing features or bug fixes, unless already operating inside a TDD workflow.
+
 ## Test Patterns
 
-5 unit test files (all JVM, no instrumented tests — `androidTest/` directory does not exist):
+6 unit test files (all JVM, no instrumented tests — `androidTest/` directory does not exist):
 
 - `ActiveWorkoutViewModelTest` — full ViewModel coverage with `UnconfinedTestDispatcher`
 - `RoutinesViewModelTest` — ViewModel with mocked repository
 - `RestTimerPreferencesRepositoryTest` — real DataStore + JUnit `TemporaryFolder`
-- `ExerciseFilterTest` — pure function test, no dispatcher setup
+- `UserProfileRepositoryTest` — real DataStore + JUnit `TemporaryFolder`
+- `ExerciseFilterTest` — pure function test, no dispatcher setup (root package, not `ui/` or `data/`)
 - `FormatElapsedTimeTest` — pure function test, no dispatcher setup
 
 Patterns:
@@ -254,6 +260,70 @@ Patterns:
 
 **No custom Hilt test runner is configured.** `testInstrumentationRunner` is the plain `AndroidJUnitRunner`. Any future instrumented Hilt tests will need `HiltTestRunner` added to `build.gradle.kts`.
 
-## @IoDispatcher
+## @IoDispatcher and DataStore Qualifiers
 
-Custom `@Qualifier` in `DatabaseModule.kt` injecting `Dispatchers.IO`. Any new repository using it must be provided in the Hilt module.
+`DatabaseModule.kt` defines:
+- `@IoDispatcher` — injects `Dispatchers.IO`. Any new repository using it must be provided in the module.
+- `@RestTimerDataStore` — DataStore instance for `rest_timer_prefs` (used by `RestTimerPreferencesRepository`).
+- `@UserProfileDataStore` — DataStore instance for `user_profile_prefs` (used by `UserProfileRepository`).
+
+Every DataStore instance **must** have its own `@Qualifier` to avoid Hilt injection ambiguity. When adding a third DataStore, add a new qualifier and provide it in `DatabaseModule`.
+
+## Localization
+
+All user-visible strings live in Android resource files. **Never hardcode display text in Kotlin/Compose source.**
+
+### Resource files
+
+- `app/src/main/res/values/strings.xml` — English (default)
+- `app/src/main/res/values-de/strings.xml` — German
+
+### Key naming conventions
+
+Keys follow a `<screen>_<element>` pattern:
+
+| Prefix | Scope |
+|---|---|
+| `app_*` | App-level (app name, generic labels) |
+| `action_*` | Generic actions shared across screens (`action_cancel`, `action_save`, `action_back_cd`) |
+| `label_*` | Short standalone labels (`label_amrap`, `label_kg`) |
+| `nav_*` | Bottom nav / navigation bar labels |
+| `home_*` | HomeScreen |
+| `workout_*` | WorkoutScreen, ExerciseCard, WorkoutSummaryScreen |
+| `history_*` | HistoryScreen |
+| `settings_*` | SettingsScreen, TimerSettingsScreen |
+| `profile_*` | ProfileScreen |
+| `exercises_*` | ExercisesScreen |
+| `equipment_*` | EquipmentScreen |
+| `routines_*` | RoutinesScreen, RoutineDetailScreen |
+| `routine_create_*` | CreateRoutineScreen, RoutineDayCard, RoutineExerciseEditItem |
+| `rest_timer_*` | RestTimerBanner |
+| `exercise_dialog_*` | ExerciseSelectionDialog |
+
+### Usage in composables
+
+```kotlin
+import androidx.compose.ui.res.stringResource
+import de.melobeat.workoutplanner.R
+
+Text(text = stringResource(R.string.some_key))
+Text(text = stringResource(R.string.some_key_with_arg, argValue))
+```
+
+### Special cases — do not change without reading this
+
+**HistoryScreen — `getDateGroupLabel()`**: This function returns English strings (`"Today"`, `"Yesterday"`, `"This Week"`, etc.) that are used as **sort keys** for grouping. Do **not** localize inside `getDateGroupLabel()`. Translate only at the display site using a `when(groupLabel)` mapping to `stringResource(...)`. The English string acts as a stable internal identifier.
+
+**RestTimerBanner**: The `when` expression inside the composable checks `restTimerContext` type and selects a label. Pre-resolve the three localized strings at the top of the composable into local `val` variables, then use those variables inside the `when`:
+```kotlin
+val betweenSetsLabel = stringResource(R.string.rest_timer_between_sets)
+val betweenExercisesLabel = stringResource(R.string.rest_timer_between_exercises)
+// ... then use in when expression
+```
+This is required because `stringResource` cannot be called inside a non-composable lambda or `when` branch that is not itself inline composable.
+
+**`WorkoutStepperCard`**: The `label` parameter is passed in from call sites — no changes needed inside the component itself. Localize at the call site.
+
+**`ExerciseSelectionDialog`**: Only the `placeholder` text (search field hint) needed localization. The `title` parameter is provided by call sites.
+
+**`repsSummary` in `RoutineDetailScreen`'s `WorkoutDayItem`**: This is a data-derived string built from set counts and rep ranges. It is deliberately constructed as Kotlin code (not a string resource) because its structure is dynamic. Leave as-is.
