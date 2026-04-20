@@ -35,23 +35,22 @@ Git hooks are active (stored in `.git/hooks/`, not committed):
 - **commit-msg**: enforces Conventional Commits format (`feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert`)
 - **pre-push**: runs `:app:testDebugUnitTest` before every push; bypass with `SKIP_TESTS=1 git push` (emergency only)
 
-## Git Workflow (GitHub Flow)
+## Git Workflow (Git Flow)
 
-- Default branch: **`main`** (remote: `origin/master` until renamed on GitHub — see below)
-- `main` is always in a working state
-- Feature work: create a short-lived branch off `main`, open a PR, merge when green
-- Branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`
+- **`main`** — production-ready code only. Tagged releases.
+- **`develop`** — integration branch for the next release. Feature branches merge here.
+- Feature branches: `feat/<slug>` off `develop`, merge back to `develop`
+- Release branches: `release/<version>` off `develop` for stabilization, merge to `main` + `develop`
+- Hotfix branches: `hotfix/<slug>` off `main` for urgent fixes, merge to `main` + `develop`
+- Branch naming: `feat/<slug>`, `fix/<slug>`, `release/<version>`, `hotfix/<slug>`
 - Commit style: Conventional Commits — `feat(scope): description` (≤72 chars subject)
-- Never commit directly to `main` for non-trivial changes
+- Never commit directly to `main` or `develop`
 
-**Rename remote branch on GitHub (one-time):**
+**Initial setup:**
 ```bash
-# After pushing main to remote:
-git push origin main
-# Then on GitHub → Settings → Branches → rename default branch to main
-# Then update local tracking:
-git branch -u origin/main main
-git remote set-head origin -a
+# develop branch already created locally
+git push origin develop
+git branch --set-upstream-to=origin/develop develop
 ```
 
 Gradle has `org.gradle.configuration-cache=true` and `org.gradle.caching=true` active. After schema changes that require `clean`, run `./gradlew clean` normally — the configuration cache is compatible.
