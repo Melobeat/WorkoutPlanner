@@ -36,6 +36,7 @@ fun WorkoutNavGraph(
         composable<HomeRoute> {
             HomeScreen(
                 onNavigateToSettings = { navController.navigate(SettingsGraphRoute) },
+                onNavigateToRoutines = { navController.navigate(RoutinesRoute) },
                 onStartWorkout = { navController.navigate(ActiveWorkoutRoute) }
             )
         }

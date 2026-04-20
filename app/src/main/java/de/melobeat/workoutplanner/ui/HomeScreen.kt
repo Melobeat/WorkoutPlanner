@@ -73,6 +73,7 @@ import de.melobeat.workoutplanner.R
 @Composable
 fun HomeScreen(
     onNavigateToSettings: () -> Unit,
+    onNavigateToRoutines: () -> Unit,
     onStartWorkout: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -84,6 +85,7 @@ fun HomeScreen(
     HomeScreenContent(
         uiState = uiState,
         onNavigateToSettings = onNavigateToSettings,
+        onNavigateToRoutines = onNavigateToRoutines,
         onStartWorkout = { day, dayIndex, routineName, routineId ->
             activeWorkoutViewModel.startWorkout(
                 day = day,
@@ -105,6 +107,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     uiState: HomeUiState,
     onNavigateToSettings: () -> Unit,
+    onNavigateToRoutines: () -> Unit,
     onStartWorkout: (day: WorkoutDay, dayIndex: Int, routineName: String, routineId: String) -> Unit,
     onUpdateNextDay: (routineId: String, lastCompletedIndex: Int) -> Unit,
     modifier: Modifier = Modifier
@@ -275,7 +278,7 @@ fun HomeScreenContent(
                         )
                         Spacer(Modifier.height(16.dp))
                         Button(
-                            onClick = onNavigateToSettings,
+                            onClick = onNavigateToRoutines,
                             modifier = Modifier
                                 .background(
                                     brush = Brush.linearGradient(listOf(GradientCtaStart, GradientCtaEnd)),
@@ -426,6 +429,7 @@ fun HomeScreenContentPreview() {
                 isLoading = false
             ),
             onNavigateToSettings = {},
+            onNavigateToRoutines = {},
             onStartWorkout = { _, _, _, _ -> },
             onUpdateNextDay = { _, _ -> }
         )
