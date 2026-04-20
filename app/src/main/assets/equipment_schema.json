@@ -6,7 +6,9 @@
     "type": "object",
     "properties": {
       "id": { "type": "string" },
-      "name": { "type": "string" }
+      "name": { "type": "string" },
+      "defaultWeight": { "type": "number" },
+      "weightStep": { "type": "number" }
     },
     "required": ["id", "name"]
   }

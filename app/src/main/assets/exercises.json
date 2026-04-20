@@ -1,80 +1,15 @@
 [
-  {
-    "name": "Bench Press",
-    "muscleGroup": "Chest",
-    "description": "Lay on bench and press barbell up",
-    "equipmentId": "equip_barbell"
-  },
-  {
-    "name": "Incline Dumbbell Press",
-    "muscleGroup": "Chest",
-    "description": "Press dumbbells on an inclined bench",
-    "equipmentId": "equip_dumbbell"
-  },
-  {
-    "name": "Push Ups",
-    "muscleGroup": "Chest",
-    "description": "Standard floor push ups",
-    "equipmentId": "equip_none"
-  },
-  {
-    "name": "Deadlift",
-    "muscleGroup": "Back",
-    "description": "Lift barbell from floor to hip height",
-    "equipmentId": "equip_barbell"
-  },
-  {
-    "name": "Pull Ups",
-    "muscleGroup": "Back",
-    "description": "Pull yourself up on a bar",
-    "equipmentId": "equip_pullup_bar"
-  },
-  {
-    "name": "Bent Over Row",
-    "muscleGroup": "Back",
-    "description": "Hinge forward and pull barbell to stomach",
-    "equipmentId": "equip_barbell"
-  },
-  {
-    "name": "Back Squat",
-    "muscleGroup": "Legs",
-    "description": "Barbell on shoulders, squat down",
-    "equipmentId": "equip_barbell"
-  },
-  {
-    "name": "Goblet Squat",
-    "muscleGroup": "Legs",
-    "description": "Hold kettlebell at chest and squat",
-    "equipmentId": "equip_kettlebell"
-  },
-  {
-    "name": "Lunges",
-    "muscleGroup": "Legs",
-    "description": "Step forward and lower hips",
-    "equipmentId": "equip_none"
-  },
-  {
-    "name": "Overhead Press",
-    "muscleGroup": "Shoulders",
-    "description": "Press barbell from chest to over head",
-    "equipmentId": "equip_barbell"
-  },
-  {
-    "name": "Lateral Raises",
-    "muscleGroup": "Shoulders",
-    "description": "Lift dumbbells out to the sides",
-    "equipmentId": "equip_dumbbell"
-  },
-  {
-    "name": "Bicep Curls",
-    "muscleGroup": "Arms",
-    "description": "Curl dumbbells towards shoulders",
-    "equipmentId": "equip_dumbbell"
-  },
-  {
-    "name": "Tricep Dips",
-    "muscleGroup": "Arms",
-    "description": "Lower and raise body using bench or bars",
-    "equipmentId": "equip_bench"
-  }
+  {"name": "Bench Press", "muscleGroup": "Chest", "description": "Lay on bench and press barbell up", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Incline Bench Press", "muscleGroup": "Chest", "description": "Press barbell on incline bench", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Overhead Press", "muscleGroup": "Shoulders", "description": "Press barbell overhead while standing", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Barbell Row", "muscleGroup": "Back", "description": "Bend over and row barbell to chest", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Pull Up", "muscleGroup": "Back", "description": "Pull body up to bar", "equipmentId": "equip_pullup_bar", "sideType": "Bilateral"},
+  {"name": "Dip", "muscleGroup": "Chest", "description": "Lower and raise body on parallel bars", "equipmentId": "equip_dip_station", "sideType": "Bilateral"},
+  {"name": "Squat", "muscleGroup": "Legs", "description": "Squat with barbell on back", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Deadlift", "muscleGroup": "Back", "description": "Lift barbell from ground to standing", "equipmentId": "equip_barbell", "sideType": "Bilateral"},
+  {"name": "Lateral Raise", "muscleGroup": "Shoulders", "description": "Raise dumbbells to the side", "equipmentId": "equip_dumbbell", "sideType": "Unilateral"},
+  {"name": "Bicep Curl", "muscleGroup": "Arms", "description": "Curl dumbbell to shoulder", "equipmentId": "equip_dumbbell", "sideType": "Unilateral"},
+  {"name": "Tricep Extension", "muscleGroup": "Arms", "description": "Extend dumbbell overhead", "equipmentId": "equip_dumbbell", "sideType": "Unilateral"},
+  {"name": "Leg Press", "muscleGroup": "Legs", "description": "Press weight with legs on machine", "equipmentId": "equip_leg_press", "sideType": "Bilateral"},
+  {"name": "Calf Raise", "muscleGroup": "Legs", "description": "Raise up on toes", "equipmentId": "equip_calf_raise_machine", "sideType": "Bilateral"}
 ]

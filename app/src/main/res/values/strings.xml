@@ -1,3 +1,214 @@
 <resources>
     <string name="app_name">Workout Planner</string>
+
+    <!-- Shared / common -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_add">Add</string>
+    <string name="action_back_cd">Back</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_reps">Reps</string>
+    <string name="unit_seconds_suffix">s</string>
+    <string name="label_amrap">AMRAP</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+
+    <!-- Mini-bar (MainActivity) -->
+    <string name="minibar_resume">Resume</string>
+
+    <!-- HomeScreen -->
+    <string name="home_app_title">Workout Planner</string>
+    <string name="home_settings_cd">Settings</string>
+    <string name="home_routine_label">%1$s · DAY %2$d OF %3$d</string>
+    <string name="home_exercises_count">%1$d exercises</string>
+    <string name="home_more_exercises">+%1$d more</string>
+    <string name="home_start_workout">▶ Start Workout</string>
+    <string name="home_swap_day_cd">Swap Day</string>
+    <string name="home_no_active_routine">No Active Routine</string>
+    <string name="home_no_routine_hint">Select a routine to start tracking your progress.</string>
+    <string name="home_manage_routines">Manage Routines</string>
+    <string name="home_recent_workouts">RECENT WORKOUTS</string>
+    <string name="home_choose_next_workout">Choose Next Workout</string>
+    <string name="home_day_item_label">Day %1$d: %2$s</string>
+
+    <!-- WorkoutScreen -->
+    <string name="workout_minimize_cd">Minimize</string>
+    <string name="workout_add_exercise">Exercise</string>
+    <string name="workout_more_options_cd">More options</string>
+    <string name="workout_menu_finish">Finish Workout</string>
+    <string name="workout_menu_cancel">Cancel Workout</string>
+    <string name="workout_exercise_counter">EXERCISE %1$d OF %2$d</string>
+    <string name="workout_no_exercises">No exercises in this workout.</string>
+    <string name="workout_dialog_add_exercise_title">Add Exercise</string>
+    <string name="workout_dialog_swap_exercise_title">Swap Exercise</string>
+    <string name="workout_cancel_dialog_title">Cancel Workout?</string>
+    <string name="workout_cancel_dialog_body">All progress in this session will be lost.</string>
+    <string name="workout_keep_going">Keep Going</string>
+
+    <!-- ExerciseCard -->
+    <string name="workout_set_active_label">SET %1$d — ACTIVE</string>
+    <string name="workout_set_label">Set %1$d</string>
+    <string name="workout_set_reps_weight">%1$s × %2$s kg</string>
+    <string name="workout_set_reps_weight_unilateral">%1$s / %2$s kg</string>
+    <string name="workout_done_cd">Done</string>
+    <string name="workout_cta_finish">✓  Finish Workout</string>
+    <string name="workout_cta_next_exercise">✓  Next Exercise</string>
+    <string name="workout_cta_done_set">✓  Done — Set %1$d</string>
+    <string name="workout_back_button">← Back</string>
+    <string name="workout_skip_exercise">Skip Exercise →</string>
+    <string name="workout_up_next">UP NEXT</string>
+    <string name="workout_sets_done">%1$d sets done</string>
+    <string name="workout_set_done_incomplete">Set %1$d done · Set %2$d incomplete</string>
+    <string name="workout_sets_summary">%1$d sets · %2$s reps · %3$s kg</string>
+    <string name="workout_completed_cd">Completed</string>
+    <string name="workout_collapse_cd">Collapse</string>
+    <string name="workout_expand_cd">Expand</string>
+    <string name="workout_swap_exercise_cd">Swap exercise</string>
+    <string name="workout_swap_button">Swap</string>
+    <string name="workout_tap_to_jump">Tap any set to jump to it</string>
+
+    <!-- WorkoutSummaryScreen -->
+    <string name="summary_back_to_workout_cd">Back to workout</string>
+    <string name="summary_total_volume">Total Volume</string>
+    <string name="summary_total_volume_kg">%1$d kg</string>
+    <string name="summary_set_label">Set %1$d</string>
+    <string name="summary_skipped">Skipped</string>
+    <string name="summary_reps_weight">%1$s reps × %2$s kg</string>
+    <string name="summary_save_exit">Save &amp; Exit</string>
+    <string name="summary_resume">Resume Workout</string>
+
+    <!-- HistoryScreen -->
+    <string name="history_title">History</string>
+    <string name="history_empty_title">No workouts yet</string>
+    <string name="history_empty_body">Complete a workout to see it here.</string>
+    <string name="history_this_week">This Week</string>
+    <string name="history_last_week">Last Week</string>
+    <string name="history_more_exercises">+%1$d more exercises</string>
+    <string name="history_set_reps_label">Set %1$d: %2$d%3$s reps</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back_cd">Back</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_follow_system">Follow system</string>
+    <string name="settings_timer_title">Timer Settings</string>
+    <string name="settings_timer_subtitle">Rest timer durations between sets and exercises</string>
+    <string name="settings_profile_title">My Profile</string>
+    <string name="settings_profile_subtitle">Age, height and body weight</string>
+    <string name="settings_exercises_title">Manage Exercises</string>
+    <string name="settings_exercises_subtitle">Add, edit or delete exercises</string>
+    <string name="settings_equipment_title">Manage Equipment</string>
+    <string name="settings_equipment_subtitle">Dumbbells, barbells, machines, etc.</string>
+    <string name="settings_routines_title">Manage Routines</string>
+    <string name="settings_routines_subtitle">Create and organize your workout routines</string>
+
+    <!-- TimerSettingsScreen -->
+    <string name="timer_settings_title">Timer Settings</string>
+    <string name="timer_back_cd">Back</string>
+    <string name="timer_easy_set_rest">Easy set rest</string>
+    <string name="timer_easy_set_rest_subtitle">Notify when it\'s time for the next easy set</string>
+    <string name="timer_hard_set_rest">Hard set rest</string>
+    <string name="timer_hard_set_rest_subtitle">Notify when it\'s time for the next hard set</string>
+    <string name="timer_between_exercises">Between exercises</string>
+    <string name="timer_between_exercises_subtitle">Notify when it\'s time for the next exercise</string>
+    <string name="timer_dialog_enter_duration">Enter duration in seconds:</string>
+    <string name="timer_dialog_ok">OK</string>
+
+    <!-- ProfileScreen -->
+    <string name="profile_title">My Profile</string>
+    <string name="profile_back_cd">Back</string>
+    <string name="profile_personal_details">Personal Details</string>
+    <string name="profile_age_label">Age (years)</string>
+    <string name="profile_height_label">Height (cm)</string>
+    <string name="profile_body_weight_label">Body weight (kg)</string>
+    <string name="profile_save">Save Profile</string>
+
+    <!-- ExercisesScreen -->
+    <string name="exercises_title">Exercise Library</string>
+    <string name="exercises_back_cd">Back</string>
+    <string name="exercises_add_fab">Add Exercise</string>
+    <string name="exercises_delete_cd">Delete Exercise</string>
+    <string name="exercises_delete_dialog_title">Delete Exercise</string>
+    <string name="exercises_delete_dialog_body">Are you sure you want to delete \'%1$s\'? This may affect existing routines.</string>
+    <string name="exercises_add_dialog_title">Add New Exercise</string>
+    <string name="exercises_edit_dialog_title">Edit Exercise</string>
+    <string name="exercises_name_label">Exercise Name</string>
+    <string name="exercises_muscle_label">Muscle Group</string>
+    <string name="exercises_description_label">Description</string>
+    <string name="exercises_bodyweight_label">Bodyweight exercise</string>
+    <string name="exercises_equipment_label">Equipment</string>
+    <string name="exercises_no_equipment">No Equipment</string>
+    <string name="exercises_search_placeholder">Search…</string>
+
+    <!-- EquipmentScreen -->
+    <string name="equipment_title">Manage Equipment</string>
+    <string name="equipment_back_cd">Back</string>
+    <string name="equipment_add_fab">Add Equipment</string>
+    <string name="equipment_delete_cd">Delete Equipment</string>
+    <string name="equipment_bar_weight">Bar weight: %1$s kg</string>
+    <string name="equipment_delete_dialog_title">Delete Equipment</string>
+    <string name="equipment_delete_dialog_body">Are you sure you want to delete \'%1$s\'?</string>
+    <string name="equipment_add_dialog_title">Add Equipment</string>
+    <string name="equipment_edit_dialog_title">Edit Equipment</string>
+    <string name="equipment_name_label">Equipment Name</string>
+    <string name="equipment_bar_weight_label">Bar weight (kg, optional)</string>
+    <string name="equipment_weight_step">Step: %1$s kg</string>
+    <string name="equipment_weight_step_label">Weight step (kg)</string>
+
+    <!-- RoutinesScreen -->
+    <string name="routines_title">Routines</string>
+    <string name="routines_back_cd">Back</string>
+    <string name="routines_new_fab">New Routine</string>
+    <string name="routines_days_count">%1$d days</string>
+    <string name="routines_set_active_cd">Set Active</string>
+    <string name="routines_active_cd">Active</string>
+    <string name="routines_delete_cd">Delete</string>
+    <string name="routines_delete_dialog_title">Delete Routine?</string>
+    <string name="routines_delete_dialog_body">"%1$s" will be permanently deleted.</string>
+
+    <!-- RoutineDetailScreen -->
+    <string name="routines_edit_cd">Edit Routine</string>
+
+    <!-- CreateRoutineScreen / RoutineDayCard / RoutineExerciseEditItem -->
+    <string name="create_routine_title_new">New Routine</string>
+    <string name="create_routine_title_edit">Edit Routine</string>
+    <string name="create_routine_save">Save</string>
+    <string name="create_routine_name_label">Routine Name</string>
+    <string name="create_routine_description_label">Description</string>
+    <string name="create_routine_add_day">Add Day</string>
+    <string name="create_routine_day_name_label">Day Name</string>
+    <string name="create_routine_move_day_up_cd">Move Day Up</string>
+    <string name="create_routine_move_day_down_cd">Move Day Down</string>
+    <string name="create_routine_remove_day_cd">Remove Day</string>
+    <string name="create_routine_add_exercise">Add Exercise</string>
+    <string name="create_routine_move_exercise_up_cd">Move Exercise Up</string>
+    <string name="create_routine_move_exercise_down_cd">Move Exercise Down</string>
+    <string name="create_routine_remove_exercise_cd">Remove Exercise</string>
+    <string name="create_routine_reps_label">Reps</string>
+    <string name="create_routine_weight_label">Weight</string>
+    <string name="create_routine_add_set">Add Set</string>
+    <string name="create_routine_remove_set_cd">Remove Set</string>
+    <string name="create_routine_select_exercise">Select Exercise</string>
+    <string name="create_routine_back_cd">Back</string>
+
+    <!-- RestTimerBanner -->
+    <string name="rest_timer_label">REST</string>
+    <string name="rest_timer_easy_milestone">EASY? TIME TO GO</string>
+    <string name="rest_timer_hard_milestone">HARD? TIME TO GO</string>
+    <string name="rest_timer_exercise_milestone">READY FOR NEXT EXERCISE?</string>
+
+    <!-- Unilateral / Bilateral -->
+    <string name="label_bilateral">Bilateral</string>
+    <string name="label_unilateral">Unilateral</string>
+    <string name="label_left">L</string>
+    <string name="label_right">R</string>
+    <string name="workout_side_override">Side type</string>
+    <string name="workout_left_reps">Left reps</string>
+    <string name="workout_right_reps">Right reps</string>
 </resources>

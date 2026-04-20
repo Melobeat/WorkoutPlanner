@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Routines List",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "description": { "type": "string" },
+      "days": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "exercises": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "exerciseName": { "type": "string" },
+                  "sets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "reps": { "type": "integer" },
+                        "weight": { "type": "number" },
+                        "isAmrap": { "type": "boolean" },
+                        "sideType": { "type": "string" },
+                        "leftReps": { "type": ["integer", "null"] },
+                        "rightReps": { "type": ["integer", "null"] }
+                      },
+                      "required": ["reps", "weight"]
+                    }
+                  },
+                  "sideType": { "type": ["string", "null"] }
+                },
+                "required": ["exerciseName", "sets"]
+              }
+            }
+          },
+          "required": ["name", "exercises"]
+        }
+      }
+    },
+    "required": ["name", "description", "days"]
+  }
+}

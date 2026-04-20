@@ -1,3 +1,5 @@
+.superpowers/
+.screenshots/
 *.iml
 .gradle
 /local.properties
@@ -7,9 +9,11 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deviceManager.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+.worktrees/

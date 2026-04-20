@@ -1,0 +1,214 @@
+<resources>
+    <string name="app_name">Workout Planner</string>
+
+    <!-- Shared / common -->
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_add">Hinzufügen</string>
+    <string name="action_back_cd">Zurück</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_reps">Wdh.</string>
+    <string name="unit_seconds_suffix">s</string>
+    <string name="label_amrap">AMRAP</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">Verlauf</string>
+
+    <!-- Mini-bar (MainActivity) -->
+    <string name="minibar_resume">Weiter</string>
+
+    <!-- HomeScreen -->
+    <string name="home_app_title">Workout Planner</string>
+    <string name="home_settings_cd">Einstellungen</string>
+    <string name="home_routine_label">%1$s · TAG %2$d VON %3$d</string>
+    <string name="home_exercises_count">%1$d Übungen</string>
+    <string name="home_more_exercises">+%1$d weitere</string>
+    <string name="home_start_workout">▶ Workout starten</string>
+    <string name="home_swap_day_cd">Tag wechseln</string>
+    <string name="home_no_active_routine">Kein aktives Programm</string>
+    <string name="home_no_routine_hint">Wähle ein Programm, um deinen Fortschritt zu verfolgen.</string>
+    <string name="home_manage_routines">Programme verwalten</string>
+    <string name="home_recent_workouts">LETZTE WORKOUTS</string>
+    <string name="home_choose_next_workout">Nächstes Workout wählen</string>
+    <string name="home_day_item_label">Tag %1$d: %2$s</string>
+
+    <!-- WorkoutScreen -->
+    <string name="workout_minimize_cd">Minimieren</string>
+    <string name="workout_add_exercise">Übung</string>
+    <string name="workout_more_options_cd">Weitere Optionen</string>
+    <string name="workout_menu_finish">Workout beenden</string>
+    <string name="workout_menu_cancel">Workout abbrechen</string>
+    <string name="workout_exercise_counter">ÜBUNG %1$d VON %2$d</string>
+    <string name="workout_no_exercises">Keine Übungen in diesem Workout.</string>
+    <string name="workout_dialog_add_exercise_title">Übung hinzufügen</string>
+    <string name="workout_dialog_swap_exercise_title">Übung tauschen</string>
+    <string name="workout_cancel_dialog_title">Workout abbrechen?</string>
+    <string name="workout_cancel_dialog_body">Alle Fortschritte dieser Einheit gehen verloren.</string>
+    <string name="workout_keep_going">Weiter machen</string>
+
+    <!-- ExerciseCard -->
+    <string name="workout_set_active_label">SATZ %1$d — AKTIV</string>
+    <string name="workout_set_label">Satz %1$d</string>
+    <string name="workout_set_reps_weight">%1$s × %2$s kg</string>
+    <string name="workout_set_reps_weight_unilateral">%1$s / %2$s kg</string>
+    <string name="workout_done_cd">Erledigt</string>
+    <string name="workout_cta_finish">✓  Workout beenden</string>
+    <string name="workout_cta_next_exercise">✓  Nächste Übung</string>
+    <string name="workout_cta_done_set">✓  Fertig — Satz %1$d</string>
+    <string name="workout_back_button">← Zurück</string>
+    <string name="workout_skip_exercise">Übung überspringen →</string>
+    <string name="workout_up_next">ALS NÄCHSTES</string>
+    <string name="workout_sets_done">%1$d Sätze erledigt</string>
+    <string name="workout_set_done_incomplete">Satz %1$d erledigt · Satz %2$d unvollständig</string>
+    <string name="workout_sets_summary">%1$d Sätze · %2$s Wdh. · %3$s kg</string>
+    <string name="workout_completed_cd">Abgeschlossen</string>
+    <string name="workout_collapse_cd">Einklappen</string>
+    <string name="workout_expand_cd">Ausklappen</string>
+    <string name="workout_swap_exercise_cd">Übung tauschen</string>
+    <string name="workout_swap_button">Tauschen</string>
+    <string name="workout_tap_to_jump">Tippe auf einen Satz, um zu springen</string>
+
+    <!-- WorkoutSummaryScreen -->
+    <string name="summary_back_to_workout_cd">Zurück zum Workout</string>
+    <string name="summary_total_volume">Gesamtvolumen</string>
+    <string name="summary_total_volume_kg">%1$d kg</string>
+    <string name="summary_set_label">Satz %1$d</string>
+    <string name="summary_skipped">Übersprungen</string>
+    <string name="summary_reps_weight">%1$s Wdh. × %2$s kg</string>
+    <string name="summary_save_exit">Speichern &amp; Beenden</string>
+    <string name="summary_resume">Workout fortsetzen</string>
+
+    <!-- HistoryScreen -->
+    <string name="history_title">Verlauf</string>
+    <string name="history_empty_title">Noch keine Workouts</string>
+    <string name="history_empty_body">Schließe ein Workout ab, um es hier zu sehen.</string>
+    <string name="history_this_week">Diese Woche</string>
+    <string name="history_last_week">Letzte Woche</string>
+    <string name="history_more_exercises">+%1$d weitere Übungen</string>
+    <string name="history_set_reps_label">Satz %1$d: %2$d%3$s Wdh.</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_back_cd">Zurück</string>
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_theme_light">Hell</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_follow_system">System folgen</string>
+    <string name="settings_timer_title">Timer-Einstellungen</string>
+    <string name="settings_timer_subtitle">Pausenzeiten zwischen Sätzen und Übungen</string>
+    <string name="settings_profile_title">Mein Profil</string>
+    <string name="settings_profile_subtitle">Alter, Größe und Körpergewicht</string>
+    <string name="settings_exercises_title">Übungen verwalten</string>
+    <string name="settings_exercises_subtitle">Übungen hinzufügen, bearbeiten oder löschen</string>
+    <string name="settings_equipment_title">Equipment verwalten</string>
+    <string name="settings_equipment_subtitle">Kurzhanteln, Langhantel, Maschinen usw.</string>
+    <string name="settings_routines_title">Programme verwalten</string>
+    <string name="settings_routines_subtitle">Trainingsprogramme erstellen und verwalten</string>
+
+    <!-- TimerSettingsScreen -->
+    <string name="timer_settings_title">Timer-Einstellungen</string>
+    <string name="timer_back_cd">Zurück</string>
+    <string name="timer_easy_set_rest">Leichte Satzpause</string>
+    <string name="timer_easy_set_rest_subtitle">Benachrichtigen, wenn es Zeit für den nächsten leichten Satz ist</string>
+    <string name="timer_hard_set_rest">Schwere Satzpause</string>
+    <string name="timer_hard_set_rest_subtitle">Benachrichtigen, wenn es Zeit für den nächsten schweren Satz ist</string>
+    <string name="timer_between_exercises">Zwischen Übungen</string>
+    <string name="timer_between_exercises_subtitle">Benachrichtigen, wenn es Zeit für die nächste Übung ist</string>
+    <string name="timer_dialog_enter_duration">Dauer in Sekunden eingeben:</string>
+    <string name="timer_dialog_ok">OK</string>
+
+    <!-- ProfileScreen -->
+    <string name="profile_title">Mein Profil</string>
+    <string name="profile_back_cd">Zurück</string>
+    <string name="profile_personal_details">Persönliche Daten</string>
+    <string name="profile_age_label">Alter (Jahre)</string>
+    <string name="profile_height_label">Größe (cm)</string>
+    <string name="profile_body_weight_label">Körpergewicht (kg)</string>
+    <string name="profile_save">Profil speichern</string>
+
+    <!-- ExercisesScreen -->
+    <string name="exercises_title">Übungsbibliothek</string>
+    <string name="exercises_back_cd">Zurück</string>
+    <string name="exercises_add_fab">Übung hinzufügen</string>
+    <string name="exercises_delete_cd">Übung löschen</string>
+    <string name="exercises_delete_dialog_title">Übung löschen</string>
+    <string name="exercises_delete_dialog_body">\'%1$s\' wirklich löschen? Dies kann bestehende Programme beeinflussen.</string>
+    <string name="exercises_add_dialog_title">Neue Übung hinzufügen</string>
+    <string name="exercises_edit_dialog_title">Übung bearbeiten</string>
+    <string name="exercises_name_label">Übungsname</string>
+    <string name="exercises_muscle_label">Muskelgruppe</string>
+    <string name="exercises_description_label">Beschreibung</string>
+    <string name="exercises_bodyweight_label">Körpergewichtsübung</string>
+    <string name="exercises_equipment_label">Equipment</string>
+    <string name="exercises_no_equipment">Kein Equipment</string>
+    <string name="exercises_search_placeholder">Suchen…</string>
+
+    <!-- EquipmentScreen -->
+    <string name="equipment_title">Equipment verwalten</string>
+    <string name="equipment_back_cd">Zurück</string>
+    <string name="equipment_add_fab">Equipment hinzufügen</string>
+    <string name="equipment_delete_cd">Equipment löschen</string>
+    <string name="equipment_bar_weight">Stangengewicht: %1$s kg</string>
+    <string name="equipment_delete_dialog_title">Equipment löschen</string>
+    <string name="equipment_delete_dialog_body">\'%1$s\' wirklich löschen?</string>
+    <string name="equipment_add_dialog_title">Equipment hinzufügen</string>
+    <string name="equipment_edit_dialog_title">Equipment bearbeiten</string>
+    <string name="equipment_name_label">Equipment-Name</string>
+    <string name="equipment_bar_weight_label">Stangengewicht (kg, optional)</string>
+    <string name="equipment_weight_step">Schritt: %1$s kg</string>
+    <string name="equipment_weight_step_label">Gewichtsschritt (kg)</string>
+
+    <!-- RoutinesScreen -->
+    <string name="routines_title">Programme</string>
+    <string name="routines_back_cd">Zurück</string>
+    <string name="routines_new_fab">Neues Programm</string>
+    <string name="routines_days_count">%1$d Tage</string>
+    <string name="routines_set_active_cd">Aktivieren</string>
+    <string name="routines_active_cd">Aktiv</string>
+    <string name="routines_delete_cd">Löschen</string>
+    <string name="routines_delete_dialog_title">Programm löschen?</string>
+    <string name="routines_delete_dialog_body">"%1$s" wird dauerhaft gelöscht.</string>
+
+    <!-- RoutineDetailScreen -->
+    <string name="routines_edit_cd">Programm bearbeiten</string>
+
+    <!-- CreateRoutineScreen / RoutineDayCard / RoutineExerciseEditItem -->
+    <string name="create_routine_title_new">Neues Programm</string>
+    <string name="create_routine_title_edit">Programm bearbeiten</string>
+    <string name="create_routine_save">Speichern</string>
+    <string name="create_routine_name_label">Programmname</string>
+    <string name="create_routine_description_label">Beschreibung</string>
+    <string name="create_routine_add_day">Tag hinzufügen</string>
+    <string name="create_routine_day_name_label">Tagesname</string>
+    <string name="create_routine_move_day_up_cd">Tag nach oben</string>
+    <string name="create_routine_move_day_down_cd">Tag nach unten</string>
+    <string name="create_routine_remove_day_cd">Tag entfernen</string>
+    <string name="create_routine_add_exercise">Übung hinzufügen</string>
+    <string name="create_routine_move_exercise_up_cd">Übung nach oben</string>
+    <string name="create_routine_move_exercise_down_cd">Übung nach unten</string>
+    <string name="create_routine_remove_exercise_cd">Übung entfernen</string>
+    <string name="create_routine_reps_label">Wdh.</string>
+    <string name="create_routine_weight_label">Gewicht</string>
+    <string name="create_routine_add_set">Satz hinzufügen</string>
+    <string name="create_routine_remove_set_cd">Satz entfernen</string>
+    <string name="create_routine_select_exercise">Übung auswählen</string>
+    <string name="create_routine_back_cd">Zurück</string>
+
+    <!-- RestTimerBanner -->
+    <string name="rest_timer_label">PAUSE</string>
+    <string name="rest_timer_easy_milestone">LEICHT? JETZT STARTEN</string>
+    <string name="rest_timer_hard_milestone">SCHWER? JETZT STARTEN</string>
+    <string name="rest_timer_exercise_milestone">BEREIT FÜR DIE NÄCHSTE ÜBUNG?</string>
+
+    <!-- Unilateral / Bilateral -->
+    <string name="label_bilateral">Beidseitig</string>
+    <string name="label_unilateral">Einseitig</string>
+    <string name="label_left">L</string>
+    <string name="label_right">R</string>
+    <string name="workout_side_override">Seitentyp</string>
+    <string name="workout_left_reps">Links Wdh.</string>
+    <string name="workout_right_reps">Rechts Wdh.</string>
+</resources>

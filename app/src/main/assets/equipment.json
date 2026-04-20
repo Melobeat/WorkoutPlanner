@@ -1,9 +1,12 @@
 [
-  { "id": "equip_barbell", "name": "Barbell" },
-  { "id": "equip_dumbbell", "name": "Dumbbell" },
-  { "id": "equip_bench", "name": "Bench" },
-  { "id": "equip_pullup_bar", "name": "Pull-up Bar" },
-  { "id": "equip_kettlebell", "name": "Kettlebell" },
-  { "id": "equip_cable_machine", "name": "Cable Machine" },
-  { "id": "equip_none", "name": "None / Bodyweight" }
+  { "id": "equip_barbell",       "name": "Barbell",              "defaultWeight": 20.0, "weightStep": 2.5 },
+  { "id": "equip_ez_bar",        "name": "EZ Bar",               "defaultWeight": 10.0, "weightStep": 2.5 },
+  { "id": "equip_dumbbell",      "name": "Dumbbell",                                  "weightStep": 1.0 },
+  { "id": "equip_pullup_bar",    "name": "Pull-up Bar",                               "weightStep": 1.25 },
+  { "id": "equip_kettlebell",    "name": "Kettlebell",                                "weightStep": 1.0 },
+  { "id": "equip_cable_machine", "name": "Cable Machine",                             "weightStep": 1.0 },
+  { "id": "equip_dip_station",   "name": "Dip Station",                               "weightStep": 1.25 },
+  { "id": "equip_leg_press",     "name": "Leg Press Machine",                         "weightStep": 5.0 },
+  { "id": "equip_calf_raise_machine", "name": "Calf Raise Machine",                   "weightStep": 5.0 },
+  { "id": "equip_none",          "name": "None / Bodyweight",                         "weightStep": 1.0 }
 ]

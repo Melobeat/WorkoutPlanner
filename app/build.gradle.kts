@@ -3,14 +3,15 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "com.example.workoutplanner"
+    namespace = "de.melobeat.workoutplanner"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.workoutplanner"
+        applicationId = "de.melobeat.workoutplanner"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
@@ -21,7 +22,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -58,7 +60,20 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
