@@ -1,11 +1,11 @@
 package de.melobeat.workoutplanner.data
 
 import de.melobeat.workoutplanner.di.IoDispatcher
-import de.melobeat.workoutplanner.model.Equipment
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.Routine
-import de.melobeat.workoutplanner.model.WorkoutDay
-import de.melobeat.workoutplanner.ui.ExerciseHistory
+import de.melobeat.workoutplanner.domain.model.Equipment
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.Routine
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.ExerciseHistory
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

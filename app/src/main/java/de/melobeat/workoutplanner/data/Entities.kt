@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import de.melobeat.workoutplanner.model.RoutineSet
+import de.melobeat.workoutplanner.domain.model.RoutineSet
 import kotlinx.serialization.json.Json
 import java.util.UUID
 

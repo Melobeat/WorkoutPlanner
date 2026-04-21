@@ -1,7 +1,7 @@
 package de.melobeat.workoutplanner
 
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.ui.filterExercises
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.util.filterExercises
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
