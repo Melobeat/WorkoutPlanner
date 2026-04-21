@@ -334,3 +334,4 @@ This is required because `stringResource` cannot be called inside a non-composab
 **`ExerciseSelectionDialog`**: Only the `placeholder` text (search field hint) needed localization. The `title` parameter is provided by call sites.
 
 **`repsSummary` in `RoutineDetailScreen`'s `WorkoutDayItem`**: This is a data-derived string built from set counts and rep ranges. It is deliberately constructed as Kotlin code (not a string resource) because its structure is dynamic. Leave as-is.
+
