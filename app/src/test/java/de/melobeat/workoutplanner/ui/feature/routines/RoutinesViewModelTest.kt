@@ -2,8 +2,8 @@ package de.melobeat.workoutplanner.ui.feature.routines
 
 import app.cash.turbine.test
 import de.melobeat.workoutplanner.data.WorkoutRepository
-import de.melobeat.workoutplanner.model.Routine
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Routine
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

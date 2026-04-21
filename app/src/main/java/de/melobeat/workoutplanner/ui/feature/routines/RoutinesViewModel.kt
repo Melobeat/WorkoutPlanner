@@ -3,8 +3,8 @@ package de.melobeat.workoutplanner.ui.feature.routines
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.melobeat.workoutplanner.data.WorkoutRepository
-import de.melobeat.workoutplanner.model.Routine
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Routine
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

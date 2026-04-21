@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Search
@@ -37,19 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.melobeat.workoutplanner.R
-import de.melobeat.workoutplanner.model.Exercise
-
-internal fun filterExercises(exercises: List<Exercise>, query: String): List<Exercise> {
-    if (query.isBlank()) return exercises
-    val lower = query.lowercase()
-    return exercises.filter {
-        it.name.lowercase().contains(lower) || it.muscleGroup.lowercase().contains(lower)
-    }
-}
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.util.filterExercises
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

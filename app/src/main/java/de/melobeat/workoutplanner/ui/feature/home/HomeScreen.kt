@@ -55,10 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.Routine
-import de.melobeat.workoutplanner.model.RoutineSet
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.Routine
+import de.melobeat.workoutplanner.domain.model.RoutineSet
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 import de.melobeat.workoutplanner.ui.theme.GradientHeroStart
 import de.melobeat.workoutplanner.ui.theme.GradientHeroMid
 import de.melobeat.workoutplanner.ui.theme.GradientHeroEnd

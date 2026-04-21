@@ -38,9 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.CircleShape
 import de.melobeat.workoutplanner.R
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.RoutineSet
-import de.melobeat.workoutplanner.model.SideType
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.RoutineSet
+import de.melobeat.workoutplanner.domain.model.SideType
 
 @Composable
 fun ExerciseEditItem(

@@ -3,8 +3,8 @@ package de.melobeat.workoutplanner.ui.feature.exercises
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.melobeat.workoutplanner.data.WorkoutRepository
-import de.melobeat.workoutplanner.model.Equipment
-import de.melobeat.workoutplanner.model.Exercise
+import de.melobeat.workoutplanner.domain.model.Equipment
+import de.melobeat.workoutplanner.domain.model.Exercise
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

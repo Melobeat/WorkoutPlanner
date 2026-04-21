@@ -1,4 +1,4 @@
-package de.melobeat.workoutplanner.model
+package de.melobeat.workoutplanner.domain.model
 
 data class Equipment(
     val id: String,

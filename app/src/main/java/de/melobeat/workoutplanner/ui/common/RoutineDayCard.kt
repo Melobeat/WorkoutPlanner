@@ -31,8 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.melobeat.workoutplanner.R
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 
 @Composable
 fun DayCard(

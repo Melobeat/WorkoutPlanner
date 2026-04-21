@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import de.melobeat.workoutplanner.model.RoutineSet
+import de.melobeat.workoutplanner.domain.model.RoutineSet
 import java.util.UUID
 
 @Database(

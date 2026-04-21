@@ -1,4 +1,4 @@
-package de.melobeat.workoutplanner.model
+package de.melobeat.workoutplanner.domain.model
 
 val sampleExercises = listOf(
     Exercise(id = "1", name = "Push Up", muscleGroup = "Chest", description = "Standard push up"),

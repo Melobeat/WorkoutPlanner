@@ -1,10 +1,10 @@
 package de.melobeat.workoutplanner.data
 
-import de.melobeat.workoutplanner.model.Equipment
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.Routine
-import de.melobeat.workoutplanner.model.SideType
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Equipment
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.Routine
+import de.melobeat.workoutplanner.domain.model.SideType
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 
 fun EquipmentEntity.toDomain() = Equipment(id = id, name = name, defaultWeight = defaultWeight, weightStep = weightStep)
 

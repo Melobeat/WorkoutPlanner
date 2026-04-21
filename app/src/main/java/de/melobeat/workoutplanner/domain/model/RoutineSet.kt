@@ -1,4 +1,4 @@
-package de.melobeat.workoutplanner.model
+package de.melobeat.workoutplanner.domain.model
 
 import kotlinx.serialization.Serializable
 

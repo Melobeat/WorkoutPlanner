@@ -5,11 +5,11 @@ import de.melobeat.workoutplanner.data.ExerciseHistoryEntity
 import de.melobeat.workoutplanner.data.RestTimerPreferencesRepository
 import de.melobeat.workoutplanner.data.RestTimerSettings
 import de.melobeat.workoutplanner.data.WorkoutRepository
-import de.melobeat.workoutplanner.model.Equipment
-import de.melobeat.workoutplanner.model.Exercise
-import de.melobeat.workoutplanner.model.RoutineSet
-import de.melobeat.workoutplanner.model.SideType
-import de.melobeat.workoutplanner.model.WorkoutDay
+import de.melobeat.workoutplanner.domain.model.Equipment
+import de.melobeat.workoutplanner.domain.model.Exercise
+import de.melobeat.workoutplanner.domain.model.RoutineSet
+import de.melobeat.workoutplanner.domain.model.SideType
+import de.melobeat.workoutplanner.domain.model.WorkoutDay
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk

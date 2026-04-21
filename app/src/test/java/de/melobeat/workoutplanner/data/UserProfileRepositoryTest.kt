@@ -1,7 +1,7 @@
 package de.melobeat.workoutplanner.data
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import de.melobeat.workoutplanner.model.UserProfile
+import de.melobeat.workoutplanner.domain.model.UserProfile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

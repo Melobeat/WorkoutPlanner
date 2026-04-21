@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.melobeat.workoutplanner.data.UserProfileRepository
-import de.melobeat.workoutplanner.model.UserProfile
+import de.melobeat.workoutplanner.domain.model.UserProfile
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

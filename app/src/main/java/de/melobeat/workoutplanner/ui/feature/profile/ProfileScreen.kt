@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import de.melobeat.workoutplanner.R
-import de.melobeat.workoutplanner.model.UserProfile
+import de.melobeat.workoutplanner.domain.model.UserProfile
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,16 +1,5 @@
 package de.melobeat.workoutplanner.ui.feature.workout
 
-data class ExerciseHistory(
-    val exerciseId: String,
-    val reps: Int,
-    val weight: Double,
-    val setIndex: Int = 1,
-    val isAmrap: Boolean = false,
-    val sideType: String = "Bilateral",
-    val leftReps: Int? = null,
-    val rightReps: Int? = null
-)
-
 fun SetUiState.effectiveReps(): Int = when (sideType) {
     "Bilateral" -> reps.toIntOrNull() ?: 0
     "Unilateral" -> (leftReps ?: 0) + (rightReps ?: 0)

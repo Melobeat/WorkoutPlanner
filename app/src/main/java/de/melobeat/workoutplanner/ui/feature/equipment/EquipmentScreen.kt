@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.melobeat.workoutplanner.R
-import de.melobeat.workoutplanner.model.Equipment
+import de.melobeat.workoutplanner.domain.model.Equipment
 import de.melobeat.workoutplanner.ui.feature.exercises.ExerciseLibraryViewModel
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 

@@ -56,7 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.melobeat.workoutplanner.model.Exercise
+import de.melobeat.workoutplanner.domain.model.Exercise
 import de.melobeat.workoutplanner.ui.theme.WorkoutPlannerTheme
 import androidx.compose.ui.res.stringResource
 import de.melobeat.workoutplanner.R
