@@ -24,8 +24,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import de.melobeat.workoutplanner.ui.ActiveWorkoutViewModel
-import de.melobeat.workoutplanner.ui.TimerSettingsViewModel
+import de.melobeat.workoutplanner.ui.feature.workout.ActiveWorkoutViewModel
+import de.melobeat.workoutplanner.ui.feature.settings.TimerSettingsViewModel
 import de.melobeat.workoutplanner.ui.formatElapsedTime
 import de.melobeat.workoutplanner.ui.navigation.ActiveWorkoutRoute
 import de.melobeat.workoutplanner.ui.navigation.HistoryRoute

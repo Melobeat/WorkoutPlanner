@@ -8,19 +8,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import de.melobeat.workoutplanner.ui.ActiveWorkoutViewModel
-import de.melobeat.workoutplanner.ui.CreateRoutineScreen
-import de.melobeat.workoutplanner.ui.EquipmentScreen
-import de.melobeat.workoutplanner.ui.ExercisesScreen
-import de.melobeat.workoutplanner.ui.HistoryScreen
-import de.melobeat.workoutplanner.ui.HomeScreen
-import de.melobeat.workoutplanner.ui.ProfileScreen
-import de.melobeat.workoutplanner.ui.RoutineDetailScreen
-import de.melobeat.workoutplanner.ui.RoutinesScreen
-import de.melobeat.workoutplanner.ui.SettingsScreen
-import de.melobeat.workoutplanner.ui.TimerSettingsScreen
-import de.melobeat.workoutplanner.ui.WorkoutScreen
-import de.melobeat.workoutplanner.ui.WorkoutSummaryScreen
+import de.melobeat.workoutplanner.ui.feature.workout.ActiveWorkoutViewModel
+import de.melobeat.workoutplanner.ui.feature.routines.CreateRoutineScreen
+import de.melobeat.workoutplanner.ui.feature.equipment.EquipmentScreen
+import de.melobeat.workoutplanner.ui.feature.exercises.ExercisesScreen
+import de.melobeat.workoutplanner.ui.feature.history.HistoryScreen
+import de.melobeat.workoutplanner.ui.feature.home.HomeScreen
+import de.melobeat.workoutplanner.ui.feature.profile.ProfileScreen
+import de.melobeat.workoutplanner.ui.feature.routines.RoutineDetailScreen
+import de.melobeat.workoutplanner.ui.feature.routines.RoutinesScreen
+import de.melobeat.workoutplanner.ui.feature.settings.SettingsScreen
+import de.melobeat.workoutplanner.ui.feature.settings.TimerSettingsScreen
+import de.melobeat.workoutplanner.ui.feature.workout.WorkoutScreen
+import de.melobeat.workoutplanner.ui.feature.workout.WorkoutSummaryScreen
 
 @Composable
 fun WorkoutNavGraph(
