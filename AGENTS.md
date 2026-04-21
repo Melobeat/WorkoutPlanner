@@ -68,20 +68,28 @@ app/src/main/java/de/melobeat/workoutplanner/
   data/                        Room entities (Entities.kt), DAO, database, repository, mappers,
                                InitialData.kt (seed JSON parsing), DataStore wrapper
   di/                          DatabaseModule — provides DB, DAO, repo, DataStore, @IoDispatcher
-  model/                       Domain models + SampleData.kt
+  domain/
+    model/                     Domain models (Exercise, Routine, RoutineSet, WorkoutDay,
+                               ExerciseHistory, Equipment, UserProfile, SideType, SampleData)
+    util/                      Pure utility functions (filterExercises)
   ui/
     navigation/                NavRoutes.kt (type-safe routes), WorkoutNavGraph.kt
     theme/                     Theme.kt, Color.kt, Type.kt
+    common/                    Shared composables (ExerciseCard, RestTimerBanner, etc.)
+    feature/                   Feature-scoped screens + ViewModels
+      workout/                 WorkoutScreen, WorkoutSummaryScreen, ActiveWorkoutViewModel, WorkoutUiState
+      history/                 HistoryScreen, HistoryViewModel
+      home/                    HomeScreen, HomeViewModel
+      routines/                RoutinesScreen, RoutineDetailScreen, CreateRoutineScreen, RoutinesViewModel
+      exercises/               ExercisesScreen, ExerciseLibraryViewModel
+      equipment/               EquipmentScreen
+      settings/                SettingsScreen, TimerSettingsScreen, TimerSettingsViewModel
+      profile/                 ProfileScreen, UserProfileViewModel
     FormatElapsedTime.kt       Standalone util; has its own unit test
-    WorkoutUiState.kt          ActiveWorkoutUiState, ExerciseUiState, SetUiState, RestTimerUiState,
-                               RestTimerContext, RestTimerEvent, ExerciseHistory (also here — not in data/)
-    *.kt                       Screens, ViewModels, sub-component composables
 app/src/main/assets/           equipment.json, exercises.json (DB seed — loaded only on onCreate)
                                equipment_schema.json, exercises_schema.json (not loaded at runtime)
 docs/design-guidelines.md      Authoritative UI spec — **read before any UI change**. Supersedes older spec files in `docs/superpowers/specs/`.
 ```
-
-**ViewModels in `ui/`:** `ActiveWorkoutViewModel`, `RoutinesViewModel`, `HomeViewModel`, `HistoryViewModel`, `ExerciseLibraryViewModel`, `UserProfileViewModel`, `TimerSettingsViewModel`.
 
 ## Critical Hilt / ViewModel Scoping
 
@@ -146,7 +154,7 @@ These are distinct flags with different lifecycles — do not conflate:
 
 ### ExerciseHistory
 
-`ExerciseHistory` is defined in `WorkoutUiState.kt` (not `data/`). Required when calling `repository.finishWorkout(...)`:
+`ExerciseHistory` is defined in `domain/model/ExerciseHistory.kt`. Required when calling `repository.finishWorkout(...)`:
 ```kotlin
 data class ExerciseHistory(
     val exerciseId: String,
