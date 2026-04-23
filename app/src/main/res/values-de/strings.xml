@@ -69,6 +69,7 @@
     <string name="workout_swap_exercise_cd">Übung tauschen</string>
     <string name="workout_swap_button">Tauschen</string>
     <string name="workout_tap_to_jump">Tippe auf einen Satz, um zu springen</string>
+    <string name="workout_tap_to_edit">Tippen zum Bearbeiten</string>
 
     <!-- WorkoutSummaryScreen -->
     <string name="summary_back_to_workout_cd">Zurück zum Workout</string>

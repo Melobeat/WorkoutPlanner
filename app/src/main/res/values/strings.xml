@@ -69,6 +69,7 @@
     <string name="workout_swap_exercise_cd">Swap exercise</string>
     <string name="workout_swap_button">Swap</string>
     <string name="workout_tap_to_jump">Tap any set to jump to it</string>
+    <string name="workout_tap_to_edit">Tap to edit</string>
 
     <!-- WorkoutSummaryScreen -->
     <string name="summary_back_to_workout_cd">Back to workout</string>
