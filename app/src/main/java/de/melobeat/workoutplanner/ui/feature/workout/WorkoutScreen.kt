@@ -112,6 +112,10 @@ fun WorkoutScreen(
         onDecrementLeftReps = { ei, si -> viewModel.decrementLeftReps(ei, si) },
         onIncrementRightReps = { ei, si -> viewModel.incrementRightReps(ei, si) },
         onDecrementRightReps = { ei, si -> viewModel.decrementRightReps(ei, si) },
+        onRepsSubmit = { ei, si, reps -> viewModel.setRepsDirectly(ei, si, reps) },
+        onWeightSubmit = { ei, si, weight -> viewModel.setWeightDirectly(ei, si, weight) },
+        onLeftRepsSubmit = { ei, si, reps -> viewModel.setLeftRepsDirectly(ei, si, reps) },
+        onRightRepsSubmit = { ei, si, reps -> viewModel.setRightRepsDirectly(ei, si, reps) },
         onGoBack = { viewModel.goToPreviousSet() },
         onSkipExercise = { viewModel.skipExercise() },
         onJumpToSet = { exerciseIndex, setIndex -> viewModel.jumpToSet(exerciseIndex, setIndex) },
@@ -141,6 +145,10 @@ fun WorkoutScreenContent(
     onDecrementLeftReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
     onIncrementRightReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
     onDecrementRightReps: (exerciseIndex: Int, setIndex: Int) -> Unit,
+    onRepsSubmit: (exerciseIndex: Int, setIndex: Int, String) -> Unit,
+    onWeightSubmit: (exerciseIndex: Int, setIndex: Int, String) -> Unit,
+    onLeftRepsSubmit: (exerciseIndex: Int, setIndex: Int, String) -> Unit,
+    onRightRepsSubmit: (exerciseIndex: Int, setIndex: Int, String) -> Unit,
     onGoBack: () -> Unit,
     onSkipExercise: () -> Unit,
     onJumpToSet: (exerciseIndex: Int, setIndex: Int) -> Unit,
@@ -342,6 +350,18 @@ fun WorkoutScreenContent(
                                     setIndex
                                 )
                             },
+                            onRepsSubmit = { setIndex, reps ->
+                                onRepsSubmit(exerciseIndex, setIndex, reps)
+                            },
+                            onWeightSubmit = { setIndex, weight ->
+                                onWeightSubmit(exerciseIndex, setIndex, weight)
+                            },
+                            onLeftRepsSubmit = { setIndex, reps ->
+                                onLeftRepsSubmit(exerciseIndex, setIndex, reps)
+                            },
+                            onRightRepsSubmit = { setIndex, reps ->
+                                onRightRepsSubmit(exerciseIndex, setIndex, reps)
+                            },
                             onCompleteSet = onCompleteSet,
                             onGoBack = onGoBack,
                             onSkipExercise = onSkipExercise
@@ -441,6 +461,10 @@ fun WorkoutScreenContentPreview() {
             onDecrementLeftReps = { _, _ -> },
             onIncrementRightReps = { _, _ -> },
             onDecrementRightReps = { _, _ -> },
+            onRepsSubmit = { _, _, _ -> },
+            onWeightSubmit = { _, _, _ -> },
+            onLeftRepsSubmit = { _, _, _ -> },
+            onRightRepsSubmit = { _, _, _ -> },
             onGoBack = {},
             onSkipExercise = {},
             onJumpToSet = { _, _ -> },
