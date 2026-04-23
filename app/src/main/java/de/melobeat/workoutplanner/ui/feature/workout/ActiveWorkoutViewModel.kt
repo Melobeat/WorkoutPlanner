@@ -547,6 +547,30 @@ class ActiveWorkoutViewModel @Inject constructor(
         if (current > 0) setRightReps(exerciseIndex, setIndex, current - 1)
     }
 
+    fun setRepsDirectly(exerciseIndex: Int, setIndex: Int, reps: String) {
+        reps.toIntOrNull()?.takeIf { it >= 0 }?.let {
+            setRepsValue(exerciseIndex, setIndex, it.toString())
+        }
+    }
+
+    fun setWeightDirectly(exerciseIndex: Int, setIndex: Int, weight: String) {
+        weight.toDoubleOrNull()?.takeIf { it >= 0 }?.let {
+            setWeightValue(exerciseIndex, setIndex, formatWeight(it))
+        }
+    }
+
+    fun setLeftRepsDirectly(exerciseIndex: Int, setIndex: Int, reps: String) {
+        reps.toIntOrNull()?.takeIf { it >= 0 }?.let {
+            setLeftReps(exerciseIndex, setIndex, it)
+        }
+    }
+
+    fun setRightRepsDirectly(exerciseIndex: Int, setIndex: Int, reps: String) {
+        reps.toIntOrNull()?.takeIf { it >= 0 }?.let {
+            setRightReps(exerciseIndex, setIndex, it)
+        }
+    }
+
     fun incrementWeight(exerciseIndex: Int, setIndex: Int) {
         val exercise = _uiState.value.exercises.getOrNull(exerciseIndex) ?: return
         val set = exercise.sets.getOrNull(setIndex) ?: return
