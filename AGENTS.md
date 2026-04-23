@@ -161,7 +161,10 @@ data class ExerciseHistory(
     val reps: Int,
     val weight: Double,
     val setIndex: Int = 1,
-    val isAmrap: Boolean = false
+    val isAmrap: Boolean = false,
+    val sideType: String? = null,    // "Unilateral" for unilateral exercises
+    val leftReps: Int? = null,       // unilateral left-side reps
+    val rightReps: Int? = null       // unilateral right-side reps
 )
 ```
 `finishWorkout` silently skips sets where `reps`/`weight` cannot be parsed (logs a warning, does not abort).
@@ -171,6 +174,8 @@ data class ExerciseHistory(
 - **AMRAP sets**: `toggleSetDone` does **nothing** on AMRAP sets. Only `updateSetReps` (called from the reps dialog) marks an AMRAP set done.
 - **Tapping a done set**: `toggleSetDone` on a completed non-AMRAP set **decrements reps by 1** on each tap; only resets to `originalReps` + `isDone = false` when reps reach zero. It is not a simple toggle.
 - **`setRepsValue` vs `updateSetReps`**: `setRepsValue` (used by steppers) does NOT flip `isDone`. `updateSetReps` (used by AMRAP dialog) DOES flip `isDone = true`. Choose correctly when adding new reps-edit flows.
+- **`setRepsValue` vs `setRepsDirectly`**: `setRepsDirectly` (used by StepperCard tap-to-edit) validates input (non-negative int) then calls `setRepsValue`. Same pattern for `setWeightDirectly`, `setLeftRepsDirectly`, `setRightRepsDirectly`.
+- **`updateSetWeight`**: exists alongside `setWeightValue`. `updateSetWeight` is public; `setWeightValue` is private. Both update weight without flipping `isDone`.
 - **`addSet`**: always adds weight="0", reps="0", isAmrap=false. No defaults from history.
 - **`removeSet`**: guards minimum 1 set per exercise (`if (sets.size <= 1) return`).
 - **`swapExercise(exerciseIndex, newExercise)`**: replaces the exercise, preserving set count from the replaced exercise.
@@ -329,7 +334,7 @@ val betweenExercisesLabel = stringResource(R.string.rest_timer_between_exercises
 ```
 This is required because `stringResource` cannot be called inside a non-composable lambda or `when` branch that is not itself inline composable.
 
-**`WorkoutStepperCard`**: The `label` parameter is passed in from call sites — no changes needed inside the component itself. Localize at the call site.
+**`WorkoutStepperCard`**: The `label` parameter is passed in from call sites — no changes needed inside the component itself. Localize at the call site. The component supports tap-to-edit: tapping the value switches to `BasicTextField` with `onValueSubmit` callback. `keyboardType` controls the keyboard (Number for reps, Decimal for weight). Edit mode exits on IME Done or focus loss.
 
 **`ExerciseSelectionDialog`**: Only the `placeholder` text (search field hint) needed localization. The `title` parameter is provided by call sites.
 
