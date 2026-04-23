@@ -264,7 +264,7 @@ All action buttons use pill shape (`CircleShape`).
 | None | Home screen (gradient hero replaces it) |
 | `TopAppBar` (compact, no scroll behavior) | WorkoutScreen, WorkoutSummaryScreen |
 | `TopAppBar` + `enterAlwaysScrollBehavior` + `nestedScroll` | ExercisesScreen, EquipmentScreen, RoutinesScreen, RoutineDetailScreen, CreateRoutineScreen |
-| `LargeTopAppBar` + `exitUntilCollapsedScrollBehavior` + `nestedScroll` | HistoryScreen, SettingsScreen, TimerSettingsScreen |
+| `LargeTopAppBar` + `exitUntilCollapsedScrollBehavior` + `nestedScroll` | HistoryScreen, SettingsScreen, TimerSettingsScreen, ProfileScreen |
 
 > **Note:** The previous spec listed `LargeTopAppBar` for Routines, RoutineDetail, CreateRoutine, Exercises, and Equipment. Those screens use compact `TopAppBar` with `enterAlwaysScrollBehavior` — the bar hides entirely on scroll up and reappears on scroll down.
 
@@ -438,6 +438,7 @@ Nested graph (SettingsGraphRoute, startDestination = SettingsRoute):
   CreateRoutineRoute(routineId: String? = null)   ← null = create, non-null = edit
   ExercisesRoute
   EquipmentRoute
+  ProfileRoute
 ```
 
 Navigate to `SettingsGraphRoute` (the nested graph key) — not `SettingsRoute` directly. Navigation Compose resolves the start destination automatically.
