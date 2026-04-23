@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.melobeat.workoutplanner.ui.theme.GradientCardEnd
@@ -136,6 +137,10 @@ fun ExerciseCard(
     onDecrementLeftReps: (setIndex: Int) -> Unit,
     onIncrementRightReps: (setIndex: Int) -> Unit,
     onDecrementRightReps: (setIndex: Int) -> Unit,
+    onRepsSubmit: (setIndex: Int, String) -> Unit,
+    onWeightSubmit: (setIndex: Int, String) -> Unit,
+    onLeftRepsSubmit: (setIndex: Int, String) -> Unit,
+    onRightRepsSubmit: (setIndex: Int, String) -> Unit,
     onCompleteSet: () -> Unit,
     onGoBack: () -> Unit,
     onSkipExercise: () -> Unit,
@@ -236,6 +241,8 @@ fun ExerciseCard(
                                                     value = set.weight,
                                                     onIncrement = { onIncrementWeight(si) },
                                                     onDecrement = { onDecrementWeight(si) },
+                                                    onValueSubmit = { weight -> onWeightSubmit(si, weight) },
+                                                    keyboardType = KeyboardType.Decimal,
                                                     modifier = Modifier.fillMaxWidth(0.6f)
                                                         .align(Alignment.CenterHorizontally)
                                                 )
@@ -250,6 +257,8 @@ fun ExerciseCard(
                                                         value = (set.leftReps ?: 0).toString(),
                                                         onIncrement = { onIncrementLeftReps(si) },
                                                         onDecrement = { onDecrementLeftReps(si) },
+                                                        onValueSubmit = { reps -> onLeftRepsSubmit(si, reps) },
+                                                        keyboardType = KeyboardType.Number,
                                                         sideLabel = "L",
                                                         modifier = Modifier.weight(1f)
                                                     )
@@ -258,12 +267,14 @@ fun ExerciseCard(
                                                         value = (set.rightReps ?: 0).toString(),
                                                         onIncrement = { onIncrementRightReps(si) },
                                                         onDecrement = { onDecrementRightReps(si) },
+                                                        onValueSubmit = { reps -> onRightRepsSubmit(si, reps) },
+                                                        keyboardType = KeyboardType.Number,
                                                         sideLabel = "R",
                                                         modifier = Modifier.weight(1f)
                                                     )
                                                 }
                                             } else {
-                                                // Bilateral: current single-stepper behavior
+                                                // Bilateral: stepper + tap-to-edit
                                                 Row(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -274,6 +285,8 @@ fun ExerciseCard(
                                                         onIncrement = { onIncrementReps(si) },
                                                         onDecrement = { onDecrementReps(si) },
                                                         isAmrap = set.isAmrap,
+                                                        onValueSubmit = { reps -> onRepsSubmit(si, reps) },
+                                                        keyboardType = KeyboardType.Number,
                                                         modifier = Modifier.weight(1f)
                                                     )
                                                     StepperCard(
@@ -281,6 +294,8 @@ fun ExerciseCard(
                                                         value = set.weight,
                                                         onIncrement = { onIncrementWeight(si) },
                                                         onDecrement = { onDecrementWeight(si) },
+                                                        onValueSubmit = { weight -> onWeightSubmit(si, weight) },
+                                                        keyboardType = KeyboardType.Decimal,
                                                         modifier = Modifier.weight(1f)
                                                     )
                                                 }
